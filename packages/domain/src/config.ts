@@ -5,6 +5,7 @@ export type ServerConfig = {
   REDIS_URL: string;
   DAILY_AI_BUDGET_USD: number;
   SOURCE_CONTACT_EMAIL?: string;
+  CROSSREF_ISSN?: string;
   OPENALEX_API_KEY?: string;
   AI_PROVIDER_DEEPSEEK_API_KEY?: string;
   AI_PROVIDER_OPENAI_API_KEY?: string;
@@ -32,6 +33,10 @@ const configSchema = z.object({
   SOURCE_CONTACT_EMAIL: z.preprocess(
     (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
     z.string().trim().email().optional(),
+  ),
+  CROSSREF_ISSN: z.preprocess(
+    (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
+    z.string().trim().regex(/^\d{4}-?\d{3}[\dXx]$/, "CROSSREF_ISSN must be a valid ISSN").optional(),
   ),
   OPENALEX_API_KEY: optionalSecret,
   AI_PROVIDER_DEEPSEEK_API_KEY: optionalSecret,

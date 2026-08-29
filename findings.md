@@ -13,6 +13,7 @@
 
 ## 阶段 2 公开来源约束（2026-08-29）
 - Crossref 增量同步使用有上下界的 created/indexed 日期窗口与 cursor；请求带可识别 User-Agent，可选 `mailto`，并在 429/5xx 时退避。
+- Crossref Works 窗口本身不是物理学过滤器；一次性采集只在配置明确 `CROSSREF_ISSN` 时启用，避免宽泛拉取全学科记录。
 - OpenAlex 的 Physics and Astronomy field ID 为 `31`；Works 可以 `topics.field.id:31`、`from_publication_date`、`to_publication_date` 组合过滤，每页支持上限 100，超过 10,000 条时必须使用 cursor。
 - OpenAlex 允许无 key 的低频请求，规模化使用应通过环境变量提供 API key；不将 key 放入 URL 日志。
 - arXiv API 返回 Atom XML，使用 `start`/`max_results` 分页，多次连续请求之间至少等待约 3 秒；相同查询每日无需重复拉取。

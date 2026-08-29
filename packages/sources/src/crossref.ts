@@ -25,15 +25,17 @@ const crossrefResponseSchema = z.object({
 });
 
 type CrossrefOptions = {
+  issn: string;
   fetchImpl?: SourceFetch;
   contactEmail?: string;
   userAgent?: string;
   now?: () => Date;
 };
 
-export function createCrossrefConnector(options: CrossrefOptions = {}): SourceConnector {
+export function createCrossrefConnector(options: CrossrefOptions): SourceConnector {
   const request = createRetriableFetch({ fetchImpl: options.fetchImpl });
   const now = options.now ?? (() => new Date());
+  const issn = normalizeIssn(options.issn);
 
   return {
     name: "crossref",
@@ -42,7 +44,7 @@ export function createCrossrefConnector(options: CrossrefOptions = {}): SourceCo
       const url = new URL("https://api.crossref.org/works");
       url.searchParams.set(
         "filter",
-        `from-created-date:${dateOnly(pageRequest.from)},until-created-date:${dateOnly(pageRequest.until)}`,
+        `from-created-date:${dateOnly(pageRequest.from)},until-created-date:${dateOnly(pageRequest.until)},issn:${issn}`,
       );
       url.searchParams.set("cursor", pageRequest.cursor ?? "*");
       url.searchParams.set("rows", String(pageSize));
@@ -66,6 +68,14 @@ export function createCrossrefConnector(options: CrossrefOptions = {}): SourceCo
       };
     },
   };
+}
+
+function normalizeIssn(value: string): string {
+  const normalized = value.trim().toUpperCase();
+  if (!/^\d{4}-?\d{3}[\dX]$/u.test(normalized)) {
+    throw new SourceConnectorError("request_failed", "Crossref ISSN is invalid");
+  }
+  return normalized;
 }
 
 async function parseResponse(response: Response): Promise<z.infer<typeof crossrefResponseSchema>> {

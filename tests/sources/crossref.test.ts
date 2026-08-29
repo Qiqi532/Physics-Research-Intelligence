@@ -20,6 +20,7 @@ describe("Crossref connector", () => {
       },
     }));
     const connector = createCrossrefConnector({
+      issn: "0031-9007",
       fetchImpl,
       contactEmail: "contact@example.test",
       now: () => new Date("2026-08-29T00:00:00.000Z"),
@@ -34,7 +35,7 @@ describe("Crossref connector", () => {
 
     const url = new URL(String(fetchImpl.mock.calls[0]?.[0]));
     expect(url.searchParams.get("filter")).toBe(
-      "from-created-date:2026-08-28,until-created-date:2026-08-29",
+      "from-created-date:2026-08-28,until-created-date:2026-08-29,issn:0031-9007",
     );
     expect(url.searchParams.get("cursor")).toBe("*");
     expect(url.searchParams.get("mailto")).toBe("contact@example.test");
@@ -57,7 +58,7 @@ describe("Crossref connector", () => {
       status: "ok",
       message: { items: [{ title: ["Missing DOI"] }], "next-cursor": "unused" },
     }));
-    const connector = createCrossrefConnector({ fetchImpl });
+    const connector = createCrossrefConnector({ issn: "0031-9007", fetchImpl });
 
     const page = await connector.fetchPage({
       from: new Date("2026-08-28T00:00:00.000Z"),
@@ -65,5 +66,11 @@ describe("Crossref connector", () => {
     });
 
     expect(page).toEqual({ records: [], nextCursor: null });
+  });
+
+  it("rejects an invalid ISSN before making a request", () => {
+    expect(() => createCrossrefConnector({ issn: "physics" })).toThrow(
+      "Crossref ISSN is invalid",
+    );
   });
 });

@@ -10,6 +10,7 @@ import {
   createCrossrefConnector,
   createOpenAlexConnector,
 } from "@pri/sources";
+import type { SourceConnector } from "@pri/sources";
 import { ingestSources } from "./jobs/ingest-source";
 
 const oneDayMs = 24 * 60 * 60 * 1_000;
@@ -19,14 +20,20 @@ async function main(): Promise<void> {
   const until = new Date();
   const from = new Date(until.getTime() - oneDayMs);
   const client = createPrismaClient(config.DATABASE_URL);
+  const connectors: SourceConnector[] = [
+    createOpenAlexConnector({ apiKey: config.OPENALEX_API_KEY }),
+    createArxivConnector(),
+  ];
+  if (config.CROSSREF_ISSN) {
+    connectors.unshift(createCrossrefConnector({
+      issn: config.CROSSREF_ISSN,
+      contactEmail: config.SOURCE_CONTACT_EMAIL,
+    }));
+  }
 
   try {
     const outcomes = await ingestSources({
-      connectors: [
-        createCrossrefConnector({ contactEmail: config.SOURCE_CONTACT_EMAIL }),
-        createOpenAlexConnector({ apiKey: config.OPENALEX_API_KEY }),
-        createArxivConnector(),
-      ],
+      connectors,
       paperRepository: createPaperRepository(client),
       stateRepository: createSourceSyncRepository(client),
       from,

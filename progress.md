@@ -11,12 +11,13 @@
   - 新增 `SourceSyncState` 及第 3 条 Prisma 迁移，记录日期窗口、断点游标、最后成功/失败和规范化错误；已部署到 `public` 和 `pri_stage1_test` schema。
   - worker 新增一次性 `ingest` 入口，三来源独立执行，单来源失败不影响其他结果；本次验证未调用真实生产 API。
   - `.env.example` 增加可选来源联系邮箱与 OpenAlex key；未写入真实密钥，密钥通过 Authorization header 传递。
+  - 一次性入口只在配置有效 `CROSSREF_ISSN` 时启用 Crossref，防止将全学科日更新误当作物理论文池。
   - CodeRabbit CLI 未安装，未将差异上传外部服务；完成本地安全、分页、限流、类型与简化审查。
 
 ## 测试结果（阶段 2）
 | 测试 | 结果 | 状态 |
 |---|---|---|
-| 全量 Vitest（含 PostgreSQL 集成） | 10 个测试文件、49 个测试通过 | pass |
+| 全量 Vitest（含 PostgreSQL 集成） | 10 个测试文件、51 个测试通过 | pass |
 | Prisma schema/迁移 | schema 有效；`public` 与 `pri_stage1_test` 均已应用 3 条迁移 | pass |
 | Workspace lint | Web ESLint 退出码 0 | pass |
 | Workspace 类型检查 | Web、worker、domain、db、sources 退出码 0 | pass |

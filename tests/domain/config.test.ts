@@ -29,14 +29,23 @@ describe("server configuration", () => {
   it("accepts optional public-source configuration without requiring credentials", () => {
     expect(parseConfig(validEnvironment)).not.toHaveProperty("OPENALEX_API_KEY");
     expect(parseConfig(validEnvironment)).not.toHaveProperty("SOURCE_CONTACT_EMAIL");
+    expect(parseConfig(validEnvironment)).not.toHaveProperty("CROSSREF_ISSN");
     expect(parseConfig({
       ...validEnvironment,
       SOURCE_CONTACT_EMAIL: "contact@example.test",
+      CROSSREF_ISSN: "0031-9007",
       OPENALEX_API_KEY: "test-openalex-key",
     })).toEqual(expect.objectContaining({
       SOURCE_CONTACT_EMAIL: "contact@example.test",
+      CROSSREF_ISSN: "0031-9007",
       OPENALEX_API_KEY: "test-openalex-key",
     }));
+  });
+
+  it("rejects an invalid Crossref ISSN", () => {
+    expect(() => parseConfig({ ...validEnvironment, CROSSREF_ISSN: "physics" })).toThrow(
+      "CROSSREF_ISSN must be a valid ISSN",
+    );
   });
 
   it("never serializes key fields or secret values", () => {

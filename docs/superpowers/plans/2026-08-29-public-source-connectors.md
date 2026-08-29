@@ -72,5 +72,5 @@
 
 - [x] 运行 `pnpm --filter @pri/db prisma:validate`、`pnpm test`、`pnpm lint`、`pnpm typecheck`、`pnpm build` 和 `git diff --check`。
 - [x] 检查本地环境文件忽略状态与高风险密钥模式，确认只有 `.env.example` 空占位符进入差异。
-- [x] 将阶段 2 标记完成，记录 10 个测试文件、49 个测试和生产构建结果，将下一步指向阶段 3 AI 适配层。
+- [x] 将阶段 2 标记完成，记录 10 个测试文件、51 个测试和生产构建结果，将下一步指向阶段 3 AI 适配层。
 - [x] 使用 Conventional Commits 创建小型本地提交，不配置或推送远程。
