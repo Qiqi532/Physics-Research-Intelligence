@@ -1,0 +1,22 @@
+{
+  "name": "@pri/sources",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./http": "./src/http.ts",
+    "./types": "./src/types.ts",
+    "./crossref": "./src/crossref.ts",
+    "./openalex": "./src/openalex.ts",
+    "./arxiv": "./src/arxiv.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@pri/domain": "workspace:*",
+    "fast-xml-parser": "^5.11.1",
+    "zod": "latest"
+  }
+}

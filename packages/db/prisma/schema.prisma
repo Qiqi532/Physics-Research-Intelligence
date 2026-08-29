@@ -188,3 +188,16 @@ model AiRun {
   @@index([paperId, createdAt])
   @@index([status, createdAt])
 }
+
+model SourceSyncState {
+  sourceName       String    @id
+  windowFrom       DateTime? @db.Timestamptz(6)
+  windowUntil      DateTime? @db.Timestamptz(6)
+  cursor           String?
+  lastSuccessAt    DateTime? @db.Timestamptz(6)
+  lastFailureAt    DateTime? @db.Timestamptz(6)
+  lastErrorCode    String?
+  lastErrorMessage String?
+  createdAt        DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt        DateTime  @updatedAt @db.Timestamptz(6)
+}

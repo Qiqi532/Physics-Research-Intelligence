@@ -26,10 +26,24 @@ describe("server configuration", () => {
     expect(parseConfig(validEnvironment).DAILY_AI_BUDGET_USD).toBe(2.5);
   });
 
+  it("accepts optional public-source configuration without requiring credentials", () => {
+    expect(parseConfig(validEnvironment)).not.toHaveProperty("OPENALEX_API_KEY");
+    expect(parseConfig(validEnvironment)).not.toHaveProperty("SOURCE_CONTACT_EMAIL");
+    expect(parseConfig({
+      ...validEnvironment,
+      SOURCE_CONTACT_EMAIL: "contact@example.test",
+      OPENALEX_API_KEY: "test-openalex-key",
+    })).toEqual(expect.objectContaining({
+      SOURCE_CONTACT_EMAIL: "contact@example.test",
+      OPENALEX_API_KEY: "test-openalex-key",
+    }));
+  });
+
   it("never serializes key fields or secret values", () => {
     const secret = "not-a-real-secret-for-test";
     const safe = toLogSafeData({
       AI_PROVIDER_OPENAI_API_KEY: secret,
+      OPENALEX_API_KEY: secret,
       nested: { message: `provider rejected ${secret}` },
     });
     const serialized = JSON.stringify(safe);

@@ -4,6 +4,8 @@ export type ServerConfig = {
   DATABASE_URL: string;
   REDIS_URL: string;
   DAILY_AI_BUDGET_USD: number;
+  SOURCE_CONTACT_EMAIL?: string;
+  OPENALEX_API_KEY?: string;
   AI_PROVIDER_DEEPSEEK_API_KEY?: string;
   AI_PROVIDER_OPENAI_API_KEY?: string;
   AI_PROVIDER_GEMINI_API_KEY?: string;
@@ -27,6 +29,11 @@ const configSchema = z.object({
   DAILY_AI_BUDGET_USD: z.coerce
     .number({ error: "DAILY_AI_BUDGET_USD must be a positive number" })
     .positive("DAILY_AI_BUDGET_USD must be a positive number"),
+  SOURCE_CONTACT_EMAIL: z.preprocess(
+    (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
+    z.string().trim().email().optional(),
+  ),
+  OPENALEX_API_KEY: optionalSecret,
   AI_PROVIDER_DEEPSEEK_API_KEY: optionalSecret,
   AI_PROVIDER_OPENAI_API_KEY: optionalSecret,
   AI_PROVIDER_GEMINI_API_KEY: optionalSecret,

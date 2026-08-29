@@ -7,3 +7,8 @@ export {
   type PaperRepository,
   type PaperSummary,
 } from "./paper-repository";
+export {
+  createSourceSyncRepository,
+  type SourceSyncRepository,
+  type SourceSyncState,
+} from "./source-sync-repository";

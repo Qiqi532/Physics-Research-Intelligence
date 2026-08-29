@@ -5,12 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
+    "ingest": "tsx src/ingest.ts",
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@pri/db": "workspace:*",
     "@pri/domain": "workspace:*",
+    "@pri/sources": "workspace:*",
     "dotenv": "^17.4.2"
   },
   "devDependencies": {
