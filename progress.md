@@ -2,6 +2,27 @@
 
 ## 会话：2026-08-29
 
+### 阶段 2：公开来源采集
+- **状态：** complete
+- 执行的操作：
+  - 新建 `@pri/sources`，以统一 `SourceConnector` 输出 `PaperSourceInput`，并实现可注入的超时、有限重试、`Retry-After`、指数退避与可见错误码。
+  - 实现 Crossref created-date/cursor、OpenAlex Physics and Astronomy field/cursor，以及 arXiv Atom/偏移分页与 3 秒请求间隔。
+  - 实现 DOI、标题、摘要、作者、期刊、日期、许可证和开放状态映射；未下载或测试任何全文。
+  - 新增 `SourceSyncState` 及第 3 条 Prisma 迁移，记录日期窗口、断点游标、最后成功/失败和规范化错误；已部署到 `public` 和 `pri_stage1_test` schema。
+  - worker 新增一次性 `ingest` 入口，三来源独立执行，单来源失败不影响其他结果；本次验证未调用真实生产 API。
+  - `.env.example` 增加可选来源联系邮箱与 OpenAlex key；未写入真实密钥，密钥通过 Authorization header 传递。
+  - CodeRabbit CLI 未安装，未将差异上传外部服务；完成本地安全、分页、限流、类型与简化审查。
+
+## 测试结果（阶段 2）
+| 测试 | 结果 | 状态 |
+|---|---|---|
+| 全量 Vitest（含 PostgreSQL 集成） | 10 个测试文件、49 个测试通过 | pass |
+| Prisma schema/迁移 | schema 有效；`public` 与 `pri_stage1_test` 均已应用 3 条迁移 | pass |
+| Workspace lint | Web ESLint 退出码 0 | pass |
+| Workspace 类型检查 | Web、worker、domain、db、sources 退出码 0 | pass |
+| Web 与 worker 生产构建 | Web 路由与 worker TypeScript 构建成功 | pass |
+| 真实公开 API 请求 | 未执行；连接器使用录制 fixture 验证 | intentional |
+
 ### 阶段 1：论文事实层与数据浏览 API
 - **状态：** complete
 - 执行的操作：

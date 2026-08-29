@@ -4,7 +4,7 @@
 为个人物理学习与研究建立一个可持续的 Today Physics 网站：合规聚合论文元数据、提供可核验的 AI 解读，并按个人兴趣推荐阅读内容。
 
 ## 当前阶段
-阶段 3：实现（阶段 1 已完成，准备阶段 2）
+阶段 3：实现（实施子阶段 2 已完成，准备子阶段 3）
 
 ## 各阶段
 
@@ -24,9 +24,9 @@
 ### 阶段 3：实现
 - [x] 初始化 Web、API、数据库与本地开发环境
 - [x] 实现论文数据模型、标签体系、保守去重和数据浏览 API
-- [ ] 实现 Crossref、OpenAlex、arXiv 公开来源连接器
+- [x] 实现 Crossref、OpenAlex、arXiv 公开来源连接器
 - [ ] 实现 AI 分类、解读、推荐与 Today Physics 页面
-- **状态：** in_progress（阶段 1 论文事实层已完成；下一步进入阶段 2 公开来源采集）
+- **状态：** in_progress（阶段 2 公开来源采集已完成；下一步进入阶段 3 AI 分类与解读）
 
 ### 阶段 4：测试与验证
 - [ ] 完成单元、集成、端到端与人工质量评审
@@ -57,3 +57,8 @@
 | pnpm 拦截 Prisma 构建脚本 | 1 | 仅将固定版本的 `@prisma/engines` 与 `prisma` 加入现有 `allowBuilds` 白名单 |
 | 首次 Prisma 迁移参数进入交互提示并遗留 advisory lock | 2 | 确认并终止本轮两个迁移会话，改为直接调用包级具名迁移 |
 | PostgreSQL adapter 默认查询 `public` 而测试表位于独立 schema | 1 | 从 URL 解析并校验 schema，显式传给 `PrismaPg` adapter |
+| Windows 下 `pnpm exec vitest` 未解析根工作区二进制 | 1 | 改用 `pnpm test <test-file>` 通过根脚本传入精确测试文件 |
+| arXiv 限流测试第二次读取已消费的 `Response` | 1 | 根因是 fixture 共享单次读取响应体；改为每次 mock 调用新建 `Response` |
+| 可选来源配置测试要求缺失字段仍以 `undefined` 存在 | 1 | Zod 会省略未提供的可选键；改为断言属性不存在，并保留提供值的正向测试 |
+| 手工派生测试 schema URL 时 Prisma schema engine 无法解析 | 1 | 脱敏诊断确认 `.env` URL 有效；根因是手工读取保留了 dotenv 本会移除的外层引号，派生前显式去除 |
+| 在不读取现有值的前提下向忽略的 worker `.env` 追加可选键 | 3 | 补丁无法安全匹配且环境层隐藏原文；停止修改，保留现有值，改由 `.env.example` 记录两个可选键 |

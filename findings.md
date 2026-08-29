@@ -11,6 +11,13 @@
 - 学校订阅应留在用户浏览器访问出版社页面的环节，不应用于批量下载、存储或发送付费全文。
 - AI 解读应分为“原文直接信息”“归纳推断”“不确定”三类，且记录可追溯证据。
 
+## 阶段 2 公开来源约束（2026-08-29）
+- Crossref 增量同步使用有上下界的 created/indexed 日期窗口与 cursor；请求带可识别 User-Agent，可选 `mailto`，并在 429/5xx 时退避。
+- OpenAlex 的 Physics and Astronomy field ID 为 `31`；Works 可以 `topics.field.id:31`、`from_publication_date`、`to_publication_date` 组合过滤，每页支持上限 100，超过 10,000 条时必须使用 cursor。
+- OpenAlex 允许无 key 的低频请求，规模化使用应通过环境变量提供 API key；不将 key 放入 URL 日志。
+- arXiv API 返回 Atom XML，使用 `start`/`max_results` 分页，多次连续请求之间至少等待约 3 秒；相同查询每日无需重复拉取。
+- 阶段 2 只持久化公开元数据、摘要、许可证与原文链接，不下载或传递全文。
+
 ## 技术决策
 | 决策 | 理由 |
 |---|---|
@@ -22,6 +29,8 @@
 | DOI 唯一、无 DOI 保守候选 | DOI 提供确定性身份；缺 DOI 时避免相似标题导致错误合并 |
 | 独立测试 schema | `pri_stage1_test` 隔离集成测试清理，不触碰应用 `public` 数据 |
 | 显式 adapter schema | `pg` 不解释 Prisma URL 的 `schema` 参数，客户端工厂必须校验后传给 `PrismaPg` |
+| 原生来源适配层 | 统一返回类型与错误码，同时保留三个上游的分页、限流与字段差异 |
+| fixture-only 连接器测试 | 使测试可重现，不消耗公开 API 配额，不将生产网络状态当作测试前置 |
 
 ## 视觉/浏览器发现
 - Today Physics 首屏应包含：今日统计、跨方向信号、个性推荐和阅读队列。
