@@ -2,6 +2,42 @@
 
 ## 会话：2026-08-29
 
+### 阶段 3：AI 分类与结构化解读
+- **状态：** complete，最终全量验证通过并已创建本地 Conventional Commit；未 push。
+- TDD Task 5-9（配置、成本、预算、数据库与 worker）：
+  - 配置/成本红灯后实现可选 AI 路由配置、四家 provider 单价、UTC 成本工具与 provider factory；未配置 AI 时保持采集 worker 兼容。
+  - 数据库红灯后新增第 4 条迁移、逻辑 AiRun、物理 AiRunAttempt、安全论文读取、并发 claim、结果幂等和聚合审计。
+  - 分类与解读 worker 在模块缺失红灯后分别达到 5 项通过；后续补充持久化失败和失败耗时回归，router + worker 25 项通过。
+  - 本地审查发现分类成本被解读预算汇总，新增无数据库回归测试先得到 1 项失败，再将两处汇总限定为 INTERPRET，测试转为通过且 @pri/db 类型检查通过。
+  - 第 4 条迁移仅部署到 pri_stage3_test 专用 schema，4 条迁移全部成功；数据库测试 2 个文件、7 项通过。
+  - 阶段 3 针对性验证：13 个测试文件、90 项全部通过；没有真实模型 API 调用。
+  - 首次全仓测试发现两个 PostgreSQL 测试文件并行清理同一专用 schema，导致 6 项互相干扰失败；生产逻辑未改，Vitest 文件级执行改为串行后，23 个文件、141 项全部通过。
+  - Prisma generate、validate 和 migrate status 均通过，pri_stage3_test 已应用全部 4 条迁移；workspace lint 与 typecheck 通过。
+  - 使用临时 APPDATA 完成 Web 与 worker 生产构建；Web 4 条既有路由生成成功，worker TypeScript 构建成功。
+- TDD Task 3（一次回退 router）：
+  - 红灯：router 模块不存在，1 个测试文件失败，退出码 1。
+  - 绿灯：14 项通过；四类临时错误各回退一次，八类永久/业务错误不回退，合法 uncertain 不回退，双失败不产生第三次调用。
+- TDD Task 4（真实 provider adapter，mock HTTP）：
+  - 红灯：四家 provider 模块不存在，1 个测试文件失败，退出码 1。
+  - 中间失败：14 项中 12 项通过；OpenAI/Gemini 因 Zod custom 标签无法转换 JSON Schema 各失败 1 项。根因修复为从领域 taxonomy 派生 Zod enum。
+  - 绿灯：OpenAI、DeepSeek、Gemini、Qwen mock-HTTP 测试 14 项通过；连同 schema 回归 23 项通过；@pri/ai 类型检查退出码 0。
+  - 所有 adapter 只执行单次 HTTP；本轮没有真实 API 请求。
+- TDD Task 2（prompt/provider contract）：
+  - 红灯：prompt 和 mock provider 模块不存在，2 个测试文件失败，退出码 1。
+  - 绿灯：新增版本化安全 prompt、数据库无关 AiProvider contract、稳定错误码、原始 JSON/schema 错误映射和可配置 mock provider；2 个测试文件 14 项通过。
+  - 定向 @pri/ai TypeScript 检查退出码 0。
+- TDD Task 1（strict schema）：
+  - 红灯：使用进程级虚构 DATABASE_URL 通过 Prisma generate 后，tests/ai/schemas.test.ts 因 packages/ai/src/schemas.ts 不存在失败，退出码 1。
+  - 绿灯：新增 @pri/ai workspace 骨架与 strict 分类/解读 Zod schema；同一测试文件 9 项通过，退出码 0。
+  - pnpm install --lockfile-only 只同步新增 workspace importer，未升级或新增外部依赖版本。
+- 工作区准备：
+  - 经用户明确授权，将已由用户删除的旧阶段 3 目录对应的失效 worktree 注册作为安全检查例外处理。
+  - worktree prune dry-run 只命中该失效注册；实际清理未影响其他 worktree。
+  - codex/stage-3 无领先于 origin/main 的提交，已非强制删除并从固定基线重新创建。
+  - 新工作区为 D:\Physics Research Intelligence\.worktrees\stage-3，当前分支 codex/stage-3，HEAD 为 6101ea5b200af3397fe2c63cc92ba62dde8e06c9，初始状态干净。
+  - 桌面补丁工具的 Windows workspace 刷新辅助进程无法处理本轮新 worktree；根因诊断后改用同一 Codex 可执行文件的内建 apply_patch 模式，补丁引擎验证成功。
+  - 本轮未 push、未调用真实 AI API、未读取 .env 值。
+
 ### 阶段 2：公开来源采集
 - **状态：** complete
 - 执行的操作：

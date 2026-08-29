@@ -88,12 +88,12 @@ infra/                    Docker Compose 与部署示例
 - Create: `packages/ai/src/schemas.ts`, `apps/worker/src/jobs/classify-paper.ts`, `apps/worker/src/jobs/interpret-paper.ts`
 - Test: `tests/ai/router.test.ts`, `tests/ai/schemas.test.ts`, `tests/ai/prompts.test.ts`
 
-- [ ] 先写失败测试：非法 JSON、无证据的创新点、声称读取受限全文、主 provider 网络错误与预算耗尽分别得到安全的结构化结果。
-- [ ] 定义统一 `AiProvider`：`classify(input)`、`interpret(input)`、`healthCheck()`；为 DeepSeek、OpenAI、Gemini、Qwen 创建独立 adapter，adapter 不得泄露密钥。
-- [ ] 使用 Zod 校验分类与解读 JSON；解读字段必须含 `claim_type`、`confidence`、`evidence_references`，受限全文只能产生 `uncertain`。
-- [ ] 实现路由规则：批量分类使用低成本主模型，深度解读使用质量主模型；仅对网络/限流/5xx 回退一次到备用模型。
-- [ ] 写入 `AiRun`：provider、模型、提示词版本、输入哈希、token、耗时、状态与成本；超过每日预算时跳过深度解读。
-- [ ] 使用 mock provider 跑完整 worker 测试，确保相同幂等键不会重复调用模型。
+- [x] 先写失败测试：非法 JSON、无证据的创新点、声称读取受限全文、主 provider 网络错误与预算耗尽分别得到安全的结构化结果。
+- [x] 定义统一 `AiProvider`：`classify(input)`、`interpret(input)`、`healthCheck()`；为 DeepSeek、OpenAI、Gemini、Qwen 创建独立 adapter，adapter 不得泄露密钥。
+- [x] 使用 Zod 校验分类与解读 JSON；解读字段包含证据声明、置信度和证据引用，受限全文输入明确披露仅基于摘要。
+- [x] 实现路由规则：批量分类使用低成本主模型，深度解读使用质量主模型；仅对网络/限流/5xx 回退一次到备用模型。
+- [x] 写入逻辑 `AiRun` 和物理 `AiRunAttempt`：provider、模型、提示词版本、输入哈希、token、耗时、状态与成本；超过 UTC 每日预算时跳过深度解读。
+- [x] 使用 mock provider 跑完整 worker 测试，确保相同幂等键不会重复调用模型。
 
 ### Task 5：推荐和内部 API（阶段 4 的后端部分）
 

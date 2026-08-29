@@ -71,3 +71,10 @@ export const PHYSICS_TAGS = [
     isCrossDisciplinary: true,
   },
 ] as const satisfies readonly PhysicsTagDefinition[];
+
+type PhysicsTagSlug = (typeof PHYSICS_TAGS)[number]["slug"];
+
+export const PHYSICS_TAG_SLUGS = PHYSICS_TAGS.map(({ slug }) => slug) as [
+  PhysicsTagSlug,
+  ...PhysicsTagSlug[],
+];

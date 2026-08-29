@@ -6,6 +6,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./client": "./src/client.ts",
+    "./ai-repository": "./src/ai-repository.ts",
     "./paper-repository": "./src/paper-repository.ts"
   },
   "scripts": {
@@ -16,6 +17,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@pri/ai": "workspace:*",
     "@pri/domain": "workspace:*",
     "@prisma/adapter-pg": "7.10.0",
     "@prisma/client": "7.10.0",

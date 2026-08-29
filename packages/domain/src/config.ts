@@ -11,6 +11,30 @@ export type ServerConfig = {
   AI_PROVIDER_OPENAI_API_KEY?: string;
   AI_PROVIDER_GEMINI_API_KEY?: string;
   AI_PROVIDER_QWEN_API_KEY?: string;
+  AI?: AiServerConfig;
+};
+
+export const aiProviderNames = ["deepseek", "openai", "gemini", "qwen"] as const;
+export type AiProviderName = (typeof aiProviderNames)[number];
+
+export type AiProviderServerConfig = {
+  apiKey: string;
+  baseUrl: string;
+  inputCostPerMillionUsd: number;
+  outputCostPerMillionUsd: number;
+};
+
+export type AiTaskServerConfig = {
+  primary: { provider: AiProviderName; model: string };
+  fallback?: { provider: AiProviderName; model: string };
+  maxOutputTokens: number;
+};
+
+export type AiServerConfig = {
+  classify: AiTaskServerConfig;
+  interpret: AiTaskServerConfig;
+  requestTimeoutMs: number;
+  providers: Partial<Record<AiProviderName, AiProviderServerConfig>>;
 };
 
 const requiredString = (name: string) =>
@@ -56,7 +80,164 @@ export function parseConfig(environment: NodeJS.ProcessEnv): ServerConfig {
     throw new Error([...new Set(messages)].join("; "));
   }
 
-  return result.data;
+  const ai = parseAiConfig(environment);
+  return ai ? { ...result.data, AI: ai } : result.data;
+}
+
+function parseAiConfig(environment: NodeJS.ProcessEnv): AiServerConfig | undefined {
+  const routeVariables = [
+    "AI_CLASSIFY_PRIMARY_PROVIDER",
+    "AI_CLASSIFY_PRIMARY_MODEL",
+    "AI_CLASSIFY_FALLBACK_PROVIDER",
+    "AI_CLASSIFY_FALLBACK_MODEL",
+    "AI_INTERPRET_PRIMARY_PROVIDER",
+    "AI_INTERPRET_PRIMARY_MODEL",
+    "AI_INTERPRET_FALLBACK_PROVIDER",
+    "AI_INTERPRET_FALLBACK_MODEL",
+  ] as const;
+  if (!routeVariables.some((name) => optionalEnvironmentValue(environment, name))) {
+    return undefined;
+  }
+
+  const classify = parseAiTaskConfig(environment, "CLASSIFY");
+  const interpret = parseAiTaskConfig(environment, "INTERPRET");
+  const providers = new Set<AiProviderName>([
+    classify.primary.provider,
+    interpret.primary.provider,
+    ...(classify.fallback ? [classify.fallback.provider] : []),
+    ...(interpret.fallback ? [interpret.fallback.provider] : []),
+  ]);
+
+  return {
+    classify,
+    interpret,
+    requestTimeoutMs: parsePositiveInteger(environment, "AI_REQUEST_TIMEOUT_MS"),
+    providers: Object.fromEntries(
+      [...providers].map((provider) => [
+        provider,
+        parseAiProviderConfig(environment, provider),
+      ]),
+    ),
+  };
+}
+
+function parseAiTaskConfig(
+  environment: NodeJS.ProcessEnv,
+  task: "CLASSIFY" | "INTERPRET",
+): AiTaskServerConfig {
+  const primaryProviderName = `AI_${task}_PRIMARY_PROVIDER`;
+  const primaryModelName = `AI_${task}_PRIMARY_MODEL`;
+  const fallbackProviderName = `AI_${task}_FALLBACK_PROVIDER`;
+  const fallbackModelName = `AI_${task}_FALLBACK_MODEL`;
+  const primaryProvider = parseAiProviderName(
+    requiredEnvironmentValue(environment, primaryProviderName),
+    primaryProviderName,
+  );
+  const fallbackProviderValue = optionalEnvironmentValue(
+    environment,
+    fallbackProviderName,
+  );
+  const fallbackModelValue = optionalEnvironmentValue(environment, fallbackModelName);
+
+  if (Boolean(fallbackProviderValue) !== Boolean(fallbackModelValue)) {
+    throw new Error(`${fallbackProviderName} and ${fallbackModelName} must be set together`);
+  }
+
+  const fallbackProvider = fallbackProviderValue
+    ? parseAiProviderName(fallbackProviderValue, fallbackProviderName)
+    : undefined;
+  if (fallbackProvider === primaryProvider) {
+    throw new Error(`${fallbackProviderName} must differ from the primary provider`);
+  }
+
+  return {
+    primary: {
+      provider: primaryProvider,
+      model: requiredEnvironmentValue(environment, primaryModelName),
+    },
+    ...(fallbackProvider && fallbackModelValue
+      ? { fallback: { provider: fallbackProvider, model: fallbackModelValue } }
+      : {}),
+    maxOutputTokens: parsePositiveInteger(
+      environment,
+      `AI_${task}_MAX_OUTPUT_TOKENS`,
+    ),
+  };
+}
+
+function parseAiProviderConfig(
+  environment: NodeJS.ProcessEnv,
+  provider: AiProviderName,
+): AiProviderServerConfig {
+  const prefix = `AI_PROVIDER_${provider.toUpperCase()}`;
+  return {
+    apiKey: requiredEnvironmentValue(environment, `${prefix}_API_KEY`),
+    baseUrl: parseUrl(
+      requiredEnvironmentValue(environment, `${prefix}_BASE_URL`),
+      `${prefix}_BASE_URL`,
+    ),
+    inputCostPerMillionUsd: parseNonNegativeNumber(
+      environment,
+      `${prefix}_INPUT_COST_PER_MILLION_USD`,
+    ),
+    outputCostPerMillionUsd: parseNonNegativeNumber(
+      environment,
+      `${prefix}_OUTPUT_COST_PER_MILLION_USD`,
+    ),
+  };
+}
+
+function parseAiProviderName(value: string, name: string): AiProviderName {
+  if (!aiProviderNames.includes(value as AiProviderName)) {
+    throw new Error(`${name} must be one of: ${aiProviderNames.join(", ")}`);
+  }
+  return value as AiProviderName;
+}
+
+function parsePositiveInteger(environment: NodeJS.ProcessEnv, name: string): number {
+  const value = Number(requiredEnvironmentValue(environment, name));
+  if (!Number.isInteger(value) || value <= 0) {
+    throw new Error(`${name} must be a positive integer`);
+  }
+  return value;
+}
+
+function parseNonNegativeNumber(
+  environment: NodeJS.ProcessEnv,
+  name: string,
+): number {
+  const value = Number(requiredEnvironmentValue(environment, name));
+  if (!Number.isFinite(value) || value < 0) {
+    throw new Error(`${name} must be a nonnegative number`);
+  }
+  return value;
+}
+
+function requiredEnvironmentValue(
+  environment: NodeJS.ProcessEnv,
+  name: string,
+): string {
+  const value = optionalEnvironmentValue(environment, name);
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${name}`);
+  }
+  return value;
+}
+
+function optionalEnvironmentValue(
+  environment: NodeJS.ProcessEnv,
+  name: string,
+): string | undefined {
+  const value = environment[name];
+  return typeof value === "string" && value.trim() ? value.trim() : undefined;
+}
+
+function parseUrl(value: string, name: string): string {
+  try {
+    return new URL(value).toString().replace(/\/$/u, "");
+  } catch {
+    throw new Error(`${name} must be a valid URL`);
+  }
 }
 
 export function toLogSafeData(value: unknown): unknown {

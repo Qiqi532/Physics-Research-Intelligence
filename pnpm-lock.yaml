@@ -51,6 +51,9 @@ importers:
 
   apps/worker:
     dependencies:
+      '@pri/ai':
+        specifier: workspace:*
+        version: link:../../packages/ai
       '@pri/db':
         specifier: workspace:*
         version: link:../../packages/db
@@ -68,8 +71,20 @@ importers:
         specifier: ^4.23.12
         version: 4.23.12
 
+  packages/ai:
+    dependencies:
+      '@pri/domain':
+        specifier: workspace:*
+        version: link:../domain
+      zod:
+        specifier: latest
+        version: 4.4.3
+
   packages/db:
     dependencies:
+      '@pri/ai':
+        specifier: workspace:*
+        version: link:../ai
       '@pri/domain':
         specifier: workspace:*
         version: link:../domain

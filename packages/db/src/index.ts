@@ -12,3 +12,10 @@ export {
   type SourceSyncRepository,
   type SourceSyncState,
 } from "./source-sync-repository";
+export {
+  createAiRepository,
+  type AiAttemptInput,
+  type AiRepository,
+  type ClaimAiRunInput,
+  type SafePaperFacts,
+} from "./ai-repository";
