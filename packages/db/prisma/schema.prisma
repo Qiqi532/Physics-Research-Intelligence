@@ -1,0 +1,190 @@
+generator client {
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  moduleFormat        = "esm"
+  importFileExtension = "ts"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum AccessStatus {
+  UNKNOWN
+  OPEN
+  RESTRICTED
+}
+
+enum InterpretationStatus {
+  PENDING
+  COMPLETE
+  FAILED
+}
+
+enum ReadingStatus {
+  UNREAD
+  SAVED
+  READING
+  COMPLETE
+  SKIPPED
+}
+
+enum UserFeedback {
+  NONE
+  LIKE
+  DISLIKE
+}
+
+enum AiRunType {
+  CLASSIFY
+  INTERPRET
+}
+
+enum AiRunStatus {
+  PENDING
+  RUNNING
+  COMPLETE
+  FAILED
+  SKIPPED_BUDGET
+}
+
+model Paper {
+  id              String   @id @default(uuid()) @db.Uuid
+  doi             String?  @unique
+  title           String
+  normalizedTitle String
+  abstract        String?
+  journal         String?
+  firstAuthor     String?
+  publishedAt     DateTime? @db.Timestamptz(6)
+  originalUrl     String?
+  accessStatus    AccessStatus @default(UNKNOWN)
+  createdAt       DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime @updatedAt @db.Timestamptz(6)
+
+  sources         PaperSource[]
+  classifications PaperClassification[]
+  interpretations PaperInterpretation[]
+  userStates      UserPaperState[]
+  aiRuns          AiRun[]
+
+  @@index([normalizedTitle])
+  @@index([publishedAt])
+  @@index([createdAt, id])
+}
+
+model PaperSource {
+  id             String   @id @default(uuid()) @db.Uuid
+  paperId        String   @db.Uuid
+  sourceName     String
+  sourceRecordId String
+  sourceUrl      String
+  retrievedAt    DateTime @db.Timestamptz(6)
+  licenseUrl     String?
+  title          String
+  abstract       String?
+  journal        String?
+  firstAuthor    String?
+  publishedAt    DateTime? @db.Timestamptz(6)
+  createdAt      DateTime @default(now()) @db.Timestamptz(6)
+
+  paper Paper @relation(fields: [paperId], references: [id], onDelete: Cascade)
+
+  @@unique([sourceName, sourceRecordId])
+  @@index([paperId])
+}
+
+model PhysicsTag {
+  slug                  String  @id
+  labelEn               String
+  labelZh               String
+  group                 String
+  isCrossDisciplinary   Boolean @default(false)
+
+  classifications PaperClassification[]
+  userInterests    UserInterest[]
+}
+
+model PaperClassification {
+  id            String   @id @default(uuid()) @db.Uuid
+  paperId       String   @db.Uuid
+  tagSlug       String
+  relevance     Float
+  reason        String
+  model         String
+  promptVersion String
+  createdAt     DateTime @default(now()) @db.Timestamptz(6)
+
+  paper Paper      @relation(fields: [paperId], references: [id], onDelete: Cascade)
+  tag   PhysicsTag @relation(fields: [tagSlug], references: [slug], onDelete: Restrict)
+
+  @@unique([paperId, tagSlug, model, promptVersion])
+  @@index([tagSlug, relevance])
+}
+
+model PaperInterpretation {
+  id            String               @id @default(uuid()) @db.Uuid
+  paperId       String               @db.Uuid
+  content       Json
+  status        InterpretationStatus @default(PENDING)
+  provider      String
+  model         String
+  promptVersion String
+  createdAt     DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime @updatedAt @db.Timestamptz(6)
+
+  paper Paper @relation(fields: [paperId], references: [id], onDelete: Cascade)
+
+  @@index([paperId, createdAt])
+}
+
+model UserInterest {
+  userId    String @default("default")
+  tagSlug   String
+  weight    Float  @default(1)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  tag PhysicsTag @relation(fields: [tagSlug], references: [slug], onDelete: Cascade)
+
+  @@id([userId, tagSlug])
+}
+
+model UserPaperState {
+  userId    String        @default("default")
+  paperId   String        @db.Uuid
+  status    ReadingStatus @default(UNREAD)
+  feedback  UserFeedback  @default(NONE)
+  note      String?
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  paper Paper @relation(fields: [paperId], references: [id], onDelete: Cascade)
+
+  @@id([userId, paperId])
+  @@index([paperId])
+}
+
+model AiRun {
+  id               String      @id @default(uuid()) @db.Uuid
+  paperId          String?     @db.Uuid
+  runType          AiRunType
+  idempotencyKey   String      @unique
+  provider         String
+  model            String
+  promptVersion    String
+  inputHash        String
+  inputTokens      Int?
+  outputTokens     Int?
+  durationMs       Int?
+  status           AiRunStatus @default(PENDING)
+  errorCode        String?
+  estimatedCostUsd Decimal?    @db.Decimal(12, 6)
+  createdAt        DateTime    @default(now()) @db.Timestamptz(6)
+  updatedAt        DateTime    @updatedAt @db.Timestamptz(6)
+
+  paper Paper? @relation(fields: [paperId], references: [id], onDelete: SetNull)
+
+  @@index([paperId, createdAt])
+  @@index([status, createdAt])
+}

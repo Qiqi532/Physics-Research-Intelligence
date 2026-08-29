@@ -5,6 +5,9 @@ dist/
 coverage/
 playwright-report/
 test-results/
+*.tsbuildinfo
+.superpowers/**/state/
+packages/db/src/generated/prisma/
 
 .env*
 !.env.example

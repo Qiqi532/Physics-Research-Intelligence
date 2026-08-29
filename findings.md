@@ -18,6 +18,10 @@
 | PostgreSQL | 适合 DOI 唯一约束、筛选、全文检索与后续向量检索 |
 | 后台任务队列 | 采集、分类、深度解读与日简报不阻塞网页请求 |
 | Provider Adapter | 统一多家云端 API 的调用、JSON 校验、计费记录和回退 |
+| Prisma 固定为 7.10.0 | 当前 `prisma` 最新标签指向 8.0 RC，而 client/adapter 稳定版为 7.10.0；统一固定版本避免候选版混装 |
+| DOI 唯一、无 DOI 保守候选 | DOI 提供确定性身份；缺 DOI 时避免相似标题导致错误合并 |
+| 独立测试 schema | `pri_stage1_test` 隔离集成测试清理，不触碰应用 `public` 数据 |
+| 显式 adapter schema | `pg` 不解释 Prisma URL 的 `schema` 参数，客户端工厂必须校验后传给 `PrismaPg` |
 
 ## 视觉/浏览器发现
 - Today Physics 首屏应包含：今日统计、跨方向信号、个性推荐和阅读队列。

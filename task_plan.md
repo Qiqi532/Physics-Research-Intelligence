@@ -4,7 +4,7 @@
 为个人物理学习与研究建立一个可持续的 Today Physics 网站：合规聚合论文元数据、提供可核验的 AI 解读，并按个人兴趣推荐阅读内容。
 
 ## 当前阶段
-阶段 3：实现（阶段 0 进行中）
+阶段 3：实现（阶段 1 已完成，准备阶段 2）
 
 ## 各阶段
 
@@ -22,10 +22,11 @@
 - **状态：** complete
 
 ### 阶段 3：实现
-- [ ] 初始化 Web、API、数据库与本地开发环境
-- [ ] 实现论文数据模型、公开来源连接器和去重
+- [x] 初始化 Web、API、数据库与本地开发环境
+- [x] 实现论文数据模型、标签体系、保守去重和数据浏览 API
+- [ ] 实现 Crossref、OpenAlex、arXiv 公开来源连接器
 - [ ] 实现 AI 分类、解读、推荐与 Today Physics 页面
-- **状态：** in_progress（项目骨架与密钥边界已完成；待 Docker 环境验证服务健康）
+- **状态：** in_progress（阶段 1 论文事实层已完成；下一步进入阶段 2 公开来源采集）
 
 ### 阶段 4：测试与验证
 - [ ] 完成单元、集成、端到端与人工质量评审
@@ -50,3 +51,9 @@
 | 错误 | 尝试次数 | 解决方案 |
 |---|---:|---|
 | Git Bash 后台预览服务被回收 | 2 | 改为直接启动 Node 预览服务，HTTP 200 验证 |
+| 当前终端找不到 Docker CLI | 1 | 使用已安装的 Compose 插件完成 `config` 静态验证；容器重建留待保存项目目录执行 |
+| Python 环境缺少 YAML 模块 | 1 | 不安装额外依赖，改用 Docker Compose 官方插件验证配置 |
+| Next.js 写入加密的用户配置目录失败（`EPERM`/`EXDEV`） | 2 | 仅在构建命令中将 `APPDATA` 指向临时目录，生产构建通过 |
+| pnpm 拦截 Prisma 构建脚本 | 1 | 仅将固定版本的 `@prisma/engines` 与 `prisma` 加入现有 `allowBuilds` 白名单 |
+| 首次 Prisma 迁移参数进入交互提示并遗留 advisory lock | 2 | 确认并终止本轮两个迁移会话，改为直接调用包级具名迁移 |
+| PostgreSQL adapter 默认查询 `public` 而测试表位于独立 schema | 1 | 从 URL 解析并校验 schema，显式传给 `PrismaPg` adapter |

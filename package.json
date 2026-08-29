@@ -8,11 +8,14 @@
     "node": ">=22"
   },
   "scripts": {
+    "prebuild": "pnpm --filter @pri/db prisma:generate",
     "build": "pnpm --recursive --if-present build",
     "dev": "pnpm --parallel --filter @pri/web --filter @pri/worker dev",
     "lint": "pnpm --recursive --if-present lint",
+    "pretest": "pnpm --filter @pri/db prisma:generate",
     "test": "vitest run",
     "test:watch": "vitest",
+    "pretypecheck": "pnpm --filter @pri/db prisma:generate",
     "typecheck": "pnpm --recursive --if-present typecheck"
   },
   "devDependencies": {

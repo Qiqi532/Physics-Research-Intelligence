@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  transpilePackages: ["@pri/domain"],
+  transpilePackages: ["@pri/db", "@pri/domain"],
 };
 
 export default nextConfig;

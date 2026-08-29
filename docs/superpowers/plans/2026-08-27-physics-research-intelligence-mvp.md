@@ -37,6 +37,8 @@ infra/                    Docker Compose 与部署示例
 
 ### Task 1：初始化与安全边界（阶段 0）
 
+**状态：** complete（2026-08-29；容器运行态由保存项目目录接管）
+
 **Files:**
 - Create: `package.json`, `pnpm-workspace.yaml`, `.gitignore`, `.env.example`
 - Create: `apps/web/`, `apps/worker/`, `packages/domain/`, `packages/db/`, `tests/`
@@ -46,20 +48,25 @@ infra/                    Docker Compose 与部署示例
 - [x] 在 `.env.example` 中只列出变量名：`DATABASE_URL`、`REDIS_URL`、`AI_PROVIDER_*_API_KEY`、`DAILY_AI_BUDGET_USD`；不得填写真实值。
 - [x] 编写 `packages/domain/src/config.ts`，启动时校验缺失的必填变量并拒绝将任意以 `_KEY` 结尾的值写入日志。
 - [x] 写失败测试：缺少 `DATABASE_URL` 时配置解析返回明确错误；提供密钥时错误对象与日志序列化结果不得含密钥。
-- [ ] 运行 `pnpm test --filter config`，预期通过；运行 `docker compose -f infra/docker-compose.yml up -d postgres redis`，预期两个健康服务。
+- [x] 运行配置安全测试，1 个测试文件、5 个测试通过；运行 `docker compose -f infra/docker-compose.yml config`，静态确认 PostgreSQL 与 Redis 仅绑定 `127.0.0.1`。
+
+> 运行环境交接：当前 Codex worktree 未重建或检查保存项目目录中的容器。将变更同步到 `D:\Physics Research Intelligence` 后，在该目录执行 `docker compose -f infra/docker-compose.yml up -d --force-recreate postgres redis`，再执行 `docker compose -f infra/docker-compose.yml ps` 确认健康状态；这不阻塞阶段 1 的代码工作。
 
 ### Task 2：论文事实层与标签体系（阶段 1）
+
+**状态：** complete（2026-08-29）
 
 **Files:**
 - Create: `packages/db/prisma/schema.prisma`
 - Create: `packages/domain/src/paper.ts`, `packages/domain/src/physics-tags.ts`
 - Create: `packages/db/src/paper-repository.ts`
-- Test: `tests/domain/paper.test.ts`, `tests/db/paper-repository.test.ts`
+- Create: `apps/web/src/app/api/papers/route.ts`, `apps/web/src/app/api/papers/[doi]/route.ts`
+- Test: `tests/domain/paper.test.ts`, `tests/db/paper-repository.test.ts`, `tests/api/papers.test.ts`
 
-- [ ] 先写失败测试：同一规范化 DOI 两次写入只产生一条 `Paper` 和两条 `PaperSource`；无 DOI 的近似标题只返回候选重复，不自动合并。
-- [ ] 定义 `Paper`、`PaperSource`、`PhysicsTag`、`PaperClassification`、`PaperInterpretation`、`UserInterest`、`UserPaperState`、`AiRun` 表，并建立 DOI 唯一索引与来源复合唯一索引。
-- [ ] 实现 DOI 规范化、标题规范化和候选重复函数；物理标签表至少含 AMO、凝聚态与材料、高能/核/天体、统计/计算、等离子体、生物物理及交叉标签。
-- [ ] 运行 Prisma 迁移和上述测试；预期 DOI 去重与候选重复分别满足断言。
+- [x] 先写失败测试：同一规范化 DOI 两次写入只产生一条 `Paper` 和两条 `PaperSource`；无 DOI 的近似标题只返回候选重复，不自动合并。
+- [x] 定义 `Paper`、`PaperSource`、`PhysicsTag`、`PaperClassification`、`PaperInterpretation`、`UserInterest`、`UserPaperState`、`AiRun` 表，并建立 DOI 唯一索引与来源复合唯一索引。
+- [x] 实现 DOI/标题/作者规范化和候选重复函数；标签表覆盖九个基础与交叉方向。
+- [x] 运行两条 Prisma 迁移、领域/仓储/API 测试；4 个测试文件、31 个测试通过，`public` schema 已是最新状态。
 
 ### Task 3：公开来源连接器（阶段 2）
 
@@ -128,7 +135,7 @@ infra/                    Docker Compose 与部署示例
 
 ## 实施顺序与里程碑
 
-1. **第 1 周：骨架 + 事实层。** 完成阶段 0–1，能手动录入与检索 DOI。
+1. **第 1 周：骨架 + 事实层。** 阶段 0 已完成；下一步进入阶段 1，实现手动录入与检索 DOI。
 2. **第 2 周：采集。** 完成阶段 2，能每天得到合规的物理论文池。
 3. **第 3 周：AI。** 完成阶段 3，先用 mock，再接一主一备两家模型 API。
 4. **第 4 周：体验。** 完成阶段 4，交付可日常使用的 Today Physics。

@@ -1,5 +1,66 @@
 # 进度日志
 
+## 会话：2026-08-29
+
+### 阶段 1：论文事实层与数据浏览 API
+- **状态：** complete
+- 执行的操作：
+  - 实现 DOI、标题、作者规范化，以及基于标题相似度、第一作者和 7 天日期窗的候选重复判断。
+  - 建立 9 个基础物理标签，覆盖 AMO/光学、凝聚态与材料、高能、核、天体、统计/计算、等离子体、生物物理和交叉方向。
+  - 使用 Prisma `7.10.0` 建立 `Paper`、`PaperSource`、`PhysicsTag`、`PaperClassification`、`PaperInterpretation`、`UserInterest`、`UserPaperState` 与 `AiRun`。
+  - 实现事务化论文仓储：同 DOI 合并、来源重放幂等、缺失字段不覆盖已有事实、无 DOI 不自动合并、稳定游标分页。
+  - 新增 `GET /api/papers` 和 `GET /api/papers/[doi]`，包含参数校验、来源追踪、标签和通用 503 错误边界。
+  - 将两条迁移部署到 `pri_stage1_test` 与本地应用 `public` schema；`public` 当前有 9 张业务表、9 个标签和 2 条已完成迁移。
+  - CodeRabbit CLI 未安装，因此未上传代码；完成了本地类型、测试、安全边界与字段合并审查。
+
+## 测试结果（阶段 1）
+| 测试 | 结果 | 状态 |
+|---|---|---|
+| 全量 Vitest | 4 个测试文件、31 个测试通过 | pass |
+| Prisma schema | `validate` 退出码 0 | pass |
+| PostgreSQL 迁移 | `public` schema up to date；2 条迁移已应用 | pass |
+| Workspace lint | 退出码 0 | pass |
+| Workspace 类型检查 | Web、worker、domain、db 退出码 0 | pass |
+| Web 与 worker 生产构建 | `/api/papers` 与 `/api/papers/[doi]` 构建成功 | pass |
+| 差异格式 | `git diff --check` 退出码 0 | pass |
+
+## 阶段 1 错误日志
+| 错误 | 尝试次数 | 处理 |
+|---|---:|---|
+| pnpm 阻止 Prisma 安装脚本 | 1 | 检查固定版本脚本后，只批准 `@prisma/engines` 与 `prisma` |
+| 过滤 `exec` 未解析包级 Prisma CLI | 1 | 直接调用已生成的包级 `.CMD`，版本确认为 7.10.0 |
+| 首次迁移参数错误进入交互并遗留 advisory lock | 2 | 只读确认持锁会话后终止本轮两个 PID，再以非交互具名迁移成功执行 |
+| `?schema=` 未被 `pg` runtime adapter 使用 | 1 | 显式向 `PrismaPg` 传递经校验的 schema，6 项仓储测试通过 |
+| `pnpm install --offline` 缺少本机元数据 | 1 | 改用正常 workspace 同步，未改变依赖版本 |
+
+### 阶段 0：初始化与安全边界
+- **状态：** complete
+- 执行的操作：
+  - 将 PostgreSQL `5432` 与 Redis `6379` 的主机端口限制为 `127.0.0.1`，不再监听所有主机接口。
+  - 使用 Docker Compose 插件执行 `config` 静态展开，确认两个端口的 `host_ip` 均为 `127.0.0.1`。
+  - 补充忽略 `*.tsbuildinfo` 与 `.superpowers/**/state/`；保留设计规格、实施计划及原型内容。
+  - 完成配置测试、workspace lint、类型检查与 Web/worker 生产构建，阶段 1 可开始。
+- Docker 交接：
+  - 当前 worktree 未启动、停止或重建 Docker 容器，也未声称观察到保存项目目录中的 Compose 运行状态。
+  - 将本次配置变更同步到 `D:\Physics Research Intelligence` 后，需要在该目录安全重建 PostgreSQL/Redis 并检查健康状态。
+
+## 测试结果（2026-08-29）
+| 测试 | 结果 | 状态 |
+|---|---|---|
+| 配置安全测试 | 1 个测试文件、5 个测试通过 | pass |
+| Compose 静态配置 | `config` 退出码 0；5432/6379 均展开为 `host_ip: 127.0.0.1` | pass |
+| Workspace lint | 退出码 0 | pass |
+| Workspace 类型检查 | Web、worker、domain、db 退出码 0 | pass |
+| Web 与 worker 生产构建 | 临时重定向 Next.js `APPDATA` 后退出码 0 | pass |
+| PostgreSQL/Redis 容器重建与健康检查 | 未在 worktree 操作；待保存项目目录执行 | handoff |
+
+## 错误日志（2026-08-29）
+| 错误 | 尝试次数 | 处理 |
+|---|---:|---|
+| 当前终端找不到 Docker CLI | 1 | 直接调用 Compose 插件完成只读静态验证 |
+| Python 未安装 YAML 模块 | 1 | 未增加项目依赖，改用 Compose 插件 |
+| Next.js 用户配置目录写入 `EPERM`，沙箱外重试为 `EXDEV` | 2 | 确认目录带加密属性；本次构建将 `APPDATA` 临时指向系统临时目录后通过 |
+
 ## 会话：2026-08-28
 
 ### 阶段 0：初始化与安全边界
