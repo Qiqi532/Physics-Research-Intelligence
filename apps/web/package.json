@@ -14,6 +14,8 @@
     "@pri/ai": "workspace:*",
     "@pri/db": "workspace:*",
     "@pri/domain": "workspace:*",
+    "bullmq": "6.3.1",
+    "ioredis": "5.7.0",
     "next": "^16.3.3",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"

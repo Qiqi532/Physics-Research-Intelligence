@@ -36,6 +36,16 @@ export type AiAttemptInput = {
 };
 
 export interface AiRepository {
+  listPaperIdsForClassification(input: {
+    from: Date;
+    until: Date;
+    limit: number;
+  }): Promise<string[]>;
+  listPaperIdsForInterpretation(input: {
+    from: Date;
+    until: Date;
+    limit: number;
+  }): Promise<string[]>;
   findPaperForAi(paperId: string): Promise<SafePaperFacts | null>;
   findSuccessfulRun(idempotencyKey: string): Promise<{ id: string } | null>;
   claimRun(input: ClaimAiRunInput): Promise<
@@ -90,6 +100,29 @@ export interface AiRepository {
 
 export function createAiRepository(client: DatabaseClient): AiRepository {
   return {
+    async listPaperIdsForClassification(input) {
+      const papers = await client.paper.findMany({
+        where: { publishedAt: { gte: input.from, lte: input.until } },
+        orderBy: [{ publishedAt: "asc" }, { id: "asc" }],
+        take: input.limit,
+        select: { id: true },
+      });
+      return papers.map(({ id }) => id);
+    },
+
+    async listPaperIdsForInterpretation(input) {
+      const papers = await client.paper.findMany({
+        where: {
+          publishedAt: { gte: input.from, lte: input.until },
+          classifications: { some: {} },
+        },
+        orderBy: [{ publishedAt: "asc" }, { id: "asc" }],
+        take: input.limit,
+        select: { id: true },
+      });
+      return papers.map(({ id }) => id);
+    },
+
     async findPaperForAi(paperId) {
       return client.paper.findUnique({
         where: { id: paperId },

@@ -1,5 +1,18 @@
 # 进度日志
 
+## 会话：2026-08-30（阶段 5）
+
+### 产品补全、可靠性、自动运行与部署准备
+- **状态：** in_progress
+- 已完成：
+  - 检查主工作区 Git 状态、所有现有 worktree、基线提交与规划文件；确认主工作区用户内容不进入阶段 5。
+  - 逐份完整阅读两份指定设计规格和三份指定实施计划。
+  - 从 `72aa2ec98cb2e02b852f74117ad563a8e69d2e72` 创建 `codex/stage-5` 与独立 worktree，初始状态干净。
+  - 核对 Prisma、Today 推荐、来源游标/重试、AI 幂等/预算、worker 入口、standalone 构建和测试清单。
+  - 写入 `docs/superpowers/plans/2026-08-30-stage-5-reliability-deployment.md`，确定按兴趣、调度、健康、E2E、运维、审查七个 TDD 任务推进。
+- 尚未运行任何真实来源、AI、生产数据库或云服务。
+- 错误记录：本地执行器初始化失败 2 次后改用审批边界；一次批量文档输出截断后改为逐文件读取；补丁刷新故障后改用内建补丁模式。
+
 ## 会话：2026-08-30（阶段 4）
 
 ### 推荐、内部 API 与 Today Physics
@@ -36,6 +49,45 @@
   - 组件首次真实执行因测试文本遍历器在相邻节点间插入空格失败 1 项；将证据标题/置信度改为单一模板文本节点后 10 项全部通过。
   - 页面首次类型检查发现 Today empty message 未形成严格判别联合；拆分 ready/empty 返回类型后测试、typecheck 和 lint 通过。
   - 应用内浏览器控制运行时连续 3 次因 Windows sandbox workspace refresh helper 失败而无法初始化；重置运行时后根因未变。停止重复尝试，改用本机 headless 浏览器对本地 URL 做截图/视口验证，并在最终结果中保留交互验证限制。
+
+## 会话：2026-08-30（阶段 5）
+
+### 产品补全、可靠性、自动运行与部署准备
+- **状态：** in_progress，功能实现完成，最终全量验证、审查、清理和提交待执行。
+- 工作区：`D:\Physics Research Intelligence\.worktrees\stage-5`，分支 `codex/stage-5`，基线 `72aa2ec98cb2e02b852f74117ad563a8e69d2e72`；未修改其他工作区或分支。
+- 兴趣设置：新增严格领域 schema、事务仓储、GET/PUT 内部 API、Server Component 页面与最小 Client 表单；覆盖加载、保存中、成功、错误、无标签、取消单项/全部及默认恢复。
+- 正式 E2E：新增 Playwright desktop Chromium 与 Pixel 7 项目、专用 `pri_stage5_e2e` schema、可重复 fixture、外部网络阻断、数据库故障恢复和 teardown 清理。
+- 自动运行：新增 BullMQ queue/worker/scheduler、Asia/Shanghai 可配计划、稳定 scheduler ID、Redis 有界重连、来源窗口重放保护；每日顺序为采集、分类、预算内解读、Today 准备。
+- 可靠性：新增 live/ready 健康端点，安全检查 PostgreSQL、Redis、queue backlog 和 worker；新增结构化 worker 日志并移除日志安全对象中的内部 stack。
+- 模型接入：新增 GLM、Kimi、混元命名 adapter 与通用 OpenAI-compatible 入口；单一命名 API Key 可自动配置，多 Key 强制显式默认；全部测试只用 mock fetch。
+- 运维：新增安全 `.env.example`、个人部署/停止/健康/备份恢复/排障/升级说明，以及包含 30 个空白跨方向槽位的人工质量评审 rubric。
+
+### TDD 红绿记录
+- 兴趣领域/仓储/API/UI 先红后绿：定向 4 个文件、25 项通过；domain/db/web 类型检查通过。
+- scheduler/config 红绿：fake timer、时区、稳定 upsert/disable、日窗口共 4 个文件、28 项通过；queue/ingest/db 幂等与重连 3 个文件、12 项通过。
+- worker runtime 与健康/日志红绿：运行时 3 个文件、13 项通过；健康与初始日志 2 个文件、7 项通过。
+- Provider 自动配置红灯：2 个文件 10 项按预期失败；最小实现后配置/工厂 21/21 通过，新增 mock HTTP 契约 17/17 通过。
+- 自动深度解读红灯：流水线/仓储 3 项按预期失败；实现后 7/7 通过，worker/db 类型检查通过。
+- 日志 stack 红灯准确显示唯一多余字段；移除后配置测试 16/16 通过。每日操作日志 2 项红灯后，日志测试 3/3 通过。
+- Playwright 论文详情 3/3 通过；桌面全组首次 7/8，通过快照定位到页面未稳定即按 Tab，增加业务标题等待后单项焦点回归通过。
+- 文档结构回归 3/3 通过，确认 30 行模板、关键运维章节和所有 Provider Key 样例为空。
+
+### 当前错误与处理
+- pnpm 请求 BullMQ 6.3.2 时确认仓库最新稳定为 6.3.1，固定实际可用版本；可选原生 `msgpackr-extract` 构建脚本保持禁用。
+- 端口 3100 已被其他阶段 standalone 服务占用，未终止或修改该进程；stage-5 E2E 改用 3210。
+- 两个 Next dev server 会争用同一 `.next/dev` 锁，Playwright 改为单服务、两个设备项目串行复用。
+- 初次桌面焦点测试在 RSC 主体稳定前按 Tab；失败快照仅含 skip link，等待“个性推荐”渲染后回归通过。
+- 数据库故障 E2E 暴露 Prisma stack 会进入服务器日志；新增红灯并从统一日志安全投影中移除 stack。
+
+### 最终验证与审查证据
+- 完整 Vitest（含 PostgreSQL 集成）：43 个文件、259 项通过；随后 `pri_stage5_test` 业务计数为 0/0/0，迁移历史保留 4 条。
+- 完整 Playwright：desktop Chromium 8/8、Pixel 7 mobile Chromium 8/8，共 16/16 通过；`pri_stage5_e2e` 业务计数为 0/0/0。
+- 全仓 lint 与 typecheck 退出码 0；Web Next.js 16.3.3 standalone 与 worker 生产构建退出码 0。
+- standalone server、standalone `.next/static` 与 worker `dist/index.js` 构建后均存在；验证后已删除 `.next`、`dist`、Playwright 输出和 tsbuildinfo。
+- Prisma 7.10.0 generate/validate/migration status 通过；专用 schema 4 条既有迁移全部 up to date，无 Prisma schema 或历史迁移变化。
+- Compose 静态展开确认仓库配置把 PostgreSQL/Redis 绑定到 `127.0.0.1`；当前运行的旧容器虽健康但仍保留历史的全网卡端口绑定，未擅自重建共享本地服务，部署时需人工重建。
+- CodeRabbit CLI 未安装；未安装、登录或上传差异。完整本地 Critical/Warning 审查发现 1 个 Warning：重试时滚动 24 小时窗口会重复请求来源。经红灯修复为基于本地计划日的 DST 安全固定窗口，调度/采集/流水线 18/18 与 DST 单测 10/10 通过；复审无剩余 Critical/Warning。
+- 本轮没有读取 `.env`、调用真实论文/AI API、访问生产数据库或下载受限全文。
 
 ## 会话：2026-08-29
 

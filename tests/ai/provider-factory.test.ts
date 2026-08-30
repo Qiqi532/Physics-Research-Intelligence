@@ -49,6 +49,33 @@ describe("configured AI provider factory", () => {
     }));
     expect(JSON.stringify(providers)).not.toContain("fixture-key");
   });
+
+  it.each(["glm", "kimi", "hunyuan", "compatible"] as const)(
+    "builds the %s OpenAI-compatible provider",
+    (provider) => {
+      const compatibleConfig: AiServerConfig = {
+        requestTimeoutMs: 12_000,
+        classify: {
+          primary: { provider, model: `fixture-${provider}-model` },
+          maxOutputTokens: 800,
+        },
+        interpret: {
+          primary: { provider, model: `fixture-${provider}-model` },
+          maxOutputTokens: 2_000,
+        },
+        providers: { [provider]: providerConfig(provider) },
+      };
+
+      expect(createConfiguredTaskProviders({
+        config: compatibleConfig,
+        task: "classify",
+        fetchImpl: vi.fn<typeof fetch>(),
+      }).primary).toEqual(expect.objectContaining({
+        name: provider,
+        model: `fixture-${provider}-model`,
+      }));
+    },
+  );
 });
 
 function providerConfig(name: string) {

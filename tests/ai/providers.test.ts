@@ -2,6 +2,9 @@ import { describe, expect, it, vi } from "vitest";
 import { AiProviderError } from "../../packages/ai/src/errors";
 import { createDeepSeekProvider } from "../../packages/ai/src/providers/deepseek";
 import { createGeminiProvider } from "../../packages/ai/src/providers/gemini";
+import { createGlmProvider } from "../../packages/ai/src/providers/glm";
+import { createHunyuanProvider } from "../../packages/ai/src/providers/hunyuan";
+import { createKimiProvider } from "../../packages/ai/src/providers/kimi";
 import { createOpenAiProvider } from "../../packages/ai/src/providers/openai";
 import { createQwenProvider } from "../../packages/ai/src/providers/qwen";
 import type { PaperAiInput } from "../../packages/ai/src/provider";
@@ -73,6 +76,9 @@ describe("real AI provider adapters with mock HTTP", () => {
   it.each([
     ["deepseek", createDeepSeekProvider, "https://deepseek.example.test"],
     ["qwen", createQwenProvider, "https://qwen.example.test/compatible-mode/v1"],
+    ["glm", createGlmProvider, "https://open.bigmodel.cn/api/paas/v4"],
+    ["kimi", createKimiProvider, "https://api.moonshot.cn/v1"],
+    ["hunyuan", createHunyuanProvider, "https://tokenhub.tencentmaas.com/v1"],
   ] as const)("uses an independent %s compatible adapter", async (
     name,
     createProvider,

@@ -25,7 +25,9 @@ export default async function HomePage() {
         <Link className="brand" href="/">
           PRI <span>Physics Research Intelligence</span>
         </Link>
-        <span className="header-status">Deterministic recommendations</span>
+        <nav aria-label="主要导航">
+          <Link className="header-link" href="/settings/interests">兴趣设置</Link>
+        </nav>
       </header>
       <main className="today-shell" id="main-content">
         <section className="hero">

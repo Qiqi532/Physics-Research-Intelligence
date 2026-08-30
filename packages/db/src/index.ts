@@ -28,3 +28,9 @@ export {
   type TodayRepository,
   type TodayTag,
 } from "./today-repository";
+export {
+  createInterestRepository,
+  type InterestRepository,
+  type InterestTag,
+  type StoredInterestInput,
+} from "./interest-repository";

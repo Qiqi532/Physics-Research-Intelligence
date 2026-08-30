@@ -15,7 +15,11 @@
     "./prompts/interpret": "./src/prompts/interpret.ts",
     "./providers/deepseek": "./src/providers/deepseek.ts",
     "./providers/gemini": "./src/providers/gemini.ts",
+    "./providers/glm": "./src/providers/glm.ts",
+    "./providers/hunyuan": "./src/providers/hunyuan.ts",
+    "./providers/kimi": "./src/providers/kimi.ts",
     "./providers/openai": "./src/providers/openai.ts",
+    "./providers/openai-compatible": "./src/providers/openai-compatible.ts",
     "./providers/qwen": "./src/providers/qwen.ts",
     "./router": "./src/router.ts",
     "./schemas": "./src/schemas.ts"

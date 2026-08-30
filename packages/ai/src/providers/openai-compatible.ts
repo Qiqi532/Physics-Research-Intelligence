@@ -17,6 +17,14 @@ import {
   parseInterpretationOutput,
 } from "../schemas";
 
+export type OpenAiCompatibleProviderName =
+  | "deepseek"
+  | "qwen"
+  | "glm"
+  | "kimi"
+  | "hunyuan"
+  | "compatible";
+
 const responseSchema = z.object({
   choices: z.array(z.object({
     message: z.object({ content: z.string() }).passthrough(),
@@ -29,7 +37,7 @@ const responseSchema = z.object({
 }).passthrough();
 
 export function createOpenAiCompatibleProvider(
-  name: "deepseek" | "qwen",
+  name: OpenAiCompatibleProviderName,
   rawOptions: ProviderHttpOptions,
 ): AiProvider {
   const options = validateProviderOptions(name, rawOptions);
@@ -69,7 +77,7 @@ export function createOpenAiCompatibleProvider(
 }
 
 async function generate<T>(
-  provider: "deepseek" | "qwen",
+  provider: OpenAiCompatibleProviderName,
   options: ReturnType<typeof validateProviderOptions>,
   prompt: AiPrompt,
   parseOutput: (rawText: string) => T,

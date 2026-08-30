@@ -38,8 +38,15 @@ export {
 } from "./router";
 export { createDeepSeekProvider } from "./providers/deepseek";
 export { createGeminiProvider } from "./providers/gemini";
+export { createGlmProvider } from "./providers/glm";
+export { createHunyuanProvider } from "./providers/hunyuan";
+export { createKimiProvider } from "./providers/kimi";
 export { createOpenAiProvider } from "./providers/openai";
 export { createQwenProvider } from "./providers/qwen";
+export {
+  createOpenAiCompatibleProvider,
+  type OpenAiCompatibleProviderName,
+} from "./providers/openai-compatible";
 export { type AiFetch, type ProviderHttpOptions } from "./http";
 export { createConfiguredTaskProviders } from "./factory";
 export {

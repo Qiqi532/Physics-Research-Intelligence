@@ -40,6 +40,14 @@ export async function ingestSource(input: IngestSourceInput): Promise<IngestionS
 
   try {
     const priorState = await input.stateRepository.find(input.connector.name);
+    if (input.cursor === undefined && completedWindow(priorState, input.from, input.until)) {
+      return {
+        source: input.connector.name,
+        pages: 0,
+        records: 0,
+        candidateDuplicates: 0,
+      };
+    }
     let cursor = input.cursor ?? resumableCursor(priorState, input.from, input.until);
     const seenCursors = new Set(cursor ? [cursor] : []);
 
@@ -92,6 +100,18 @@ export async function ingestSource(input: IngestSourceInput): Promise<IngestionS
     });
     throw error;
   }
+}
+
+function completedWindow(
+  state: Awaited<ReturnType<StateWriter["find"]>>,
+  from: Date,
+  until: Date,
+): boolean {
+  return state?.windowFrom?.getTime() === from.getTime() &&
+    state.windowUntil?.getTime() === until.getTime() &&
+    state.cursor === null &&
+    state.lastSuccessAt !== null &&
+    (state.lastFailureAt === null || state.lastSuccessAt >= state.lastFailureAt);
 }
 
 export async function ingestSources(

@@ -8,6 +8,7 @@
     "./client": "./src/client.ts",
     "./ai-repository": "./src/ai-repository.ts",
     "./paper-repository": "./src/paper-repository.ts",
+    "./interest-repository": "./src/interest-repository.ts",
     "./today-repository": "./src/today-repository.ts"
   },
   "scripts": {

@@ -59,6 +59,29 @@
 - CodeRabbit CLI 未安装，未上传代码；本地审查发现并修复“分类成本被计入解读预算”的警告级问题，并增加无数据库回归测试。
 - 本阶段所有 provider 测试均使用 mock HTTP/fixture，没有发起真实模型 API 请求，也没有读取或写入任何真实密钥。
 
+## 阶段 5 工作区与架构盘点（2026-08-30）
+- 主工作区 `main` 含用户未跟踪的 `.superpowers/`、`.worktrees/` 和 `apps/web/tsconfig.tsbuildinfo`；阶段 5 不修改、清理或暂存这些内容。
+- 阶段 5 唯一编辑、测试和提交工作区是 `D:\Physics Research Intelligence\.worktrees\stage-5`，分支 `codex/stage-5`，基线精确为 `72aa2ec98cb2e02b852f74117ad563a8e69d2e72`。
+- Prisma 已有 `PhysicsTag` 与复合主键 `UserInterest(userId, tagSlug)`，兴趣功能不需要新表；现有九个固定标签由迁移种子提供。
+- Today 仓储已并行读取兴趣与候选论文，并通过 `@pri/recommendation` 纯函数确定性排序；兴趣保存后只需刷新 Server Component 即可同步顺序和理由。
+- 现有 worker 尚未使用 BullMQ：`apps/worker/src/index.ts` 只校验配置，`ingest.ts` 是手动入口，worker package 没有 BullMQ/Redis 依赖。阶段 5 必须新增真实队列边界，不能假设已有队列。
+- 来源 HTTP 已有默认 15 秒超时、最多 3 次、429/5xx/网络指数退避；`SourceSyncState` 保存窗口/游标/成功与稳定失败码，可直接用于恢复。
+- AI 分类/解读已经通过 `AiRun.idempotencyKey`、`AiRunAttempt`、主备各一次和 UTC 预算 reservation 建立幂等/回退边界；调度层只复用，不重写。
+- 正式 E2E 当前完全不存在：根脚本无 `test:e2e`、依赖无 Playwright、`tests/e2e` 和 Playwright 配置均不存在。
+- Next.js 使用 standalone 输出，已有 postbuild 静态资源复制脚本；健康检查、运维文档和质量评审模板尚不存在。
+
+## 阶段 5 实现与 Provider 核验（2026-08-30）
+- 兴趣设置复用现有 `PhysicsTag` 与 `UserInterest`，严格 API 只接受唯一 tagSlug 和 0–2 有限权重；事务替换后 Server Component 刷新即可改变确定性排序与推荐理由，无数据库迁移。
+- BullMQ 6 使用稳定 scheduler ID 与 `upsertJobScheduler`；时区、时间和开关来自配置，job 两次有界尝试，来源游标与 AI logical idempotency key 继续承担窗口重放安全。
+- 每日流水线实际顺序为公开来源采集、分类、预算内深度解读、Today 准备；单篇 AI 失败和预算跳过不阻断 Today，全部来源失败则在 AI 前停止。
+- 智谱官方 OpenAI 兼容基础地址为 `https://open.bigmodel.cn/api/paas/v4`，当前官方示例模型为 `glm-5.2`；来源：https://docs.bigmodel.cn/cn/guide/develop/openai/introduction 。
+- Kimi 官方兼容基础地址为 `https://api.moonshot.cn/v1`，快速开始当前默认 `kimi-k3`；来源：https://platform.kimi.com/docs/overview 。
+- 腾讯旧混元端点正在迁移并计划下线，阶段 5 采用 TokenHub 官方 OpenAI 兼容地址 `https://tokenhub.tencentmaas.com/v1` 与正式模型 `hy3`；来源：https://cloud.tencent.com/document/product/1823/130079 。
+- 三家新增 adapter 与 `compatible` 入口复用既有 OpenAI Chat Completions transport、严格 JSON 业务 schema、稳定错误码、主备一次回退和 mock fetch 测试；未调用真实模型 API。
+- 仅配置一个命名 Provider API Key 时自动生成分类/解读默认路由；多 Key 必须通过 `AI_DEFAULT_PROVIDER` 消歧。缺省成本是保守预算预留上限，不是厂商报价，准确审计需显式覆盖当前单价。
+- 正式 Playwright 使用仅允许 loopback 且固定 schema 名的专用 PostgreSQL fixture，阻断外部 HTTP，覆盖桌面/移动项目并在 teardown 清空业务数据。
+- Web 活性与就绪检查分离；就绪状态只返回 PostgreSQL、Redis、queue、worker 的安全状态和稳定错误码。通用日志脱敏不再保留 Error stack。
+
 ## 技术决策
 ## 阶段 4 工作区与初始边界（2026-08-30）
 - 主工作区 `main` 存在用户未跟踪的 `.superpowers/`、`.worktrees/` 和 `apps/web/tsconfig.tsbuildinfo`，本阶段不得修改或暂存它们。

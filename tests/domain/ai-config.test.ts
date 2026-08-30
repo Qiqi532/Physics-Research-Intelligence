@@ -71,7 +71,6 @@ describe("AI server configuration", () => {
   });
 
   it.each([
-    ["AI_PROVIDER_QWEN_BASE_URL", ""],
     ["AI_PROVIDER_GEMINI_API_KEY", ""],
     ["AI_INTERPRET_PRIMARY_MODEL", ""],
   ] as const)("requires enabled setting %s", (name, value) => {
@@ -111,5 +110,89 @@ describe("AI server configuration", () => {
         AI_PROVIDER_OPENAI_API_KEY: secret,
       }))).not.toContain(secret);
     }
+  });
+
+  it("omits internal error stacks from log-safe data", () => {
+    const error = new Error("fixture database failure");
+    error.stack = "fixture internal stack path";
+
+    expect(toLogSafeData({ error })).toEqual({
+      error: { name: "Error", message: "fixture database failure" },
+    });
+  });
+
+  it.each([
+    ["glm", "AI_PROVIDER_GLM_API_KEY", "glm-5.2", "https://open.bigmodel.cn/api/paas/v4"],
+    ["kimi", "AI_PROVIDER_KIMI_API_KEY", "kimi-k3", "https://api.moonshot.cn/v1"],
+    ["hunyuan", "AI_PROVIDER_HUNYUAN_API_KEY", "hy3", "https://tokenhub.tencentmaas.com/v1"],
+  ] as const)("creates a safe default %s route from only its API key", (
+    provider,
+    keyName,
+    model,
+    baseUrl,
+  ) => {
+    const config = parseConfig({
+      ...serviceEnvironment,
+      [keyName]: `fixture-${provider}-key`,
+    });
+
+    expect(config.AI).toEqual(expect.objectContaining({
+      classify: {
+        primary: { provider, model },
+        maxOutputTokens: 1_000,
+      },
+      interpret: {
+        primary: { provider, model },
+        maxOutputTokens: 4_000,
+      },
+      requestTimeoutMs: 45_000,
+    }));
+    expect(config.AI?.providers[provider]).toEqual(expect.objectContaining({
+      baseUrl,
+      inputCostPerMillionUsd: expect.any(Number),
+      outputCostPerMillionUsd: expect.any(Number),
+    }));
+    expect(config.AI?.providers[provider]?.inputCostPerMillionUsd).toBeGreaterThan(0);
+    expect(config.AI?.providers[provider]?.outputCostPerMillionUsd).toBeGreaterThan(0);
+  });
+
+  it("requires an explicit default when more than one provider key is configured", () => {
+    expect(() => parseConfig({
+      ...serviceEnvironment,
+      AI_PROVIDER_GLM_API_KEY: "fixture-glm-key",
+      AI_PROVIDER_KIMI_API_KEY: "fixture-kimi-key",
+    })).toThrow("AI_DEFAULT_PROVIDER");
+  });
+
+  it("selects an explicit default provider while retaining named provider presets", () => {
+    const config = parseConfig({
+      ...serviceEnvironment,
+      AI_DEFAULT_PROVIDER: "kimi",
+      AI_PROVIDER_GLM_API_KEY: "fixture-glm-key",
+      AI_PROVIDER_KIMI_API_KEY: "fixture-kimi-key",
+    });
+
+    expect(config.AI?.classify.primary).toEqual({ provider: "kimi", model: "kimi-k3" });
+    expect(config.AI?.providers.glm?.baseUrl).toBe("https://open.bigmodel.cn/api/paas/v4");
+  });
+
+  it("requires endpoint and model for the generic OpenAI-compatible provider", () => {
+    expect(() => parseConfig({
+      ...serviceEnvironment,
+      AI_DEFAULT_PROVIDER: "compatible",
+      AI_PROVIDER_COMPATIBLE_API_KEY: "fixture-compatible-key",
+    })).toThrow("AI_PROVIDER_COMPATIBLE_BASE_URL");
+
+    const config = parseConfig({
+      ...serviceEnvironment,
+      AI_DEFAULT_PROVIDER: "compatible",
+      AI_PROVIDER_COMPATIBLE_API_KEY: "fixture-compatible-key",
+      AI_PROVIDER_COMPATIBLE_BASE_URL: "https://compatible.example.test/v1",
+      AI_PROVIDER_COMPATIBLE_MODEL: "fixture-compatible-model",
+    });
+    expect(config.AI?.classify.primary).toEqual({
+      provider: "compatible",
+      model: "fixture-compatible-model",
+    });
   });
 });

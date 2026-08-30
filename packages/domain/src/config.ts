@@ -4,6 +4,7 @@ export type ServerConfig = {
   DATABASE_URL: string;
   REDIS_URL: string;
   DAILY_AI_BUDGET_USD: number;
+  DAILY_PIPELINE: DailyPipelineConfig;
   SOURCE_CONTACT_EMAIL?: string;
   CROSSREF_ISSN?: string;
   OPENALEX_API_KEY?: string;
@@ -11,11 +12,60 @@ export type ServerConfig = {
   AI_PROVIDER_OPENAI_API_KEY?: string;
   AI_PROVIDER_GEMINI_API_KEY?: string;
   AI_PROVIDER_QWEN_API_KEY?: string;
+  AI_PROVIDER_GLM_API_KEY?: string;
+  AI_PROVIDER_KIMI_API_KEY?: string;
+  AI_PROVIDER_HUNYUAN_API_KEY?: string;
+  AI_PROVIDER_COMPATIBLE_API_KEY?: string;
   AI?: AiServerConfig;
 };
 
-export const aiProviderNames = ["deepseek", "openai", "gemini", "qwen"] as const;
+export type DailyPipelineConfig = {
+  enabled: boolean;
+  time: string;
+  timezone: string;
+};
+
+export const aiProviderNames = [
+  "deepseek",
+  "openai",
+  "gemini",
+  "qwen",
+  "glm",
+  "kimi",
+  "hunyuan",
+  "compatible",
+] as const;
 export type AiProviderName = (typeof aiProviderNames)[number];
+
+type AiProviderPreset = {
+  baseUrl: string;
+  model: string;
+};
+
+export const aiProviderPresets: Partial<Record<AiProviderName, AiProviderPreset>> = {
+  deepseek: { baseUrl: "https://api.deepseek.com/v1", model: "deepseek-chat" },
+  openai: { baseUrl: "https://api.openai.com/v1", model: "gpt-5-mini" },
+  gemini: {
+    baseUrl: "https://generativelanguage.googleapis.com/v1beta",
+    model: "gemini-2.5-flash",
+  },
+  qwen: {
+    baseUrl: "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    model: "qwen-plus",
+  },
+  glm: {
+    baseUrl: "https://open.bigmodel.cn/api/paas/v4",
+    model: "glm-5.2",
+  },
+  kimi: { baseUrl: "https://api.moonshot.cn/v1", model: "kimi-k3" },
+  hunyuan: { baseUrl: "https://tokenhub.tencentmaas.com/v1", model: "hy3" },
+};
+
+const defaultRequestTimeoutMs = 45_000;
+const defaultClassifyMaxOutputTokens = 1_000;
+const defaultInterpretMaxOutputTokens = 4_000;
+const conservativeInputCostPerMillionUsd = 10;
+const conservativeOutputCostPerMillionUsd = 50;
 
 export type AiProviderServerConfig = {
   apiKey: string;
@@ -54,6 +104,9 @@ const configSchema = z.object({
   DAILY_AI_BUDGET_USD: z.coerce
     .number({ error: "DAILY_AI_BUDGET_USD must be a positive number" })
     .positive("DAILY_AI_BUDGET_USD must be a positive number"),
+  DAILY_PIPELINE_ENABLED: z.string().trim().optional(),
+  DAILY_PIPELINE_TIME: z.string().trim().optional(),
+  DAILY_PIPELINE_TIMEZONE: z.string().trim().optional(),
   SOURCE_CONTACT_EMAIL: z.preprocess(
     (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
     z.string().trim().email().optional(),
@@ -67,6 +120,10 @@ const configSchema = z.object({
   AI_PROVIDER_OPENAI_API_KEY: optionalSecret,
   AI_PROVIDER_GEMINI_API_KEY: optionalSecret,
   AI_PROVIDER_QWEN_API_KEY: optionalSecret,
+  AI_PROVIDER_GLM_API_KEY: optionalSecret,
+  AI_PROVIDER_KIMI_API_KEY: optionalSecret,
+  AI_PROVIDER_HUNYUAN_API_KEY: optionalSecret,
+  AI_PROVIDER_COMPATIBLE_API_KEY: optionalSecret,
 });
 
 const sensitiveFieldPattern = /(?:_KEY|PASSWORD|TOKEN|SECRET|DATABASE_URL|REDIS_URL)$/i;
@@ -80,8 +137,35 @@ export function parseConfig(environment: NodeJS.ProcessEnv): ServerConfig {
     throw new Error([...new Set(messages)].join("; "));
   }
 
+  const {
+    DAILY_PIPELINE_ENABLED: _enabled,
+    DAILY_PIPELINE_TIME: _time,
+    DAILY_PIPELINE_TIMEZONE: _timezone,
+    ...serviceConfig
+  } = result.data;
   const ai = parseAiConfig(environment);
-  return ai ? { ...result.data, AI: ai } : result.data;
+  const dailyPipeline = parseDailyPipelineConfig(environment);
+  return ai
+    ? { ...serviceConfig, DAILY_PIPELINE: dailyPipeline, AI: ai }
+    : { ...serviceConfig, DAILY_PIPELINE: dailyPipeline };
+}
+
+function parseDailyPipelineConfig(environment: NodeJS.ProcessEnv): DailyPipelineConfig {
+  const enabledValue = optionalEnvironmentValue(environment, "DAILY_PIPELINE_ENABLED") ?? "false";
+  if (enabledValue !== "true" && enabledValue !== "false") {
+    throw new Error("DAILY_PIPELINE_ENABLED must be true or false");
+  }
+  const time = optionalEnvironmentValue(environment, "DAILY_PIPELINE_TIME") ?? "06:00";
+  if (!/^(?:[01]\d|2[0-3]):[0-5]\d$/u.test(time)) {
+    throw new Error("DAILY_PIPELINE_TIME must use 24-hour HH:mm format");
+  }
+  const timezone = optionalEnvironmentValue(environment, "DAILY_PIPELINE_TIMEZONE") ?? "Asia/Shanghai";
+  try {
+    new Intl.DateTimeFormat("en", { timeZone: timezone }).format(new Date(0));
+  } catch {
+    throw new Error("DAILY_PIPELINE_TIMEZONE must be a valid IANA timezone");
+  }
+  return { enabled: enabledValue === "true", time, timezone };
 }
 
 function parseAiConfig(environment: NodeJS.ProcessEnv): AiServerConfig | undefined {
@@ -95,8 +179,11 @@ function parseAiConfig(environment: NodeJS.ProcessEnv): AiServerConfig | undefin
     "AI_INTERPRET_FALLBACK_PROVIDER",
     "AI_INTERPRET_FALLBACK_MODEL",
   ] as const;
-  if (!routeVariables.some((name) => optionalEnvironmentValue(environment, name))) {
-    return undefined;
+  const hasExplicitRoutes = routeVariables.some((name) =>
+    optionalEnvironmentValue(environment, name)
+  );
+  if (!hasExplicitRoutes) {
+    return parsePresetAiConfig(environment);
   }
 
   const classify = parseAiTaskConfig(environment, "CLASSIFY");
@@ -118,6 +205,62 @@ function parseAiConfig(environment: NodeJS.ProcessEnv): AiServerConfig | undefin
         parseAiProviderConfig(environment, provider),
       ]),
     ),
+  };
+}
+
+function parsePresetAiConfig(
+  environment: NodeJS.ProcessEnv,
+): AiServerConfig | undefined {
+  const configuredProviders = aiProviderNames.filter((provider) =>
+    optionalEnvironmentValue(environment, providerVariable(provider, "API_KEY"))
+  );
+  if (configuredProviders.length === 0) {
+    return undefined;
+  }
+
+  const selectedValue = optionalEnvironmentValue(environment, "AI_DEFAULT_PROVIDER");
+  if (!selectedValue && configuredProviders.length > 1) {
+    throw new Error(
+      "AI_DEFAULT_PROVIDER is required when more than one provider API key is configured",
+    );
+  }
+  const provider = selectedValue
+    ? parseAiProviderName(selectedValue, "AI_DEFAULT_PROVIDER")
+    : configuredProviders[0]!;
+  if (!configuredProviders.includes(provider)) {
+    throw new Error(`Missing required environment variable: ${providerVariable(provider, "API_KEY")}`);
+  }
+
+  const providers = Object.fromEntries(
+    configuredProviders.map((configuredProvider) => [
+      configuredProvider,
+      parseAiProviderConfig(environment, configuredProvider),
+    ]),
+  );
+  const model = providerModel(environment, provider);
+  return {
+    classify: {
+      primary: { provider, model },
+      maxOutputTokens: parseOptionalPositiveInteger(
+        environment,
+        "AI_CLASSIFY_MAX_OUTPUT_TOKENS",
+        defaultClassifyMaxOutputTokens,
+      ),
+    },
+    interpret: {
+      primary: { provider, model },
+      maxOutputTokens: parseOptionalPositiveInteger(
+        environment,
+        "AI_INTERPRET_MAX_OUTPUT_TOKENS",
+        defaultInterpretMaxOutputTokens,
+      ),
+    },
+    requestTimeoutMs: parseOptionalPositiveInteger(
+      environment,
+      "AI_REQUEST_TIMEOUT_MS",
+      defaultRequestTimeoutMs,
+    ),
+    providers,
   };
 }
 
@@ -170,21 +313,48 @@ function parseAiProviderConfig(
   provider: AiProviderName,
 ): AiProviderServerConfig {
   const prefix = `AI_PROVIDER_${provider.toUpperCase()}`;
+  const preset = aiProviderPresets[provider];
   return {
     apiKey: requiredEnvironmentValue(environment, `${prefix}_API_KEY`),
     baseUrl: parseUrl(
-      requiredEnvironmentValue(environment, `${prefix}_BASE_URL`),
+      optionalEnvironmentValue(environment, `${prefix}_BASE_URL`) ??
+        requiredPresetValue(preset?.baseUrl, `${prefix}_BASE_URL`),
       `${prefix}_BASE_URL`,
     ),
-    inputCostPerMillionUsd: parseNonNegativeNumber(
+    inputCostPerMillionUsd: parseOptionalNonNegativeNumber(
       environment,
       `${prefix}_INPUT_COST_PER_MILLION_USD`,
+      conservativeInputCostPerMillionUsd,
     ),
-    outputCostPerMillionUsd: parseNonNegativeNumber(
+    outputCostPerMillionUsd: parseOptionalNonNegativeNumber(
       environment,
       `${prefix}_OUTPUT_COST_PER_MILLION_USD`,
+      conservativeOutputCostPerMillionUsd,
     ),
   };
+}
+
+function providerModel(
+  environment: NodeJS.ProcessEnv,
+  provider: AiProviderName,
+): string {
+  const name = providerVariable(provider, "MODEL");
+  return optionalEnvironmentValue(environment, name) ??
+    requiredPresetValue(aiProviderPresets[provider]?.model, name);
+}
+
+function providerVariable(
+  provider: AiProviderName,
+  suffix: "API_KEY" | "MODEL",
+): string {
+  return `AI_PROVIDER_${provider.toUpperCase()}_${suffix}`;
+}
+
+function requiredPresetValue(value: string | undefined, name: string): string {
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${name}`);
+  }
+  return value;
 }
 
 function parseAiProviderName(value: string, name: string): AiProviderName {
@@ -211,6 +381,26 @@ function parseNonNegativeNumber(
     throw new Error(`${name} must be a nonnegative number`);
   }
   return value;
+}
+
+function parseOptionalPositiveInteger(
+  environment: NodeJS.ProcessEnv,
+  name: string,
+  defaultValue: number,
+): number {
+  return optionalEnvironmentValue(environment, name)
+    ? parsePositiveInteger(environment, name)
+    : defaultValue;
+}
+
+function parseOptionalNonNegativeNumber(
+  environment: NodeJS.ProcessEnv,
+  name: string,
+  defaultValue: number,
+): number {
+  return optionalEnvironmentValue(environment, name)
+    ? parseNonNegativeNumber(environment, name)
+    : defaultValue;
 }
 
 function requiredEnvironmentValue(
@@ -292,7 +482,6 @@ function sanitizeValue(
     return {
       name: value.name,
       message: sanitizeString(value.message, secrets),
-      stack: value.stack ? sanitizeString(value.stack, secrets) : undefined,
     };
   }
 
