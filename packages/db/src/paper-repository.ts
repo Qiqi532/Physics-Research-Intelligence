@@ -44,6 +44,20 @@ export type PaperTagRecord = {
 export type PaperDetails = PaperSummary & {
   sources: PaperSourceRecord[];
   tags: PaperTagRecord[];
+  interpretation: {
+    id: string;
+    content: unknown;
+    provider: string;
+    model: string;
+    promptVersion: string;
+    createdAt: Date;
+  } | null;
+  userState: {
+    status: "UNREAD" | "SAVED" | "READING" | "COMPLETE" | "SKIPPED";
+    feedback: "NONE" | "LIKE" | "DISLIKE";
+    note: string | null;
+    updatedAt: Date;
+  } | null;
 };
 
 export type PaperPage = {
@@ -57,7 +71,7 @@ export interface PaperRepository {
     candidateDuplicates: DuplicateCandidate[];
   }>;
   list(input: { limit: number; cursor?: string }): Promise<PaperPage>;
-  findByDoi(doi: string): Promise<PaperDetails | null>;
+  findByDoi(doi: string, userId?: string): Promise<PaperDetails | null>;
 }
 
 export function createPaperRepository(client: DatabaseClient): PaperRepository {
@@ -126,15 +140,42 @@ export function createPaperRepository(client: DatabaseClient): PaperRepository {
       };
     },
 
-    async findByDoi(rawDoi) {
+    async findByDoi(rawDoi, userId = "default") {
       const doi = normalizeDoi(rawDoi);
       const paper = await client.paper.findUnique({
         where: { doi },
         include: {
           sources: { orderBy: [{ retrievedAt: "desc" }, { id: "desc" }] },
           classifications: {
-            orderBy: [{ relevance: "desc" }, { tagSlug: "asc" }],
+            orderBy: [
+              { createdAt: "desc" },
+              { relevance: "desc" },
+              { tagSlug: "asc" },
+            ],
             include: { tag: true },
+          },
+          interpretations: {
+            where: { status: "COMPLETE" },
+            take: 1,
+            orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+            select: {
+              id: true,
+              content: true,
+              provider: true,
+              model: true,
+              promptVersion: true,
+              createdAt: true,
+            },
+          },
+          userStates: {
+            where: { userId },
+            take: 1,
+            select: {
+              status: true,
+              feedback: true,
+              note: true,
+              updatedAt: true,
+            },
           },
         },
       });
@@ -153,13 +194,15 @@ export function createPaperRepository(client: DatabaseClient): PaperRepository {
           retrievedAt: source.retrievedAt,
           licenseUrl: source.licenseUrl,
         })),
-        tags: paper.classifications.map((classification) => ({
+        tags: deduplicatePaperTags(paper.classifications).map((classification) => ({
           slug: classification.tag.slug,
           labelEn: classification.tag.labelEn,
           labelZh: classification.tag.labelZh,
           relevance: classification.relevance,
           reason: classification.reason,
         })),
+        interpretation: paper.interpretations[0] ?? null,
+        userState: paper.userStates[0] ?? null,
       };
     },
   };
@@ -280,5 +323,29 @@ function toPaperSummary(paper: {
   createdAt: Date;
   updatedAt: Date;
 }): PaperSummary {
-  return { ...paper };
+  return {
+    id: paper.id,
+    doi: paper.doi,
+    title: paper.title,
+    normalizedTitle: paper.normalizedTitle,
+    abstract: paper.abstract,
+    journal: paper.journal,
+    firstAuthor: paper.firstAuthor,
+    publishedAt: paper.publishedAt,
+    originalUrl: paper.originalUrl,
+    accessStatus: paper.accessStatus,
+    createdAt: paper.createdAt,
+    updatedAt: paper.updatedAt,
+  };
+}
+
+function deduplicatePaperTags<T extends { tagSlug: string }>(rows: T[]): T[] {
+  const seen = new Set<string>();
+  return rows.filter((row) => {
+    if (seen.has(row.tagSlug)) {
+      return false;
+    }
+    seen.add(row.tagSlug);
+    return true;
+  });
 }

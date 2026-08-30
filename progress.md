@@ -1,5 +1,42 @@
 # 进度日志
 
+## 会话：2026-08-30（阶段 4）
+
+### 推荐、内部 API 与 Today Physics
+- **状态：** in_progress
+- 已完成：
+  - 检查主工作区 Git 状态、已有 worktree、规划文件和近期提交。
+  - 确认 `codex/stage-4` 与目标路径不存在后，从 `00afc9a` 创建隔离 worktree。
+  - 开始完整阅读指定设计/计划文件并映射仓库文件。
+  - 完成阶段 4 详细 TDD 实施计划与自检；确认现有表足够，本阶段无需迁移。
+  - 推荐评分首个失败测试已写入，覆盖五类分项、冷启动、缺失分类/解读、状态和稳定排序。
+  - 推荐评分目标红灯：`tests/recommendation/score.test.ts` 因 `packages/recommendation/src/score` 不存在失败，退出码 1。
+  - 最小实现新增 `@pri/recommendation`；兴趣、分类、30 日线性新鲜度、跨方向与阅读状态分项可审计，理由最多三条，稳定并列按日期和 ID 排序。
+  - 推荐绿灯：单文件 13 项通过；`@pri/recommendation` TypeScript 检查退出码 0。
+  - Today 仓储目标红灯：两个测试文件均因 `today-repository` 不存在失败；最小实现后单元 3 项通过，PostgreSQL 2 项等待专用 schema，`@pri/db` 类型检查通过。
+  - 详情仓储红灯证明当前实现没有命名的解读/状态投影，并暴露 `toPaperSummary` 对 Prisma 关系对象的过宽展开；修复为显式字段投影后详情与 Today 定向测试 4 项通过。
+  - API 红灯：Today 服务模块不存在，论文详情新增两项断言失败；新增 Today/状态路由并严格校验 stage-3 解读后，2 个文件 21 项通过，Web 类型检查通过。
+  - 呈现模型红灯为模块不存在；实现 ready/empty/error、缺失/损坏 AI、证据分组和置信度映射后 6 项通过。
+  - 服务端组件红灯为模块不存在；首页统计/卡片/队列和详情解读组件完成后，组件与呈现 10 项通过。
+  - Today 首页、论文详情、loading/error/not-found、阅读状态控件与响应式样式已完成；UI/API 4 个文件 31 项通过，Web typecheck 与 lint 通过。
+  - 生产预览发现 standalone 缺少 `.next/static` 导致 CSS 404；新增失败测试与 postbuild 复制脚本后转绿，重建后 CSS 资源返回 200。
+  - 390px 浏览器复核发现标题横向溢出；新增响应式 CSS 失败测试，最小修复后转绿并重新截图确认无裁切。
+  - 本地代码审查发现旧 DISLIKE 状态残留和详情重复标签两个警告级问题；均先补失败测试，再最小修复。LIKE 保留、DISLIKE 恢复和标签去重回归共 6 项通过。
+  - 浏览器 fixture 下验证阅读状态接口返回 READING/LIKE，详情页 `aria-pressed` 选中且保留“基于摘要解读”；随后清除 3 篇虚构论文与 1 条兴趣记录，数据库计数归零。
+  - 桌面首页、390px 首页、论文详情、空状态与不可达数据库错误状态均由隔离本地 Chrome 检查；错误页面未泄露数据库 URL。Codex 内置浏览器因 Windows sandbox workspace 刷新失败，未用于最终截图。
+  - 最终全量测试：32 个文件、185 项通过；Prisma generate/validate/migration status 通过，4 条既有迁移全部已应用。
+  - 最终 lint、全仓 typecheck、Web production build（含 standalone 资源复制）和 worker production build 均以退出码 0 完成。
+  - 暂存终检共 49 个 stage-4 文件；`git diff --cached --check` 通过，敏感值、禁用文件名和 Prisma schema/迁移变化匹配数均为 0，忽略的 `.next`、worker `dist` 与 `tsbuildinfo` 未进入暂存区。
+- 错误：
+  - 首次本地命令因 workspace 辅助环境刷新失败；改用经审批的执行边界后成功，未产生文件变更。
+  - 桌面补丁入口因相同刷新故障失败；改用 stage-3 已验证的 Codex 内建 apply_patch 模式。
+  - 推荐测试第一次启动先从本地 pnpm store 恢复锁定依赖（下载 0）；第二次在 Prisma pretest 因当前进程缺少 `DATABASE_URL` 提前失败，尚未到达目标红灯。后续生成步骤使用进程级虚构本地 URL，不读取 `.env`。
+  - 首次推荐包类型检查因 ES2022 不支持 `toSorted` 失败；系统化确认根因后只将四处局部不可变排序改为复制后 `.sort`，未放宽全仓 TypeScript 目标，复验通过。
+  - 组件测试首次无法解析 Web 的 preserve JSX；无效的 esbuild 修复被 Vite 8 Oxc 明确忽略。读取本地 Vite/rolldown 类型后改为 `oxc.jsx.runtime=automatic`，组件测试开始正常执行。
+  - 组件首次真实执行因测试文本遍历器在相邻节点间插入空格失败 1 项；将证据标题/置信度改为单一模板文本节点后 10 项全部通过。
+  - 页面首次类型检查发现 Today empty message 未形成严格判别联合；拆分 ready/empty 返回类型后测试、typecheck 和 lint 通过。
+  - 应用内浏览器控制运行时连续 3 次因 Windows sandbox workspace refresh helper 失败而无法初始化；重置运行时后根因未变。停止重复尝试，改用本机 headless 浏览器对本地 URL 做截图/视口验证，并在最终结果中保留交互验证限制。
+
 ## 会话：2026-08-29
 
 ### 阶段 3：AI 分类与结构化解读

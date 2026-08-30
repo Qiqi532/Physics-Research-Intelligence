@@ -97,17 +97,21 @@ infra/                    Docker Compose 与部署示例
 
 ### Task 5：推荐和内部 API（阶段 4 的后端部分）
 
+**状态：** complete（2026-08-30；未引入无依据的重点期刊权重）
+
 **Files:**
 - Create: `packages/recommendation/src/score.ts`, `packages/recommendation/src/reasons.ts`
 - Create: `apps/web/src/app/api/today/route.ts`, `apps/web/src/app/api/papers/[doi]/route.ts`, `apps/web/src/app/api/papers/[doi]/state/route.ts`
 - Test: `tests/recommendation/score.test.ts`, `tests/api/today.test.ts`
 
-- [ ] 先写失败测试：兴趣权重、交叉新颖度、重点期刊、时间衰减、跳过惩罚和收藏加分改变排序，且每篇结果最多生成三条真实理由。
-- [ ] 实现纯函数评分；返回 `score_breakdown` 与人类可读理由，禁止用模型临时生成推荐理由。
-- [ ] 实现 Today、论文详情和用户状态 Route Handler；验证 DOI 参数、限制响应字段，不返回密钥、受限全文或内部错误堆栈。
-- [ ] 运行 API 集成测试，覆盖空数据、失败来源、无 AI 结果和已收藏论文。
+- [x] 先写失败测试：兴趣权重、分类相关度、交叉新颖度、时间衰减、跳过惩罚和收藏加分改变排序，且每篇结果最多生成三条真实理由。
+- [x] 实现纯函数评分；返回 `score_breakdown` 与人类可读理由，禁止用模型临时生成推荐理由。
+- [x] 实现 Today、论文详情和用户状态 Route Handler；验证 DOI 参数、限制响应字段，不返回密钥、受限全文或内部错误堆栈。
+- [x] 运行 API 集成测试，覆盖空数据、失败来源、无 AI 结果和已收藏论文。
 
 ### Task 6：Today Physics 与论文解读界面（阶段 4 的前端部分）
+
+**状态：** partial（2026-08-30；首页、详情和阅读状态完成，兴趣设置与正式 Playwright E2E 待后续）
 
 **Files:**
 - Create: `apps/web/src/app/page.tsx`, `apps/web/src/app/papers/[doi]/page.tsx`, `apps/web/src/app/settings/interests/page.tsx`
@@ -115,8 +119,8 @@ infra/                    Docker Compose 与部署示例
 - Test: `tests/e2e/today.spec.ts`, `tests/e2e/paper-detail.spec.ts`
 
 - [ ] 先写 Playwright 测试：首页展示今日统计、推荐理由与阅读队列；论文页展示来源链接、字段置信度及“可能需要校园网/VPN”。
-- [ ] 实现首页，默认显示全学科概览；推荐按个人兴趣与反馈排序，不把凝聚态固定置顶。
-- [ ] 实现论文详情，分开渲染 `direct`、`inferred`、`uncertain`；当只拥有摘要时明确显示“基于摘要解读”。
+- [x] 实现首页，默认显示全学科概览；推荐按个人兴趣与反馈排序，不把凝聚态固定置顶。
+- [x] 实现论文详情，分开渲染 `direct`、`inferred`、`uncertain`；当只拥有摘要时明确显示“基于摘要解读”。
 - [ ] 实现兴趣设置、收藏、稍后读、完成和不感兴趣操作，并在成功后刷新 Today 结果。
 - [ ] 在本地 fixture 数据上运行端到端测试；预期所有交互及原文外链可用。
 

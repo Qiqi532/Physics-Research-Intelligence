@@ -60,6 +60,31 @@
 - 本阶段所有 provider 测试均使用 mock HTTP/fixture，没有发起真实模型 API 请求，也没有读取或写入任何真实密钥。
 
 ## 技术决策
+## 阶段 4 工作区与初始边界（2026-08-30）
+- 主工作区 `main` 存在用户未跟踪的 `.superpowers/`、`.worktrees/` 和 `apps/web/tsconfig.tsbuildinfo`，本阶段不得修改或暂存它们。
+- 阶段 4 唯一编辑、测试和提交工作区是 `D:\Physics Research Intelligence\.worktrees\stage-4`，分支 `codex/stage-4`，基线精确为 `00afc9aa0dcc96445e18a6e3e132e4892f79aa4b`。
+- `codex/stage-3` 工作区状态干净；新 worktree 只从指定提交创建，未触碰其他分支或用户数据。
+- 阶段 3 已提供可直接消费的论文分类、结构化解读、证据等级和来源披露；阶段 4 不得新增模型调用。
+- 现有 Prisma 已包含 `UserInterest`、`UserPaperState`、`PaperClassification` 和 `PaperInterpretation`；阶段 4 可通过新增窄仓储完成，不需要修改 schema 或追加迁移。
+- 推荐应作为新的 `packages/recommendation` 纯函数包实现；现有 workspace 自动发现 `packages/*`，无需改 workspace 路径。
+- 当前 Web 边界是 Route Handler → 可注入服务 → `@pri/db` 仓储；阶段 4 应沿用此结构，不在页面或 Route Handler 中直接写 Prisma 查询。
+- 当前 UI 只有米白背景、砖红 eyebrow、深蓝正文和 Georgia 标题；阶段 4 扩展这一风格，不引入组件库或设计系统重构。
+- 冷启动没有兴趣时仍以分类相关度、时间新鲜度和交叉发现价值排序；没有分类时仅保留时间/状态信号并明确“尚待分类”；没有解读不影响排序但详情页必须显示缺少 AI 解读。
+- 现有设计没有重点期刊配置或权重来源；阶段 4 不硬编码主观期刊名单，先完成用户明确要求的兴趣、分类、发布时间、跨领域和阅读状态五类信号。
+- React 页面优先使用服务端组件；仅状态更新控件使用最小客户端边界，独立数据库读取并行执行，避免页面自请求内部 API 和串行瀑布。
+
+## 阶段 4 实现与审查结论（2026-08-30）
+- `@pri/recommendation` 使用注入的 `now`、固定权重和稳定并列规则；无随机数、AI、遥测、外部网络或隐藏模块状态。
+- Today 仓储并行读取兴趣与候选论文，消费阶段 3 的分类和已完成解读；冷启动、缺分类、缺解读、保存/阅读/完成/跳过状态都有确定行为。
+- 详情 DTO 只暴露公开事实、来源、验证过的结构化解读与安全用户状态；损坏的持久化解读降级为 unavailable，不影响公开事实展示。
+- 本地审查发现并以红绿测试修复两个警告级问题：切换阅读状态时旧 DISLIKE 未清除，以及重复分类版本导致详情标签重复。LIKE 反馈保持不变，非兴趣状态恢复为 NONE。
+- CodeRabbit CLI 未安装且其服务会上传差异；遵守本阶段无外部网络边界，未上传代码，改用完整本地差异审查。
+- Next.js standalone 默认不复制 `.next/static`；新增可测试 postbuild 复制步骤后，生产预览 CSS 请求恢复 200。
+- 390px 视觉检查发现首屏标题横向溢出；新增 CSS 回归测试并通过最小宽度/小屏字号修复。
+- 专用 `pri_stage4_test` schema 复用了既有 4 条迁移，无 Prisma schema 或历史迁移变更；浏览器 fixture 已全部清除。
+- 正式兴趣设置页与 Playwright E2E 不属于本次已交付差异，保留为后续任务；本阶段用隔离本地 Chrome 完成桌面、390px、详情、空态和安全错误态验收。
+
+## 技术决策
 | 决策 | 理由 |
 |---|---|
 | 模块化单体 | MVP 部署和调试简单，同时内部边界可拆分 |

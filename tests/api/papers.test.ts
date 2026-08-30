@@ -94,6 +94,20 @@ describe("paper API service", () => {
           reason: "Direct subject match",
         },
       ],
+      interpretation: {
+        id: "33333333-3333-4333-8333-333333333333",
+        content: interpretationContent(),
+        provider: "openai",
+        model: "fixture-model",
+        promptVersion: "interpret-v1",
+        createdAt: new Date("2026-08-30T00:00:00.000Z"),
+      },
+      userState: {
+        status: "READING",
+        feedback: "LIKE",
+        note: null,
+        updatedAt: new Date("2026-08-30T01:00:00.000Z"),
+      },
     };
     const repository = fakeRepository({ findByDoi: vi.fn().mockResolvedValue(detail) });
 
@@ -104,6 +118,43 @@ describe("paper API service", () => {
       expect.objectContaining({
         sources: [expect.objectContaining({ sourceName: "crossref" })],
         tags: [expect.objectContaining({ slug: "amo-optics" })],
+        interpretation: expect.objectContaining({
+          status: "complete",
+          sourceDisclosure: "基于摘要解读",
+          overviewZh: expect.objectContaining({ evidenceLevel: "direct" }),
+        }),
+        userState: expect.objectContaining({
+          status: "READING",
+          updatedAt: "2026-08-30T01:00:00.000Z",
+        }),
+      }),
+    );
+  });
+
+  it("keeps paper facts available when persisted AI content is invalid", async () => {
+    const detail: PaperDetails = {
+      ...paper,
+      sources: [],
+      tags: [],
+      interpretation: {
+        id: "33333333-3333-4333-8333-333333333333",
+        content: { basis: "abstract_only", unsupported: true },
+        provider: "openai",
+        model: "fixture-model",
+        promptVersion: "interpret-v1",
+        createdAt: new Date("2026-08-30T00:00:00.000Z"),
+      },
+      userState: null,
+    };
+    const repository = fakeRepository({ findByDoi: vi.fn().mockResolvedValue(detail) });
+
+    const result = await createPaperApi(repository).detail("10.1103%2Fexample");
+
+    expect(result.status).toBe(200);
+    expect(result.body).toEqual(
+      expect.objectContaining({
+        title: "A safe paper",
+        interpretation: { status: "unavailable" },
       }),
     );
   });
@@ -133,5 +184,29 @@ function fakeRepository(overrides: Partial<PaperRepository> = {}): PaperReposito
     list: vi.fn().mockResolvedValue({ items: [], nextCursor: null }),
     findByDoi: vi.fn().mockResolvedValue(null),
     ...overrides,
+  };
+}
+
+function interpretationContent() {
+  const directClaim = {
+    text: "The abstract directly states the result.",
+    evidenceLevel: "direct",
+    evidenceReferences: [{ source: "abstract", locator: "sentence 1" }],
+  };
+  return {
+    basis: "abstract_only",
+    sourceDisclosure: "基于摘要解读",
+    overviewZh: directClaim,
+    researchQuestion: directClaim,
+    innovations: [directClaim],
+    methodsAndEvidence: [directClaim],
+    limitations: [
+      {
+        text: "Full experimental details require verification.",
+        evidenceLevel: "uncertain",
+        evidenceReferences: [{ source: "abstract", locator: "not specified" }],
+      },
+    ],
+    readingAdvice: ["Read the methods in the original paper."],
   };
 }

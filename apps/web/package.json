@@ -5,11 +5,13 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "postbuild": "node scripts/copy-standalone-assets.mjs",
     "start": "node .next/standalone/apps/web/server.js",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@pri/ai": "workspace:*",
     "@pri/db": "workspace:*",
     "@pri/domain": "workspace:*",
     "next": "^16.3.3",
