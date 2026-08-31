@@ -1,5 +1,15 @@
 # 进度日志
 
+## 会话：2026-08-31（阶段 7）
+
+### 零成本本地真实数据试运行
+- **状态：** in_progress，设计规格待用户书面审阅。
+- 历史分支审计确认本地与远端 stage-2、stage-3、stage-4、stage-5、集成分支和备份分支全部已合并进 `origin/main@64115e7`，`--no-merged origin/main` 为空。
+- 从 `origin/main@64115e7` 创建独立 `codex/stage-6-local-trial` 工作树；未触碰保存项目目录的旧 main 或其他 worktree。
+- 用户确认电脑端访问为最低要求；手机/平板仅在实现简单且安全边界明确时加入。
+- 已批准方向为默认 localhost、显式可信 LAN、九方向官方开放论文、PDF 本地忽略、manifest 可追溯、现有仓储幂等导入、无 Key 可用页面。
+- 新增 `docs/superpowers/specs/2026-08-31-local-real-data-trial-design.md`，实现需等待用户审阅后再进入详细计划。
+
 ## 会话：2026-08-30（阶段 6）
 
 ### 全仓审查、可回退合并与后续交接

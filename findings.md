@@ -1,5 +1,13 @@
 # 发现与决策
 
+## 阶段 7 历史审计与本地试运行边界（2026-08-31）
+- `git branch -a --no-merged origin/main` 为空；所谓“之前的 code”已经通过 stage-2 至 stage-5 历史和 `a68b5ea` 非快进合并进入远端 main，不应再次 cherry-pick 或制造重复合并。
+- 当前已有 `apps/worker/src/ingest.ts` 可真实拉取 OpenAlex/arXiv 最近一天数据，但它面向宽泛每日采集，不适合构造覆盖九方向、可重复人工评审的固定语料集。
+- 仓库没有既有 data/papers/corpus/downloads 目录；阶段 7 将新增明确的 review-corpus 边界，PDF 忽略、公开 manifest 跟踪。
+- 电脑 localhost 是零成本且与无登录单用户架构一致的默认部署；可信 LAN 只开放 Web，数据库与 Redis 必须保持 loopback。校园 Wi-Fi 设备隔离可能使手机访问失败，因此移动端是 best-effort。
+- 真实论文 PDF 只用于人工评审；应用导入和模型输入继续限于公开标题、元数据与摘要。
+
+
 ## 阶段 6 全仓审查与部署结论（2026-08-30）
 - `origin/main@6101ea5` 是 `codex/stage-5@49e163e` 的祖先，stage-5 单向领先 3 个提交；合并不存在双向分叉。
 - 保存项目目录的本地 `main@e355a1d` 含用户未跟踪内容，因此本阶段只在独立工作树审查和集成，不移动或清理该工作区。
