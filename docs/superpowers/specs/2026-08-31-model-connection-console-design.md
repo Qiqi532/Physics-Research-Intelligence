@@ -1,7 +1,7 @@
 # 模型连接管理台设计规格
 
 **日期：** 2026-08-31
-**状态：** 已通过对话设计评审，等待书面规格复核
+**状态：** 书面规格已由用户通过，进入 TDD 实施
 **范围：** 单用户、本机优先的模型连接配置、测试与运行时路由
 
 ## 1. 背景
@@ -115,11 +115,12 @@ OpenAI、DeepSeek、Gemini、Qwen、GLM、Kimi 和混元使用现有 `aiProvider
 
 ## 10. 运行时热切换
 
-新增窄接口 `RuntimeAiConfigResolver`，从仓储读取并解密当前路由，构造现有 `AiServerConfig` 等价快照，然后复用当前 provider factory、router、成本和 job 边界。
+新增窄接口 `RuntimeAiConfigResolver`，从仓储读取并解密当前路由，构造按任务隔离的连接快照，然后复用当前 provider adapter、router、成本和 job 边界。快照不能继续使用以供应商名为唯一键的 `AiServerConfig.providers`，否则“分类用 Kimi 配置 A、解读用 Kimi 配置 B”会互相覆盖；环境变量配置只在解析后转换成同一任务级快照类型。
 
 - `createConfiguredDailyProcessor` 不再在 worker 启动时固定 provider。
 - 每次 `process()` 开始时读取一次路由快照，并在整个批次内复用。
 - 下一批次读取更新后的路由，满足“新任务立即生效、运行中任务不变”。
+- 分类与解读可以同时选择同一供应商的不同命名连接；每项任务内部的备用连接仍必须属于不同供应商。
 - 没有持久化路由时才使用现有环境变量 `config.AI`。
 - 已存在但损坏、缺 Key 或无法解密的持久化路由必须安全失败，不得静默切换到环境变量或另一供应商。
 - 环境变量 factory 和测试保持兼容，不强制现有用户迁移。

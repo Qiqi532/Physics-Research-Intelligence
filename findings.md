@@ -3,6 +3,7 @@
 ## 阶段 8 模型连接管理台（2026-08-31）
 - 现有八类 provider adapter、统一 `healthCheck`、factory、router、成本和脱敏边界可以复用；无需重写模型协议层。
 - 当前 `createConfiguredDailyProcessor` 在 worker 启动时一次性构造 provider，不满足热切换。批准的语义是每个新批次读取一次持久化路由快照，批次执行中保持不变。
+- `AiServerConfig.providers` 以供应商名为键，不能承载跨任务的同供应商多配置；运行时解析必须改用按任务隔离的连接快照，环境变量配置再适配到该类型。
 - Prisma 当前没有通用设置或连接配置表；新增明确的 `AiConnectionProfile` 与单用户 `AiRuntimeRouting` 比复用业务论文表更安全。
 - 用户批准同一供应商保存多个命名连接、数据库密文加本机独立主密钥、连接检查与真实示例两级测试，以及环境变量兼容回退。
 - 用户在可视化线框稿中选择管理台布局：左侧连接列表，右侧编辑/测试，集中任务路由。
