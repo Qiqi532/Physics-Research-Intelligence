@@ -17,7 +17,8 @@
     "@pri/sources": "workspace:*",
     "bullmq": "6.3.1",
     "dotenv": "^17.4.2",
-    "ioredis": "5.7.0"
+    "ioredis": "5.7.0",
+    "zod": "latest"
   },
   "devDependencies": {
     "tsx": "^4.23.12"

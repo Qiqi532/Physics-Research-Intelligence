@@ -36,7 +36,7 @@
 - Create: `apps/worker/src/review-corpus/manifest.ts`
 - Create: `tests/worker/review-corpus-manifest.test.ts`
 
-- [ ] **Step 1: Write failing strict-schema and coverage tests**
+- [x] **Step 1: Write failing strict-schema and coverage tests**
 
 Create fixture entries with the real manifest shape and assert: all nine `PHYSICS_TAG_SLUGS` occur exactly once; unknown fields, repeated `arxivId`, repeated local filenames, non-HTTPS URLs, non-arXiv abstract/PDF hosts, non-hex SHA-256, non-positive/excessive byte counts, invalid dates, and missing tag coverage fail. Also assert conversion returns `sourceName: "arxiv"`, the public abstract, `accessStatus: "OPEN"`, and never returns `pdfPath`.
 
@@ -55,13 +55,13 @@ expect(toPaperSourceInput(entry)).toEqual(expect.objectContaining({
 expect(toPaperSourceInput(entry)).not.toHaveProperty("pdfPath");
 ```
 
-- [ ] **Step 2: Run the focused test and record the red result**
+- [x] **Step 2: Run the focused test and record the red result**
 
 Run: `pnpm vitest run tests/worker/review-corpus-manifest.test.ts`
 
 Expected: FAIL because `apps/worker/src/review-corpus/manifest.ts` does not exist.
 
-- [ ] **Step 3: Implement the minimal strict manifest parser**
+- [x] **Step 3: Implement the minimal strict manifest parser**
 
 Define a strict Zod schema with `schemaVersion: 1`, a non-empty `generatedAt`, and exactly nine paper entries. Each entry contains `reviewTargetTag`, `arxivId`, `title`, non-empty `authors`, `abstract`, `submittedAt`, nullable `doi`, `primaryCategory`, `abstractUrl`, `pdfUrl`, nullable `licenseUrl`, `retrievedAt`, `pdfFile`, lowercase SHA-256, and byte length capped at 50 MiB. Add post-parse checks for exact taxonomy coverage and duplicates, and a conversion function typed as `PaperSourceInput`.
 
@@ -85,13 +85,13 @@ export function toPaperSourceInput(entry: ReviewCorpusEntry): PaperSourceInput {
 }
 ```
 
-- [ ] **Step 4: Run the focused test and typecheck**
+- [x] **Step 4: Run the focused test and typecheck**
 
 Run: `pnpm vitest run tests/worker/review-corpus-manifest.test.ts && pnpm --filter @pri/worker typecheck`
 
 Expected: all manifest tests PASS and worker typecheck exits 0.
 
-- [ ] **Step 5: Commit the manifest boundary**
+- [x] **Step 5: Commit the manifest boundary**
 
 Run: `git add apps/worker/src/review-corpus/manifest.ts tests/worker/review-corpus-manifest.test.ts && git commit -m "feat(worker): validate review corpus manifests"`
 
