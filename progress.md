@@ -3,7 +3,7 @@
 ## 会话：2026-08-30（阶段 6）
 
 ### 全仓审查、可回退合并与后续交接
-- **状态：** in_progress
+- **状态：** complete
 - 已确认 `codex/stage-5` 工作树干净且与 `origin/codex/stage-5` 同步，当前提交为 `49e163e57f8bf4fbfa8816490a49842145cea759`。
 - 已确认保存项目目录的 `main` 工作树仍含用户未提交内容；本阶段不在该工作树执行 checkout、清理或合并。
 - 计划先刷新远端并完成全仓审查与全量复验，再建立合并前备份分支，最后在新独立工作树完成可追溯合并。
@@ -21,6 +21,8 @@
 - 独立 `codex/integrate-stage-5` 工作树从 `origin/main@6101ea5` 创建，以 `--no-ff` 合并 `codex/stage-5@75623bf`；合并提交 `a68b5eaca74ef0672384216643b5dfb6850332b8` 有两个正确父提交且无冲突。
 - 合并树使用离线锁文件安装（下载 0）和新 `pri_stage6_merge` schema：43 文件 261 项 Vitest、16 项 Playwright、lint、typecheck、Prisma generate/validate/status、Web/worker build 与官方依赖审计全部通过。
 - 合并树的 `pri_stage6_merge` 与 `pri_stage5_e2e` 业务计数均为 0，迁移历史各保留 4 条；构建与 Playwright 产物已清理。
+- `codex/integrate-stage-5` 已先推送为独立恢复分支，再以普通非强制推送将远端 `main` 从 `6101ea5` 更新到已验证审计点 `81cdcbc`；远端核验分支计数为 0/0。
+- 保存项目目录的本地 `main@e355a1d` 因含用户未跟踪内容仍未移动；远端合并完成不覆盖该工作区，后续应先保存用户内容再选择安全同步方式。
 
 ## 会话：2026-08-30（阶段 5）
 
