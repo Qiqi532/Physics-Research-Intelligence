@@ -53,11 +53,11 @@ Tailscale or another authenticated private overlay is deferred. It is preferable
 Select nine papers, one primary paper for each existing tag:
 
 1. atomic, molecular and optical physics;
-2. condensed matter;
-3. materials physics;
-4. high-energy physics;
-5. nuclear physics;
-6. astrophysics;
+2. condensed matter and materials physics;
+3. high-energy and particle physics;
+4. nuclear physics;
+5. astrophysics;
+6. statistical and computational physics;
 7. plasma physics;
 8. biophysics;
 9. cross-disciplinary physics.

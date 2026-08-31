@@ -6,6 +6,7 @@
 - 仓库没有既有 data/papers/corpus/downloads 目录；阶段 7 将新增明确的 review-corpus 边界，PDF 忽略、公开 manifest 跟踪。
 - 电脑 localhost 是零成本且与无登录单用户架构一致的默认部署；可信 LAN 只开放 Web，数据库与 Redis 必须保持 loopback。校园 Wi-Fi 设备隔离可能使手机访问失败，因此移动端是 best-effort。
 - 真实论文 PDF 只用于人工评审；应用导入和模型输入继续限于公开标题、元数据与摘要。
+- 已批准的实现文件边界为 worker 内严格 manifest、受控 downloader、仓储 importer 与两个显式 CLI；现有 `PaperRepository.upsertFromSource` 足够，不需要新增表或迁移。
 
 
 ## 阶段 6 全仓审查与部署结论（2026-08-30）
