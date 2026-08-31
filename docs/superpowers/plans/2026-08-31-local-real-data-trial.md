@@ -146,7 +146,7 @@ Run: `git add apps/worker/src/review-corpus/downloader.ts tests/worker/review-co
 - Create: `tests/worker/review-corpus-importer.test.ts`
 - Create: `tests/db/review-corpus-import.test.ts`
 
-- [ ] **Step 1: Write failing repository-contract tests**
+- [x] **Step 1: Write failing repository-contract tests**
 
 Assert one `upsertFromSource` call per valid manifest record, stable `imported`/`failed` record outcomes, continued processing after one repository rejection, totals that equal input length, omission of abstract text from results/log payloads, and no filesystem/PDF dependency.
 
@@ -157,17 +157,17 @@ expect(result.summary).toEqual({ total: 9, imported: 9, failed: 0 });
 expect(JSON.stringify(result)).not.toContain(manifest.papers[0]!.abstract);
 ```
 
-- [ ] **Step 2: Run the importer unit test and record the red result**
+- [x] **Step 2: Run the importer unit test and record the red result**
 
 Run: `pnpm vitest run tests/worker/review-corpus-importer.test.ts`
 
 Expected: FAIL because the importer module does not exist.
 
-- [ ] **Step 3: Implement the minimal importer**
+- [x] **Step 3: Implement the minimal importer**
 
 Accept an already parsed `ReviewCorpusManifest` and the existing `PaperRepository`; convert each entry with `toPaperSourceInput`, await `upsertFromSource`, and return only `arxivId`, `paperId`, status and a stable sanitized error code. Never open `pdfFile`.
 
-- [ ] **Step 4: Add and run the PostgreSQL replay test**
+- [x] **Step 4: Add and run the PostgreSQL replay test**
 
 Using `TEST_DATABASE_URL`, import the same two representative real-manifest entries twice and assert two `Paper` plus two `PaperSource` rows, not four. Clean `Paper` rows before/after and disconnect; retain `_prisma_migrations`.
 
@@ -175,7 +175,7 @@ Run: `pnpm vitest run tests/worker/review-corpus-importer.test.ts tests/db/revie
 
 Expected: unit tests PASS; PostgreSQL test PASS when `TEST_DATABASE_URL` is present and otherwise is explicitly skipped like the existing repository integration tests.
 
-- [ ] **Step 5: Commit the importer**
+- [x] **Step 5: Commit the importer**
 
 Run: `git add apps/worker/src/review-corpus/importer.ts tests/worker/review-corpus-importer.test.ts tests/db/review-corpus-import.test.ts && git commit -m "feat(worker): import review corpus facts"`
 
