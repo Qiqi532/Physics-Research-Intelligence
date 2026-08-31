@@ -222,13 +222,13 @@ git commit -m "feat(ai): add encrypted model setting contracts"
 
 **Files:**
 - Modify: `packages/db/prisma/schema.prisma`
-- Create: `packages/db/prisma/migrations/20260831180000_model_connection_console/migration.sql`
+- Create: `packages/db/prisma/migrations/20260831122603_model_connection_console/migration.sql`
 - Create: `packages/db/src/model-settings-repository.ts`
 - Modify: `packages/db/src/index.ts`
 - Test: `tests/db/model-settings-repository-unit.test.ts`
 - Test: `tests/db/model-settings-repository.test.ts`
 
-- [ ] **Step 1: 写仓储红灯**
+- [x] **Step 1: 写仓储红灯**
 
 单元测试固定窄接口，PostgreSQL 测试固定真实约束：
 
@@ -253,13 +253,13 @@ await expect(repository.remove("default", first.id)).rejects
 
 覆盖同名冲突、其他 userId 不可见、Key 轮换只更新密文字段、路由事务和删除顺序。
 
-- [ ] **Step 2: 运行红灯**
+- [x] **Step 2: 运行红灯**
 
 Run: `pnpm test tests/db/model-settings-repository-unit.test.ts tests/db/model-settings-repository.test.ts`
 
 Expected: FAIL，Prisma model 和 repository 不存在；未配置专用数据库时只有集成文件 SKIP。
 
-- [ ] **Step 3: 只追加 Prisma 模型**
+- [x] **Step 3: 只追加 Prisma 模型**
 
 在 schema 中增加：
 
@@ -306,7 +306,7 @@ model AiRuntimeRouting {
 
 迁移 SQL 必须由专用测试 schema 生成并人工核对，只包含新表、唯一约束、索引与外键。
 
-- [ ] **Step 4: 实现仓储接口**
+- [x] **Step 4: 实现仓储接口**
 
 ```ts
 export interface ModelSettingsRepository {
@@ -323,7 +323,7 @@ export interface ModelSettingsRepository {
 
 捕获 Prisma 唯一/外键错误并映射为 `profile_name_conflict`、`profile_in_use`、`profile_not_found`，不向上层暴露 SQL 或连接信息。
 
-- [ ] **Step 5: generate、迁移与绿灯**
+- [x] **Step 5: generate、迁移与绿灯**
 
 Run:
 

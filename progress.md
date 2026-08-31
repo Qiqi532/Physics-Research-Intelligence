@@ -11,6 +11,15 @@
 - AES-256-GCM 使用 32 字节独立主密钥、12 字节随机 nonce、16 字节 tag，并用版本/Profile UUID/provider 作为 associated data；decrypt 缺 key 不会自动生成替代 key。
 - 定向测试 2 文件、26 项全部通过；`@pri/domain` 与 `@pri/db` typecheck 均退出 0。
 
+### Task 2：Prisma 模型、迁移与仓储
+- **状态：** complete，待独立提交。
+- 红灯准确为两个仓储测试均无法导入尚不存在的 `model-settings-repository`；集成测试在红灯阶段未连接数据库。
+- Prisma 在专用 `pri_stage7_test` schema 生成并应用第 5 条迁移 `20260831122603_model_connection_console`；人工核对 SQL 只新增两个表、一个唯一约束、一个索引和四个 `RESTRICT` 外键。
+- 仓储只保存密文并按 `userId` 隔离；路由替换在事务内校验全部配置归属，稳定映射同名、使用中和不存在错误。
+- 首次类型检查红灯定位为 Node `Buffer<ArrayBufferLike>` 与 Prisma 7 `Bytes` 的普通 `ArrayBuffer` 类型不兼容；在 Prisma 写入边界复制为新 `Uint8Array` 后恢复绿灯，未使用类型断言。
+- `@pri/db` typecheck 通过；仓储单元与 PostgreSQL 集成测试 2 文件、9 项通过；teardown 后两个新业务表均为 0，迁移历史保留 5 条。
+- 只读清理核验首次误用了不存在的 `pri-postgres` 容器名；列出实际容器后改用 `infra-postgres-1`，数据库与测试本身未失败。
+
 ## 会话：2026-08-31（阶段 8）
 
 ### 页面内模型连接管理台设计

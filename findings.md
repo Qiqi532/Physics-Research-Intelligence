@@ -1,6 +1,9 @@
 # 发现与决策
 
 ## 阶段 8 模型连接管理台（2026-08-31）
+- Prisma 外键只能保证配置存在，不能保证路由与配置的 `userId` 相同；仓储必须在同一事务内按去重后的 profile IDs 校验归属，再 upsert 路由。
+- Prisma 7 当前生成的 `Bytes` 写类型要求普通 `ArrayBuffer` 支撑的 `Uint8Array`；Node `Buffer<ArrayBufferLike>` 应在数据库写入边界复制，不能通过放宽类型掩盖不兼容。
+- 第 5 条迁移由 Prisma 在专用 `pri_stage7_test` schema 生成，两个新业务表的测试清理顺序固定为先路由、后连接配置，迁移历史不清理。
 - 主密钥并发首次创建使用独占 `wx`；竞争者在 `EEXIST` 后有界重读 32 字节文件，避免读取创建窗口中的不完整内容。decrypt 路径只读现有 key，缺失时稳定失败。
 - 现有八类 provider adapter、统一 `healthCheck`、factory、router、成本和脱敏边界可以复用；无需重写模型协议层。
 - 当前 `createConfiguredDailyProcessor` 在 worker 启动时一次性构造 provider，不满足热切换。批准的语义是每个新批次读取一次持久化路由快照，批次执行中保持不变。

@@ -6,6 +6,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./client": "./src/client.ts",
+    "./model-settings-repository": "./src/model-settings-repository.ts",
     "./ai-repository": "./src/ai-repository.ts",
     "./paper-repository": "./src/paper-repository.ts",
     "./interest-repository": "./src/interest-repository.ts",

@@ -8,6 +8,16 @@ export {
   type ModelSettingsSecretErrorCode,
 } from "./model-settings-crypto";
 export {
+  createModelSettingsRepository,
+  ModelSettingsRepositoryError,
+  type ModelSettingsRepository,
+  type ModelSettingsRepositoryErrorCode,
+  type StoredModelConnection,
+  type StoredModelConnectionWrite,
+  type StoredModelRouting,
+  type StoredModelRoutingWrite,
+} from "./model-settings-repository";
+export {
   createPaperRepository,
   syncPhysicsTags,
   type PaperDetails,

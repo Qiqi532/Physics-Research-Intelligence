@@ -236,3 +236,43 @@ model SourceSyncState {
   createdAt        DateTime  @default(now()) @db.Timestamptz(6)
   updatedAt        DateTime  @updatedAt @db.Timestamptz(6)
 }
+
+model AiConnectionProfile {
+  id                      String   @id @default(uuid()) @db.Uuid
+  userId                  String   @default("default")
+  name                    String
+  provider                String
+  model                   String
+  baseUrl                 String
+  apiKeyCiphertext        Bytes
+  apiKeyNonce             Bytes
+  apiKeyAuthTag           Bytes
+  encryptionVersion       Int      @default(1)
+  requestTimeoutMs        Int
+  inputCostPerMillionUsd  Decimal  @db.Decimal(12, 6)
+  outputCostPerMillionUsd Decimal  @db.Decimal(12, 6)
+  createdAt               DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt               DateTime @updatedAt @db.Timestamptz(6)
+
+  classifyPrimaryFor   AiRuntimeRouting[] @relation("ClassifyPrimary")
+  classifyFallbackFor  AiRuntimeRouting[] @relation("ClassifyFallback")
+  interpretPrimaryFor  AiRuntimeRouting[] @relation("InterpretPrimary")
+  interpretFallbackFor AiRuntimeRouting[] @relation("InterpretFallback")
+
+  @@unique([userId, name])
+  @@index([userId, provider])
+}
+
+model AiRuntimeRouting {
+  userId               String   @id @default("default")
+  classifyPrimaryId    String?  @db.Uuid
+  classifyFallbackId   String?  @db.Uuid
+  interpretPrimaryId   String?  @db.Uuid
+  interpretFallbackId  String?  @db.Uuid
+  updatedAt            DateTime @updatedAt @db.Timestamptz(6)
+
+  classifyPrimary   AiConnectionProfile? @relation("ClassifyPrimary", fields: [classifyPrimaryId], references: [id], onDelete: Restrict)
+  classifyFallback  AiConnectionProfile? @relation("ClassifyFallback", fields: [classifyFallbackId], references: [id], onDelete: Restrict)
+  interpretPrimary  AiConnectionProfile? @relation("InterpretPrimary", fields: [interpretPrimaryId], references: [id], onDelete: Restrict)
+  interpretFallback AiConnectionProfile? @relation("InterpretFallback", fields: [interpretFallbackId], references: [id], onDelete: Restrict)
+}
