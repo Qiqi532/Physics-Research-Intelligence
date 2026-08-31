@@ -37,6 +37,16 @@
 - 本地审查因 CodeRabbit CLI 未安装未上传代码；3 个警告级问题均先加红灯并修复：非法路径 UUID、routing 内部 userId/Date 投影、URL 嵌入式凭证。
 - 最终定向门禁 6 文件、61 项通过；domain/db/web typecheck、Web lint 与 `git diff --check` 均退出 0。专用 schema 两个新业务表为 0，迁移历史保留 5 条。
 
+### Task 5：Worker 任务级快照与热切换
+- **状态：** complete，待独立提交。
+- resolver 红灯准确为模块不存在；持久化路由优先、环境仅在无路由时使用，不完整路由、读取失败和解密失败使用稳定 worker 错误码且不回退。
+- 运行时类型允许分类 Kimi 配置 A 与解读 Kimi 配置 B；任务内部主备仍校验不同供应商，持久化默认输出上限为 1000/4000。
+- 批次红灯准确复现旧 processor 在构造时因 `config.AI` 缺失直接抛错；改造后每次 `process()` resolve 一次，批次内多论文共享 provider，下一批次读取新配置。
+- 分类与解读各自构造 provider 价格表；回归使用同一 Kimi 供应商的不同单价，确认不会因供应商键相同互相覆盖。
+- 首轮热切换测试唯一失败是 Vitest 模块代理未记录无关的 disconnect mock 次数；保留 `await close()` 生命周期执行，移除脆弱计数断言。随后类型检查发现价格返回类型过宽，复用现有 `ProviderPrices` 后转绿。
+- LAN 标记与动态日志错误码均先红灯；默认/局域网启动分别写 `PRI_LAN_MODE=false/true`，resolver 配置错误在 `worker.daily` 日志使用自身稳定 code，其他错误保持 `daily_pipeline_failed`。
+- 最终定向门禁 5 文件、19 项通过，worker/Web typecheck 与 `git diff --check` 均退出 0；无真实数据库查询、来源请求或模型请求。
+
 ## 会话：2026-08-31（阶段 8）
 
 ### 页面内模型连接管理台设计

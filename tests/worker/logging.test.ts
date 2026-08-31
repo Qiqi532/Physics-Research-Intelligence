@@ -68,4 +68,22 @@ describe("structured worker logging", () => {
       details: { error: failure },
     });
   });
+
+  it("can derive a stable configuration error code from the failure", async () => {
+    const logger = vi.fn();
+    const failure = Object.assign(new Error("configuration unavailable"), {
+      code: "worker_ai_configuration_missing",
+    });
+
+    await expect(runLoggedOperation({
+      event: "worker.daily",
+      errorCode: (error) => (error as { code: string }).code,
+      logger,
+      operation: vi.fn().mockRejectedValue(failure),
+    })).rejects.toBe(failure);
+    expect(logger).toHaveBeenLastCalledWith(expect.objectContaining({
+      status: "failed",
+      errorCode: "worker_ai_configuration_missing",
+    }));
+  });
 });

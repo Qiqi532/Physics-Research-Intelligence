@@ -54,6 +54,7 @@ describe("local real-data trial boundary", () => {
     expect(webPackage.scripts["dev:lan"]).toBe("node scripts/start-web.mjs dev --lan");
     expect(webPackage.scripts["start:lan"]).toBe("node scripts/start-web.mjs start --lan");
     expect(launcher).toContain('const hostname = lan ? "0.0.0.0" : "127.0.0.1"');
+    expect(launcher).toContain('process.env.PRI_LAN_MODE = lan ? "true" : "false"');
     expect(launcher).toMatch(/no login/i);
     expect(launcher).not.toMatch(/DATABASE_URL|REDIS_URL|firewall/);
   });

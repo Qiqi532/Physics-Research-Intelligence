@@ -26,7 +26,7 @@ export function createStructuredLogger(
 
 export async function runLoggedOperation<T>(input: {
   event: string;
-  errorCode: string;
+  errorCode: string | ((error: unknown) => string);
   logger: StructuredLogger;
   operation(): Promise<T>;
 }): Promise<T> {
@@ -43,7 +43,9 @@ export async function runLoggedOperation<T>(input: {
     input.logger({
       event: input.event,
       status: "failed",
-      errorCode: input.errorCode,
+      errorCode: typeof input.errorCode === "function"
+        ? input.errorCode(error)
+        : input.errorCode,
       details: { error },
     });
     throw error;

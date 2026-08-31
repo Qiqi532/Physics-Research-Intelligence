@@ -5,6 +5,7 @@ import { dirname, resolve } from "node:path";
 const mode = process.argv[2];
 const lan = process.argv.includes("--lan");
 const hostname = lan ? "0.0.0.0" : "127.0.0.1";
+process.env.PRI_LAN_MODE = lan ? "true" : "false";
 
 if (!new Set(["dev", "start"]).has(mode)) {
   console.error("Usage: node scripts/start-web.mjs <dev|start> [--lan]");

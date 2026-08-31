@@ -531,7 +531,7 @@ git commit -m "feat(web): add secure model connection API"
 - Test: `tests/worker/configured-daily-processor.test.ts`
 - Test: `tests/docs/local-trial.test.ts`
 
-- [ ] **Step 1: 写任务级快照红灯**
+- [x] **Step 1: 写任务级快照红灯**
 
 类型必须允许分类和解读使用同一供应商的不同连接：
 
@@ -547,13 +547,13 @@ expect(snapshot.interpret.primary).toMatchObject({
 
 测试持久化路由优先、无路由时环境变量适配、路由存在但不完整/密文损坏时稳定失败且不回退环境变量。
 
-- [ ] **Step 2: 运行红灯**
+- [x] **Step 2: 运行红灯**
 
 Run: `pnpm test tests/worker/runtime-ai-config.test.ts`
 
 Expected: FAIL，resolver 模块不存在。
 
-- [ ] **Step 3: 实现任务级 snapshot**
+- [x] **Step 3: 实现任务级 snapshot**
 
 ```ts
 export type ResolvedAiConnection = {
@@ -581,7 +581,7 @@ export interface RuntimeAiConfigResolver {
 
 环境适配必须按 task selection 分别复制 provider config，不能先合并为供应商键控 Map。
 
-- [ ] **Step 4: 写批次热切换红灯**
+- [x] **Step 4: 写批次热切换红灯**
 
 ```ts
 const resolver = {
@@ -599,11 +599,11 @@ expect(createProvider.mock.calls.map(([value]) => value.model))
 
 单次 `process()` 中多个论文必须共享第一次 resolve 的 provider 对象。
 
-- [ ] **Step 5: 改造 daily processor**
+- [x] **Step 5: 改造 daily processor**
 
 将 provider、prices 构造移动到 `process()` 开头；数据库、source connector 和 queue 生命周期仍在 worker 启动时创建。没有持久化路由且没有环境 AI 时，在批次开始返回稳定 `worker_ai_configuration_missing`，而不是启动 Web 时失败。
 
-- [ ] **Step 6: 固定 LAN 进程标记**
+- [x] **Step 6: 固定 LAN 进程标记**
 
 在启动器 hostname 计算后增加：
 
@@ -613,7 +613,7 @@ process.env.PRI_LAN_MODE = lan ? "true" : "false";
 
 文档测试断言默认 start 为 false，`start:lan` 为 true；数据库与 Redis 绑定不变。
 
-- [ ] **Step 7: 绿灯、回归与提交**
+- [x] **Step 7: 绿灯、回归与提交**
 
 ```powershell
 pnpm test tests/worker/runtime-ai-config.test.ts tests/worker/configured-daily-processor.test.ts tests/worker/daily-pipeline.test.ts tests/docs/local-trial.test.ts

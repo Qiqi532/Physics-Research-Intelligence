@@ -1,6 +1,11 @@
-import { createConfiguredTaskProviders, type AiPrices } from "@pri/ai";
+import {
+  createConnectionProvider,
+  type ConnectionProviderInput,
+} from "@pri/ai";
 import {
   createAiRepository,
+  createModelSettingsCipher,
+  createModelSettingsRepository,
   createPaperRepository,
   createPrismaClient,
   createSourceSyncRepository,
@@ -17,35 +22,35 @@ import { runDailyPipeline } from "./daily-pipeline";
 import { classifyPaper } from "./jobs/classify-paper";
 import { ingestSources } from "./jobs/ingest-source";
 import { interpretPaper } from "./jobs/interpret-paper";
+import type { ProviderPrices } from "./jobs/ai-job";
 import { dailyWindowAt } from "./scheduler";
+import {
+  createRuntimeAiConfigResolver,
+  type ResolvedAiConnection,
+  type RuntimeAiConfigResolver,
+  type RuntimeAiTaskRoute,
+} from "./runtime-ai-config";
 
-export function createConfiguredDailyProcessor(config: ServerConfig) {
-  if (!config.AI) {
-    throw new Error("Daily pipeline requires AI classification configuration");
-  }
-  const aiConfig = config.AI;
+export function createConfiguredDailyProcessor(
+  config: ServerConfig,
+  options: {
+    resolver?: RuntimeAiConfigResolver;
+    createProvider?: typeof createConnectionProvider;
+  } = {},
+) {
   const client = createPrismaClient(config.DATABASE_URL);
   const paperRepository = createPaperRepository(client);
   const stateRepository = createSourceSyncRepository(client);
   const aiRepository = createAiRepository(client);
   const todayRepository = createTodayRepository(client);
-  const classificationProviders = createConfiguredTaskProviders({
-    config: aiConfig,
-    task: "classify",
+  const resolver = options.resolver ?? createRuntimeAiConfigResolver({
+    repository: createModelSettingsRepository(client),
+    cipher: createModelSettingsCipher({ keyFilePath: config.AI_SETTINGS_MASTER_KEY_FILE }),
+    environmentConfig: config.AI,
+    classifyMaxOutputTokens: config.AI?.classify.maxOutputTokens,
+    interpretMaxOutputTokens: config.AI?.interpret.maxOutputTokens,
   });
-  const interpretationProviders = createConfiguredTaskProviders({
-    config: aiConfig,
-    task: "interpret",
-  });
-  const prices = Object.fromEntries(
-    Object.entries(aiConfig.providers).map(([provider, providerConfig]) => [
-      provider,
-      {
-        inputCostPerMillionUsd: providerConfig!.inputCostPerMillionUsd,
-        outputCostPerMillionUsd: providerConfig!.outputCostPerMillionUsd,
-      } satisfies AiPrices,
-    ]),
-  );
+  const createProvider = options.createProvider ?? createConnectionProvider;
   const connectors: SourceConnector[] = [
     createOpenAlexConnector({ apiKey: config.OPENALEX_API_KEY }),
     createArxivConnector(),
@@ -59,6 +64,17 @@ export function createConfiguredDailyProcessor(config: ServerConfig) {
 
   return {
     async process() {
+      const snapshot = await resolver.resolve();
+      const classificationProviders = taskProviders(
+        snapshot.classify,
+        createProvider,
+      );
+      const interpretationProviders = taskProviders(
+        snapshot.interpret,
+        createProvider,
+      );
+      const classificationPrices = taskPrices(snapshot.classify);
+      const interpretationPrices = taskPrices(snapshot.interpret);
       const window = dailyWindowAt(
         new Date(),
         config.DAILY_PIPELINE.timezone,
@@ -96,7 +112,7 @@ export function createConfiguredDailyProcessor(config: ServerConfig) {
             repository: aiRepository,
             primary: classificationProviders.primary,
             fallback: classificationProviders.fallback,
-            prices,
+            prices: classificationPrices,
           });
           return outcome.status;
         },
@@ -112,9 +128,9 @@ export function createConfiguredDailyProcessor(config: ServerConfig) {
             repository: aiRepository,
             primary: interpretationProviders.primary,
             fallback: interpretationProviders.fallback,
-            prices,
+            prices: interpretationPrices,
             dailyBudgetUsd: config.DAILY_AI_BUDGET_USD,
-            maxOutputTokens: aiConfig.interpret.maxOutputTokens,
+            maxOutputTokens: snapshot.interpret.maxOutputTokens,
           });
           return outcome.status;
         },
@@ -130,4 +146,44 @@ export function createConfiguredDailyProcessor(config: ServerConfig) {
     },
     close: () => client.$disconnect(),
   };
+}
+
+function taskProviders(
+  route: RuntimeAiTaskRoute,
+  createProvider: typeof createConnectionProvider,
+) {
+  return {
+    primary: createProvider(providerInput(route.primary, route.maxOutputTokens)),
+    ...(route.fallback
+      ? { fallback: createProvider(providerInput(route.fallback, route.maxOutputTokens)) }
+      : {}),
+  };
+}
+
+function providerInput(
+  connection: ResolvedAiConnection,
+  maxOutputTokens: number,
+): ConnectionProviderInput {
+  return {
+    provider: connection.provider,
+    model: connection.model,
+    apiKey: connection.apiKey,
+    baseUrl: connection.baseUrl,
+    requestTimeoutMs: connection.requestTimeoutMs,
+    maxOutputTokens,
+  };
+}
+
+function taskPrices(route: RuntimeAiTaskRoute): ProviderPrices {
+  return Object.fromEntries(
+    [route.primary, route.fallback]
+      .filter((connection): connection is ResolvedAiConnection => connection !== undefined)
+      .map((connection) => [
+        connection.provider,
+        {
+          inputCostPerMillionUsd: connection.inputCostPerMillionUsd,
+          outputCostPerMillionUsd: connection.outputCostPerMillionUsd,
+        },
+      ]),
+  );
 }

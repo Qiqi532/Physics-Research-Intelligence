@@ -1,6 +1,9 @@
 # 发现与决策
 
 ## 阶段 8 模型连接管理台（2026-08-31）
+- Worker provider 和价格都必须在每次 `process()` 开头从同一个 snapshot 构造；分类与解读要使用两个任务级价格表，否则同供应商不同命名配置的单价仍会被 provider 键覆盖。
+- `config.AI` 不应再作为 worker 启动前置条件；resolver 在无持久化路由时适配它，在两者都缺失时于批次开始抛出稳定 `worker_ai_configuration_missing`，由现有 BullMQ 有界重试。
+- Web 启动器必须显式设置 `PRI_LAN_MODE`，不能仅依赖 hostname 推断；standalone server 与 dev 子进程都会继承同一标记。
 - AES associated data 在首次加密前必须已有稳定 profile UUID；仓储 create 允许 service 传入预生成 UUID，同时保留数据库默认 UUID 兼容旧调用。
 - Next tsconfig 的 `@/*` alias 不会自动进入根 Vitest；直接测试 Route Handler 时需在 Vitest 配置显式映射同一路径。
 - URL 标准校验会接受 `https://user:password@host`；模型连接边界必须额外拒绝 userinfo，避免凭证随 baseUrl 进入 API/页面。

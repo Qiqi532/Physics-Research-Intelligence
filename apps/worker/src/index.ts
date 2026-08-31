@@ -4,6 +4,7 @@ import { createConfiguredDailyProcessor } from "./configured-daily-processor";
 import { createDailyQueue, createDailyWorker } from "./queue";
 import { startWorkerRuntime } from "./worker-runtime";
 import { createStructuredLogger, runLoggedOperation } from "./logging";
+import { RuntimeAiConfigError } from "./runtime-ai-config";
 
 const log = createStructuredLogger();
 
@@ -27,7 +28,9 @@ async function main(): Promise<void> {
     ),
     processDaily: () => runLoggedOperation({
       event: "worker.daily",
-      errorCode: "daily_pipeline_failed",
+      errorCode: (error) => error instanceof RuntimeAiConfigError
+        ? error.code
+        : "daily_pipeline_failed",
       logger: log,
       operation: () => dailyProcessor!.process(),
     }),
