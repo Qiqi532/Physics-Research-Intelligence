@@ -7,6 +7,8 @@
     ".": "./src/index.ts",
     "./budget": "./src/budget.ts",
     "./cost": "./src/cost.ts",
+    "./connection-provider": "./src/connection-provider.ts",
+    "./connection-test": "./src/connection-test.ts",
     "./errors": "./src/errors.ts",
     "./factory": "./src/factory.ts",
     "./mock-provider": "./src/mock-provider.ts",

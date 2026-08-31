@@ -13,6 +13,18 @@ export {
   type PhysicsTagSlug,
 } from "./schemas";
 export { AiProviderError, type AiErrorCode } from "./errors";
+export {
+  createConnectionProvider,
+  type ConnectionProviderInput,
+} from "./connection-provider";
+export {
+  runConnectionHealth,
+  runConnectionSample,
+  type ConnectionHealthResult,
+  type ConnectionSampleResult,
+  type ConnectionSampleSuccess,
+  type ConnectionTestFailure,
+} from "./connection-test";
 export { createMockAiProvider, type MockAiProviderOptions } from "./mock-provider";
 export {
   type AiHealthResult,

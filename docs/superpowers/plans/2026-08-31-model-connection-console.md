@@ -356,7 +356,7 @@ git commit -m "feat(db): store encrypted model connections"
 - Test: `tests/ai/connection-provider.test.ts`
 - Test: `tests/ai/connection-test.test.ts`
 
-- [ ] **Step 1: 写单连接工厂红灯**
+- [x] **Step 1: 写单连接工厂红灯**
 
 ```ts
 const testOnlyValue = ["test", "only", "value"].join("-");
@@ -375,13 +375,13 @@ expect(JSON.stringify(provider)).not.toContain(testOnlyValue);
 
 表驱动覆盖八类 provider，断言仍使用原生 OpenAI/Gemini 和已有 compatible adapters。
 
-- [ ] **Step 2: 运行红灯并最小实现**
+- [x] **Step 2: 运行红灯并最小实现**
 
 Run: `pnpm test tests/ai/connection-provider.test.ts`
 
 Expected: FAIL 后新增 `createConnectionProvider`；将 `factory.ts` 的 provider switch 提取复用，不改变 `createConfiguredTaskProviders` 行为。
 
-- [ ] **Step 3: 写 health/sample 红灯**
+- [x] **Step 3: 写 health/sample 红灯**
 
 ```ts
 const testOnlyValue = ["test", "only", "value"].join("-");
@@ -404,7 +404,7 @@ expect(JSON.stringify(sample)).not.toContain(testOnlyValue);
 
 mock provider 一项失败时另一项仍返回，错误只映射稳定 `AiErrorCode`。固定输入为项目自有合成标题/摘要，结果不持久化。
 
-- [ ] **Step 4: 运行红灯并实现测试运行器**
+- [x] **Step 4: 运行红灯并实现测试运行器**
 
 Run: `pnpm test tests/ai/connection-test.test.ts`
 

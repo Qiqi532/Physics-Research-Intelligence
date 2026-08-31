@@ -20,6 +20,13 @@
 - `@pri/db` typecheck 通过；仓储单元与 PostgreSQL 集成测试 2 文件、9 项通过；teardown 后两个新业务表均为 0，迁移历史保留 5 条。
 - 只读清理核验首次误用了不存在的 `pri-postgres` 容器名；列出实际容器后改用 `infra-postgres-1`，数据库与测试本身未失败。
 
+### Task 3：单连接 provider 与两级测试运行器
+- **状态：** complete，待独立提交。
+- 单连接工厂红灯准确为 `connection-provider` 模块不存在；最小实现提取旧 factory 的八分支 switch，旧环境配置工厂继续复用同一逻辑。
+- 健康/样本红灯准确为 `connection-test` 模块不存在；健康结果只暴露状态、provider/model、耗时和稳定错误码。
+- 虚构样本固定使用项目自有标题与摘要，分类和解读通过 `Promise.allSettled` 并行执行，一项失败仍返回另一项结果；不写数据库且不进入每日预算。
+- Task 3 定向测试 4 文件、36 项通过，`@pri/ai` typecheck 退出 0；全部 provider HTTP 使用 mock fetch，无真实 API 请求。
+
 ## 会话：2026-08-31（阶段 8）
 
 ### 页面内模型连接管理台设计

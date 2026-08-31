@@ -1,6 +1,8 @@
 # 发现与决策
 
 ## 阶段 8 模型连接管理台（2026-08-31）
+- 现有八 provider 的实例构造差异只集中在 factory switch；提取单连接工厂即可支持数据库配置，无需更改 OpenAI、Gemini 或 compatible 协议实现。
+- 管理台样本测试可以直接复用严格分类/解读 schema 和实际 token 成本函数；使用 `Promise.allSettled` 可在单项失败时保留另一项诊断结果，且无需接入 worker 的预算或持久化边界。
 - Prisma 外键只能保证配置存在，不能保证路由与配置的 `userId` 相同；仓储必须在同一事务内按去重后的 profile IDs 校验归属，再 upsert 路由。
 - Prisma 7 当前生成的 `Bytes` 写类型要求普通 `ArrayBuffer` 支撑的 `Uint8Array`；Node `Buffer<ArrayBufferLike>` 应在数据库写入边界复制，不能通过放宽类型掩盖不兼容。
 - 第 5 条迁移由 Prisma 在专用 `pri_stage7_test` schema 生成，两个新业务表的测试清理顺序固定为先路由、后连接配置，迁移历史不清理。
