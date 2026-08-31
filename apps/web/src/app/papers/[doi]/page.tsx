@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PaperInterpretation } from "@/components/paper-interpretation";
+import { PaperPublicAbstract } from "@/components/paper-public-abstract";
 import { PaperStateControls } from "@/components/paper-state-controls";
 import { StatusPanel } from "@/components/status-panel";
 import { presentPaperDetail } from "@/presentation/paper";
@@ -97,6 +98,8 @@ export default async function PaperDetailPage({ params }: PageProps) {
                 currentFeedback={view.data.userState?.feedback ?? "NONE"}
               />
             ) : null}
+
+            <PaperPublicAbstract abstract={view.data.abstract} />
 
             <PaperInterpretation view={view} />
 

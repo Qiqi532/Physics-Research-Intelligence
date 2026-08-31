@@ -9,6 +9,8 @@
 - 已批准的实现文件边界为 worker 内严格 manifest、受控 downloader、仓储 importer 与两个显式 CLI；现有 `PaperRepository.upsertFromSource` 足够，不需要新增表或迁移。
 - arXiv 的分类查询包含交叉列出记录；除明确的 `cross-disciplinary` 医学物理样本外，语料选择要求主分类与方向来源分类一致。review-target 只存在于 manifest，不写成 `PaperClassification`。
 - 本次九条 arXiv API 记录均未返回显式 `arxiv:license`；许可证字段保持 `null`，README 要求逐篇核对记录与仓储条款，不能推断为 Creative Commons。
+- 当前详情与阅读状态以 DOI 为键。为保持阶段 5 接口不变并让真实语料完整可用，正式九篇 manifest 选择 arXiv API 明确带 DOI 的记录；无 DOI 的额外开放论文只保留为忽略的人工评审 PDF。
+- 无真实分类时，Today 会给出“尚待完成物理分类”的冷启动理由，兴趣保存本身可用但不会改变排序；要验证真实兴趣命中与中文解读，需要配置一个模型 Key 后运行既有分类/解读流程，不能用 manifest review-target 冒充分类。
 
 
 ## 阶段 6 全仓审查与部署结论（2026-08-30）

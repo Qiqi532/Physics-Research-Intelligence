@@ -166,6 +166,7 @@ h3 {
 .signal-panel,
 .queue-panel,
 .state-controls,
+.public-abstract,
 .provenance,
 .status-panel {
   border: 1px solid var(--line);
@@ -178,6 +179,7 @@ h3 {
 .signal-panel,
 .queue-panel,
 .state-controls,
+.public-abstract,
 .provenance,
 .status-panel {
   padding: clamp(1.25rem, 3vw, 2rem);
@@ -601,6 +603,7 @@ h3 {
 }
 
 .interpretation-heading h2,
+.public-abstract h2,
 .provenance h2 {
   margin: 0.25rem 0 0;
   font-size: clamp(2rem, 4vw, 3.3rem);
@@ -728,6 +731,17 @@ h3 {
 
 .provenance {
   margin-top: 3rem;
+}
+
+.public-abstract {
+  margin-top: 2rem;
+}
+
+.public-abstract-copy {
+  margin: 1.2rem 0 0;
+  color: #3f4a5a;
+  line-height: 1.75;
+  white-space: pre-wrap;
 }
 
 .source-list {

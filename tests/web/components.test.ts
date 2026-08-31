@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { PaperInterpretation } from "../../apps/web/src/components/paper-interpretation";
+import { PaperPublicAbstract } from "../../apps/web/src/components/paper-public-abstract";
 import { readingStatePayloadForAction } from "../../apps/web/src/components/paper-state-controls";
 import { ReadingQueue } from "../../apps/web/src/components/reading-queue";
 import { RecommendationCard } from "../../apps/web/src/components/recommendation-card";
@@ -50,6 +51,13 @@ describe("Today Physics server components", () => {
 });
 
 describe("paper interpretation component", () => {
+  it("keeps the public abstract visible when AI interpretation is missing", () => {
+    expect(textContent(PaperPublicAbstract({ abstract: "A verified public abstract." })))
+      .toContain("公开摘要 A verified public abstract.");
+    expect(textContent(PaperPublicAbstract({ abstract: null })))
+      .toContain("该公开来源未提供摘要");
+  });
+
   it("renders bilingual overview, required fields and evidence boundaries", () => {
     const view = presentPaperDetail({ kind: "ready", data: paperDetail() });
     if (view.kind !== "ready") {

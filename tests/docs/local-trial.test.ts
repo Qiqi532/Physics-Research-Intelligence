@@ -21,6 +21,7 @@ describe("local real-data trial boundary", () => {
       [...PHYSICS_TAG_SLUGS].sort(),
     );
     for (const paper of manifest.papers) {
+      expect(paper.doi).toBeTruthy();
       expect(new URL(paper.abstractUrl).hostname).toBe("arxiv.org");
       expect(["arxiv.org", "export.arxiv.org"]).toContain(new URL(paper.pdfUrl).hostname);
       expect(new URL(paper.abstractUrl).protocol).toBe("https:");
@@ -35,6 +36,7 @@ describe("local real-data trial boundary", () => {
     ]);
 
     expect(gitignore).toContain("data/review-corpus/pdfs/");
+    expect(gitignore).toContain("backups/");
     expect(corpusReadme).toMatch(/do not commit PDFs/i);
     expect(corpusReadme).toMatch(/human review/i);
     expect(corpusReadme).toMatch(/title.*metadata.*abstract/is);

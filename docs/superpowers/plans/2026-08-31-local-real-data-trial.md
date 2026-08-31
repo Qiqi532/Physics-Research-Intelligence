@@ -268,29 +268,29 @@ Run: `git add apps/web/package.json package.json .env.example README.md docs/ope
 **Files:**
 - No production source changes expected; record evidence in `progress.md` and `findings.md`.
 
-- [ ] **Step 1: Verify service binding before mutation**
+- [x] **Step 1: Verify service binding before mutation**
 
 Inspect Docker Compose expansion and active listeners. PostgreSQL 5432 and Redis 6379 must resolve to `127.0.0.1`. If old containers still bind `0.0.0.0`, stop before LAN mode and recreate only the named PRI Compose services after recording their exact project/container identity; do not touch unrelated containers.
 
-- [ ] **Step 2: Back up existing personal trial data before import**
+- [x] **Step 2: Back up existing personal trial data before import**
 
 Use the documented custom-format `pg_dump`, copy it to ignored `backups/`, compute SHA-256, and verify `pg_restore --list` can read it. Do not commit the dump.
 
-- [ ] **Step 3: Apply existing migrations and import twice**
+- [x] **Step 3: Apply existing migrations and import twice**
 
 Run: `pnpm --filter @pri/db prisma:generate`, `pnpm --filter @pri/db prisma:validate`, `pnpm --filter @pri/db prisma:deploy`, then run `pnpm --filter @pri/worker corpus:import` twice.
 
 Expected: all four existing migrations are applied; both runs complete; the second creates no duplicate `PaperSource` records.
 
-- [ ] **Step 4: Start Web and worker in local-only mode**
+- [x] **Step 4: Start Web and worker in local-only mode**
 
 Start dependencies, Web and one worker with `DAILY_PIPELINE_ENABLED=false`. Report the actual available desktop URL, normally `http://127.0.0.1:3000`, and verify `/api/health/live` is 200 plus `/api/health/ready` reflects the intentionally disabled scheduler safely.
 
-- [ ] **Step 5: Perform real desktop browser checks**
+- [x] **Step 5: Perform real desktop browser checks**
 
 Open the local page in the in-app browser. Verify Today renders real titles/public facts, a detail page discloses arXiv source and missing AI interpretation, interest changes alter deterministic ordering where classifications exist or preserve truthful cold-start behavior where they do not, and reading states cycle through saved/reading/complete/skipped. Capture no sensitive settings and commit no screenshot.
 
-- [ ] **Step 6: Attempt optional LAN access only if safe**
+- [x] **Step 6: Attempt optional LAN access only if safe**
 
 After loopback verification for PostgreSQL/Redis, start the explicit LAN Web command, determine the private IPv4 address without changing firewall, and report the candidate URL. If campus Wi-Fi isolation or Windows Firewall blocks it, leave desktop mode running and record the limitation; do not create a public tunnel.
 

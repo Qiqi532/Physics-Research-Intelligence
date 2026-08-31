@@ -2,6 +2,8 @@
 
 This directory supports a small, traceable personal evaluation corpus. `manifest.json` records public arXiv metadata and verified local PDF checksums. The review-target tag is a coverage aid for human review; it is not a stored classification or an evaluation result.
 
+The nine manifest records prefer arXiv entries with an explicit DOI so the current DOI-keyed application can provide a full local detail page and reading-state controls. Additional verified PDFs may remain locally as optional human-review material, but only records in the manifest are imported.
+
 ## Safety and licensing
 
 - Papers are acquired only from the official arXiv PDF endpoint without authentication or access-control bypass.

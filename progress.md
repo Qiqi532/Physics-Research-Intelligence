@@ -17,6 +17,14 @@
 - 通过 arXiv 官方 API 限速选择并核对 `2608.28486`、`2608.28583`、`2608.28449`、`2608.28297`、`2608.28434`、`2608.28483`、`2608.28468`、`2608.27711`、`2608.27681`。标题、作者、摘要二次对照为 9/9 完全一致；API 未提供显式许可 URL，manifest 如实保存 `null`。
 - 九份官方 PDF 共 56,035,415 bytes，签名、Content-Type、大小与 SHA-256 全部验证；正式 downloader 连续两次均报告 9 个 `verified`，PDF 目录由 Git 忽略且无 `.bootstrap`/`.partial` 残留。
 - Task 5 红灯：local-trial 5 项中 2 项因启动器和本地说明缺失失败；新增无依赖 Web 包装器后，本地/运维测试 9/9、Web typecheck、Web lint 全部通过。默认 `dev/start` 固定 `127.0.0.1`，只有显式 `dev:lan/start:lan` 使用 `0.0.0.0` 并打印 no-login 警告。
+- Task 6 先新增 `backups/` 忽略红灯，local-trial 5 项中 1 项失败；补规则后 5/5 通过。创建 `pri-before-stage7-loopback-20260831-041740.dump`（252,159 bytes，SHA-256 `660b11825cecc22a4923c8304fae907333989be8a6a7490ebfd42cce13f49726`），`pg_restore --list` 可读；备份留在忽略目录。
+- 仅重建 `infra` 项目的 PostgreSQL/Redis 并保留命名卷；两者恢复 healthy，实际监听从旧 `0.0.0.0` 收紧为 `127.0.0.1:5432/6379`。
+- 初版九篇最新 arXiv 记录没有 DOI，真实浏览器暴露现有 DOI 路由无法进入站内详情。未伪造 DOI或改写接口，改选九篇 arXiv API 明确给出 DOI 的同方向开放论文；正式 manifest 为 `2608.23596`、`2608.28268`、`2608.28201`、`2608.25074`、`2608.28388`、`2608.19267`、`2608.14137`、`2606.13047`、`2608.08919`，标题/作者/摘要/DOI 9/9 与官方 API 完全一致且 PDF 全部 verified。旧九份已验证 PDF 仍在忽略目录，作为额外人工材料，不导入数据库。
+- `pri_stage7_trial` 应用四条既有迁移；清理本阶段旧无 DOI 试运行数据后，新清单连续导入两次均成功且保持 9 Paper/9 PaperSource、0 classification、0 interpretation。
+- 浏览器发现详情页未展示已存公开摘要：新增组件测试红灯（模块不存在），最小 Server Component 与原有样式接入后组件/响应式 8/8 通过。真实详情公开摘要 1,341 字符可见，“尚无 AI 解读”如实披露。
+- 真实桌面检查：首页有 8 篇近期站内推荐和来源链接；Tab 首焦点为可见 skip link 且 outline=solid；稍后读、正在阅读、完成、不感兴趣四状态均成功，随后恢复未读；兴趣保存天体权重 2 成功并恢复九项默认权重 1。因 0 classification，冷启动排序按设计保持稳定，未虚构兴趣命中。
+- 应用内浏览器控制连续三次因 Windows sandbox workspace refresh helper 退出，未能获取可控标签页；改用仓库锁定 Playwright 完成真实桌面/390px 验收。390px 首页和兴趣页均无横向溢出、主要控件可见。
+- trusted-LAN production 模式打印 no-login 警告，候选 `http://172.17.49.138:3000` 本机访问 200；监听为 Web `0.0.0.0:3000`、PostgreSQL/Redis `127.0.0.1`。验收后立即停止 LAN 并恢复 production Web `http://127.0.0.1:3000`。
 - 首次设计提交前 `git diff --cached --check` 报告两处 Markdown 尾随空格和一个末尾空行，但 PowerShell 命令链未因非零退出停止，仍创建了 `667c8a6`；不 amend，改用独立格式修复提交，并要求后续门禁显式检查退出码。
 
 ## 会话：2026-08-30（阶段 6）
