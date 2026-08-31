@@ -155,7 +155,10 @@ export function ModelConnectionForm(props: Props) {
       const response = await fetch(`/api/model-connections/${props.connection.id}/${kind}`, { method: "POST" });
       const body = await readJson(response);
       if (!response.ok) throw new Error(modelSettingsErrorMessage(errorCode(body)));
-      setTestState({ kind: "success", label: kind === "health" ? "连接测试成功" : "示例分类与解读完成", result: (body as { result: unknown }).result });
+      const result = (body as { result: unknown }).result;
+      const failedCode = resultFailureCode(result);
+      if (failedCode) throw new Error(modelSettingsErrorMessage(failedCode));
+      setTestState({ kind: "success", label: kind === "health" ? "连接测试成功" : "示例分类与解读完成", result });
     } catch (error) {
       setTestState({ kind: "error", message: error instanceof Error ? error.message : "操作失败，请稍后重试。" });
     }
@@ -207,4 +210,14 @@ async function readJson(response: Response): Promise<unknown> {
 function errorCode(body: unknown): string {
   return typeof body === "object" && body !== null && "errorCode" in body
     && typeof body.errorCode === "string" ? body.errorCode : "unknown";
+}
+
+function resultFailureCode(result: unknown): string | null {
+  if (typeof result !== "object" || result === null) return "unknown";
+  if ("status" in result && result.status === "failed") {
+    return "errorCode" in result && typeof result.errorCode === "string"
+      ? result.errorCode
+      : "unknown";
+  }
+  return null;
 }

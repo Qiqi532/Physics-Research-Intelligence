@@ -10,6 +10,13 @@ describe("model settings mutation request guard", () => {
     expect(validateModelSettingsMutation(request(), { lanMode: false })).toEqual({ ok: true });
   });
 
+  it("uses the HTTP Host header when Next normalizes the internal request URL", () => {
+    expect(validateModelSettingsMutation(request({
+      requestUrl: "http://localhost:3000/api/model-connections",
+      host: "127.0.0.1:3000",
+    }), { lanMode: false })).toEqual({ ok: true });
+  });
+
   it("rejects every mutation in explicit LAN mode", () => {
     expect(validateModelSettingsMutation(request(), { lanMode: true })).toEqual({
       ok: false,
@@ -90,15 +97,18 @@ function request(options: {
   contentLength?: string;
   contentType?: string;
   origin?: string;
+  requestUrl?: string;
+  host?: string;
 } = {}): Request {
   const headers = new Headers();
   const contentType = "contentType" in options ? options.contentType : "application/json";
   const origin = "origin" in options ? options.origin : "http://127.0.0.1:3000";
   if (contentType) headers.set("content-type", contentType);
   if (origin) headers.set("origin", origin);
+  if (options.host) headers.set("host", options.host);
   if (options.contentLength) headers.set("content-length", options.contentLength);
   const body = "body" in options ? options.body : "{}";
-  return new Request("http://127.0.0.1:3000/api/model-connections", {
+  return new Request(options.requestUrl ?? "http://127.0.0.1:3000/api/model-connections", {
     method: "POST",
     headers,
     body,

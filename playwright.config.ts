@@ -1,4 +1,6 @@
 import { defineConfig, devices } from "@playwright/test";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 const testDatabaseUrl = requireDedicatedTestDatabase();
 const baseEnvironment = {
@@ -6,6 +8,8 @@ const baseEnvironment = {
   REDIS_URL: "redis://127.0.0.1:6379/15",
   DAILY_AI_BUDGET_USD: "1",
   DAILY_PIPELINE_ENABLED: "false",
+  AI_SETTINGS_MASTER_KEY_FILE: join(tmpdir(), "pri-stage8-e2e-model-settings.key"),
+  PRI_LAN_MODE: "false",
 };
 
 export default defineConfig({
@@ -28,6 +32,12 @@ export default defineConfig({
     { name: "mobile-chromium", use: { ...devices["Pixel 7"] } },
   ],
   webServer: [
+    {
+      command: "node --experimental-strip-types tests/e2e/fixtures/mock-ai-provider.ts",
+      url: "http://127.0.0.1:3211/health",
+      reuseExistingServer: false,
+      timeout: 30_000,
+    },
     {
       command: "pnpm --filter @pri/web exec next dev --hostname 127.0.0.1 --port 3210",
       url: "http://127.0.0.1:3210/api/health/live",

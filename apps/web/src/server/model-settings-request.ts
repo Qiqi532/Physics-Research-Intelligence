@@ -32,7 +32,12 @@ export function validateModelSettingsMutation(
     return rejected(403, "settings_origin_required");
   }
   try {
-    if (new URL(origin).origin !== new URL(request.url).origin) {
+    const requestUrl = new URL(request.url);
+    const host = request.headers.get("host");
+    const expectedOrigin = host
+      ? new URL(`${requestUrl.protocol}//${host}`).origin
+      : requestUrl.origin;
+    if (new URL(origin).origin !== expectedOrigin) {
       return rejected(403, "settings_origin_rejected");
     }
   } catch {

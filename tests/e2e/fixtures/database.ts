@@ -1,8 +1,19 @@
 import { spawnSync } from "node:child_process";
+import { rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { createPrismaClient } from "../../../packages/db/src/client";
 import { syncPhysicsTags } from "../../../packages/db/src/paper-repository";
 
 const E2E_SCHEMA = "pri_stage5_e2e";
+
+export function e2eMasterKeyPath(): string {
+  return join(tmpdir(), "pri-stage8-e2e-model-settings.key");
+}
+
+export async function removeE2eMasterKey(): Promise<void> {
+  await rm(e2eMasterKeyPath(), { force: true });
+}
 
 export function e2eDatabaseUrl(): string {
   const value = process.env.TEST_DATABASE_URL;
@@ -50,6 +61,8 @@ export async function clearE2eBusinessData(): Promise<void> {
       ) AS "exists"
     `;
     if (!table[0]?.exists) return;
+    await client.aiRuntimeRouting.deleteMany();
+    await client.aiConnectionProfile.deleteMany();
     await client.userInterest.deleteMany();
     await client.paper.deleteMany();
     await client.sourceSyncState.deleteMany();
@@ -62,6 +75,8 @@ export async function resetE2eData(): Promise<void> {
   const client = createPrismaClient(e2eDatabaseUrl());
   const now = new Date();
   try {
+    await client.aiRuntimeRouting.deleteMany();
+    await client.aiConnectionProfile.deleteMany();
     await client.userInterest.deleteMany();
     await client.paper.deleteMany();
     await client.sourceSyncState.deleteMany();
