@@ -40,4 +40,37 @@ describe("local real-data trial boundary", () => {
     expect(corpusReadme).toMatch(/title.*metadata.*abstract/is);
     expect(corpusReadme).toMatch(/license/i);
   });
+
+  it("binds Web to localhost unless trusted-LAN mode is explicit", async () => {
+    const webPackage = JSON.parse(await readFile("apps/web/package.json", "utf8")) as {
+      scripts: Record<string, string>;
+    };
+    const launcher = await readFile("apps/web/scripts/start-web.mjs", "utf8");
+
+    expect(webPackage.scripts.dev).toBe("node scripts/start-web.mjs dev");
+    expect(webPackage.scripts.start).toBe("node scripts/start-web.mjs start");
+    expect(webPackage.scripts["dev:lan"]).toBe("node scripts/start-web.mjs dev --lan");
+    expect(webPackage.scripts["start:lan"]).toBe("node scripts/start-web.mjs start --lan");
+    expect(launcher).toContain('const hostname = lan ? "0.0.0.0" : "127.0.0.1"');
+    expect(launcher).toMatch(/no login/i);
+    expect(launcher).not.toMatch(/DATABASE_URL|REDIS_URL|firewall/);
+  });
+
+  it("documents a safe zero-cost desktop and optional LAN workflow", async () => {
+    const [readme, operations, exampleEnvironment] = await Promise.all([
+      readFile("README.md", "utf8"),
+      readFile("docs/operations.md", "utf8"),
+      readFile(".env.example", "utf8"),
+    ]);
+
+    expect(readme).toContain("http://127.0.0.1:3000");
+    expect(operations).toMatch(/local real-data trial/i);
+    expect(operations).toMatch(/127\.0\.0\.1:3000/);
+    expect(operations).toMatch(/trusted LAN/i);
+    expect(operations).toMatch(/no login/i);
+    expect(operations).toMatch(/private networks only/i);
+    expect(operations).toMatch(/client isolation/i);
+    expect(operations).toMatch(/stop|Ctrl\+C/i);
+    expect(exampleEnvironment).toMatch(/AI provider keys are optional/i);
+  });
 });

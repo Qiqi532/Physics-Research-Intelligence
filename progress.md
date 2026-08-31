@@ -16,6 +16,7 @@
 - Task 4 红灯：local-trial 文档测试 3/3 因命令、manifest、README/ignore 边界缺失而失败；实现后定向四文件 24/24 通过，worker typecheck 退出码 0。
 - 通过 arXiv 官方 API 限速选择并核对 `2608.28486`、`2608.28583`、`2608.28449`、`2608.28297`、`2608.28434`、`2608.28483`、`2608.28468`、`2608.27711`、`2608.27681`。标题、作者、摘要二次对照为 9/9 完全一致；API 未提供显式许可 URL，manifest 如实保存 `null`。
 - 九份官方 PDF 共 56,035,415 bytes，签名、Content-Type、大小与 SHA-256 全部验证；正式 downloader 连续两次均报告 9 个 `verified`，PDF 目录由 Git 忽略且无 `.bootstrap`/`.partial` 残留。
+- Task 5 红灯：local-trial 5 项中 2 项因启动器和本地说明缺失失败；新增无依赖 Web 包装器后，本地/运维测试 9/9、Web typecheck、Web lint 全部通过。默认 `dev/start` 固定 `127.0.0.1`，只有显式 `dev:lan/start:lan` 使用 `0.0.0.0` 并打印 no-login 警告。
 - 首次设计提交前 `git diff --cached --check` 报告两处 Markdown 尾随空格和一个末尾空行，但 PowerShell 命令链未因非零退出停止，仍创建了 `667c8a6`；不 amend，改用独立格式修复提交，并要求后续门禁显式检查退出码。
 
 ## 会话：2026-08-30（阶段 6）

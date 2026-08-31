@@ -239,27 +239,27 @@ Run: `git commit -m "feat(worker): add curated open-paper corpus"`
 - Modify: `docs/operations.md`
 - Modify: `tests/docs/local-trial.test.ts`
 
-- [ ] **Step 1: Extend the failing config tests**
+- [x] **Step 1: Extend the failing config tests**
 
 Assert default Web development and production commands bind `127.0.0.1`; LAN commands exist separately, bind only Web to `0.0.0.0`, and call a warning wrapper before starting. Assert operations text keeps PostgreSQL/Redis on loopback, warns there is no login, gives `http://127.0.0.1:3000`, explains private-network-only firewall choice and campus client isolation, and supplies stop/restart commands.
 
-- [ ] **Step 2: Run the test and record the red result**
+- [x] **Step 2: Run the test and record the red result**
 
 Run: `pnpm vitest run tests/docs/local-trial.test.ts`
 
 Expected: FAIL on missing localhost/LAN script boundaries and operations content.
 
-- [ ] **Step 3: Add minimal scripts and documentation**
+- [x] **Step 3: Add minimal scripts and documentation**
 
 Use Next CLI `-H 127.0.0.1` for local development and the standalone server's `HOSTNAME=127.0.0.1` for production. Add explicit `dev:lan`/`start:lan` wrappers that print the no-login warning and set only the Web hostname to `0.0.0.0`; do not change database URLs, Redis URLs, firewall, network profile, or Compose ports. Document that no AI key is required for facts and that exactly one named provider key may later be placed in ignored `.env`.
 
-- [ ] **Step 4: Run focused tests and package checks**
+- [x] **Step 4: Run focused tests and package checks**
 
 Run: `pnpm vitest run tests/docs/local-trial.test.ts tests/docs/operations.test.ts && pnpm --filter @pri/web typecheck && pnpm --filter @pri/web lint`
 
 Expected: tests PASS; Web typecheck/lint exit 0.
 
-- [ ] **Step 5: Commit local access modes**
+- [x] **Step 5: Commit local access modes**
 
 Run: `git add apps/web/package.json package.json .env.example README.md docs/operations.md tests/docs/local-trial.test.ts && git commit -m "docs(ops): add safe local trial workflow"`
 

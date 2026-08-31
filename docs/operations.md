@@ -37,6 +37,27 @@ The development command runs Web and worker together. Stop it with `Ctrl+C`; sto
 docker compose -f infra/docker-compose.yml stop postgres redis
 ```
 
+## Local real-data trial
+
+This is the recommended zero-cost personal deployment. PostgreSQL and Redis in the checked-in Compose file bind to loopback. Before starting, inspect active container port bindings: old containers must not show `0.0.0.0:5432` or `0.0.0.0:6379`. Back up personal data before recreating an old container.
+
+With `.env` configured for the dedicated local database, run existing migrations, verify the nine local open PDFs, and import their public metadata:
+
+```powershell
+pnpm --filter @pri/db prisma:deploy
+pnpm --filter @pri/worker corpus:download
+pnpm --filter @pri/worker corpus:import
+pnpm dev
+```
+
+Open `http://127.0.0.1:3000`. No AI provider key is required for public facts, Today cold-start ordering, paper detail, interests, or reading state. Missing interpretation remains visible as a truthful unavailable state. Stop Web and worker with `Ctrl+C`; preserve PostgreSQL data by stopping rather than removing its Compose volume.
+
+### Optional trusted LAN
+
+Only after confirming PostgreSQL and Redis are loopback-only, start Web explicitly with `pnpm --filter @pri/web dev:lan` (or `start:lan` after a production build). The command binds only Web to `0.0.0.0` and prints a warning because the application has no login. Find the computer's private IPv4 address and try `http://PRIVATE-IP:3000` from a device on the same trusted Wi-Fi or personal hotspot.
+
+Do not add a router port-forward or public tunnel. If Windows Firewall asks, the user may choose private networks only; the application never changes firewall settings. Campus Wi-Fi client isolation can block device-to-device traffic even when both devices have internet access. In that case, keep using the guaranteed desktop URL or try a personal hotspot later.
+
 ## AI provider setup
 
 For the simplest setup, fill exactly one named key, for example `AI_PROVIDER_GLM_API_KEY`, `AI_PROVIDER_KIMI_API_KEY`, or `AI_PROVIDER_HUNYUAN_API_KEY`. The application supplies the official base URL, a current default model, 45-second timeout, output limits, and conservative local budget reservation rates.

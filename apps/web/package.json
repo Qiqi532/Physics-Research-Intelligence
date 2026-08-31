@@ -3,10 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "node scripts/start-web.mjs dev",
+    "dev:lan": "node scripts/start-web.mjs dev --lan",
     "build": "next build",
     "postbuild": "node scripts/copy-standalone-assets.mjs",
-    "start": "node .next/standalone/apps/web/server.js",
+    "start": "node scripts/start-web.mjs start",
+    "start:lan": "node scripts/start-web.mjs start --lan",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit"
   },
