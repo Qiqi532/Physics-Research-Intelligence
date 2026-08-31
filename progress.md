@@ -17,6 +17,10 @@
 - Next 16 smooth-scroll 声明测试先 1/2 失败；按本地官方文档为根 `html` 增加 `data-scroll-behavior="smooth"` 后 2/2、Web typecheck/lint 通过，E2E 不再出现该框架警告。
 - 首次全量测试后 `pri_stage6_test` 仍有 1 篇 Paper 和 1 条 SourceSyncState，作为 teardown 红灯；为四个 PostgreSQL 集成测试补齐 `afterAll` 后，全量 43 文件、261 项通过，九张业务表均为 0，9 个标签种子与 4 条迁移保留。
 - 进度证据补丁曾因跨文件上下文错误只应用了前置 task_plan 勾选；核对三份文件后以小上下文补齐 findings/progress，未覆盖其他内容。
+- 合并前远端备份 `codex/backup-main-before-stage5-20260831` 已推送并核验为 `6101ea5b200af3397fe2c63cc92ba62dde8e06c9`。
+- 独立 `codex/integrate-stage-5` 工作树从 `origin/main@6101ea5` 创建，以 `--no-ff` 合并 `codex/stage-5@75623bf`；合并提交 `a68b5eaca74ef0672384216643b5dfb6850332b8` 有两个正确父提交且无冲突。
+- 合并树使用离线锁文件安装（下载 0）和新 `pri_stage6_merge` schema：43 文件 261 项 Vitest、16 项 Playwright、lint、typecheck、Prisma generate/validate/status、Web/worker build 与官方依赖审计全部通过。
+- 合并树的 `pri_stage6_merge` 与 `pri_stage5_e2e` 业务计数均为 0，迁移历史各保留 4 条；构建与 Playwright 产物已清理。
 
 ## 会话：2026-08-30（阶段 5）
 
