@@ -11,6 +11,7 @@
 - 用户已明确回复“规格通过”；新增 `docs/superpowers/plans/2026-08-31-local-real-data-trial.md`，按清单内联执行，不启用子代理且不再逐项等待确认。
 - 计划自检发现规格覆盖清单误将现有 `condensed-matter-materials` 拆成两项并漏掉 `statistical-computational`；已按仓库真实九标签修正文档，不新增标签或迁移。
 - Task 1 红灯：`tests/worker/review-corpus-manifest.test.ts` 因 manifest 模块不存在失败；最小实现后 10/10 通过。首次 worker typecheck 同时发现新增集合推断错误与未生成 Prisma 客户端的级联错误；修正集合类型并使用虚构本地 URL 执行 Prisma generate 后，worker typecheck 退出码 0。
+- Task 2 红灯：downloader 模块不存在；首轮最小实现后 downloader/来源重试共 14 项中 13 项通过，唯一失败为已有文件长度不符错误码不稳定。将已有文件的签名、长度、checksum 不符统一映射为 `existing_file_mismatch` 后 14/14 通过，worker typecheck 退出码 0；测试全程使用 mock fetch 和系统临时目录。
 - 首次设计提交前 `git diff --cached --check` 报告两处 Markdown 尾随空格和一个末尾空行，但 PowerShell 命令链未因非零退出停止，仍创建了 `667c8a6`；不 amend，改用独立格式修复提交，并要求后续门禁显式检查退出码。
 
 ## 会话：2026-08-30（阶段 6）

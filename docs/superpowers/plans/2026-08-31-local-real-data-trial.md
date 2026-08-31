@@ -101,7 +101,7 @@ Run: `git add apps/worker/src/review-corpus/manifest.ts tests/worker/review-corp
 - Create: `apps/worker/src/review-corpus/downloader.ts`
 - Create: `tests/worker/review-corpus-downloader.test.ts`
 
-- [ ] **Step 1: Write failing downloader tests using only mock fetch and a temporary directory**
+- [x] **Step 1: Write failing downloader tests using only mock fetch and a temporary directory**
 
 Cover a valid `%PDF-` response, an already verified file (zero network calls), checksum mismatch refusal, HTML masquerading as PDF, wrong content type, excessive declared/streamed size, redirect to an unapproved host, timeout, and terminal 429/5xx. Assert a failed request leaves neither the final file nor a partial file.
 
@@ -119,23 +119,23 @@ expect(result.status).toBe("downloaded");
 expect(await readFile(join(corpusDirectory, entry.pdfFile))).toEqual(pdfBytes);
 ```
 
-- [ ] **Step 2: Run the focused test and record the red result**
+- [x] **Step 2: Run the focused test and record the red result**
 
 Run: `pnpm vitest run tests/worker/review-corpus-downloader.test.ts`
 
 Expected: FAIL because the downloader module does not exist.
 
-- [ ] **Step 3: Implement bounded acquisition and atomic placement**
+- [x] **Step 3: Implement bounded acquisition and atomic placement**
 
 Reuse `createRetriableFetch` with injected `fetchImpl`/`sleep`, three attempts, a 30-second timeout, and a descriptive `User-Agent`. Disable automatic redirect following, approve only `https://arxiv.org/pdf/...` and `https://export.arxiv.org/pdf/...`, validate status/content type/content length, stream no more than 50 MiB, verify the `%PDF-` prefix and SHA-256, write to a sibling `.partial` file, then atomically rename. Existing matching files return `verified`; existing mismatches throw without overwrite.
 
-- [ ] **Step 4: Run downloader and source retry regression tests**
+- [x] **Step 4: Run downloader and source retry regression tests**
 
 Run: `pnpm vitest run tests/worker/review-corpus-downloader.test.ts tests/sources/http.test.ts`
 
 Expected: all downloader and existing bounded-retry tests PASS with no real network calls.
 
-- [ ] **Step 5: Commit the downloader**
+- [x] **Step 5: Commit the downloader**
 
 Run: `git add apps/worker/src/review-corpus/downloader.ts tests/worker/review-corpus-downloader.test.ts && git commit -m "feat(worker): download verified review papers"`
 
