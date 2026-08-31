@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "ingest": "tsx src/ingest.ts",
+    "corpus:download": "tsx src/download-review-corpus.ts",
+    "corpus:import": "tsx src/import-review-corpus.ts",
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit"

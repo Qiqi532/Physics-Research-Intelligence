@@ -13,6 +13,9 @@
 - Task 1 红灯：`tests/worker/review-corpus-manifest.test.ts` 因 manifest 模块不存在失败；最小实现后 10/10 通过。首次 worker typecheck 同时发现新增集合推断错误与未生成 Prisma 客户端的级联错误；修正集合类型并使用虚构本地 URL 执行 Prisma generate 后，worker typecheck 退出码 0。
 - Task 2 红灯：downloader 模块不存在；首轮最小实现后 downloader/来源重试共 14 项中 13 项通过，唯一失败为已有文件长度不符错误码不稳定。将已有文件的签名、长度、checksum 不符统一映射为 `existing_file_mismatch` 后 14/14 通过，worker typecheck 退出码 0；测试全程使用 mock fetch 和系统临时目录。
 - Task 3 红灯：importer 模块不存在；最小仓储实现后单元测试 2/2 通过。新建 `pri_stage7_test` 专用 schema 并应用四条既有迁移，单元+PostgreSQL 重放集成共 3/3 通过；同一九条 manifest 重放保持 9 个 Paper/9 个 PaperSource，teardown 后业务计数 0/0、迁移历史 4。
+- Task 4 红灯：local-trial 文档测试 3/3 因命令、manifest、README/ignore 边界缺失而失败；实现后定向四文件 24/24 通过，worker typecheck 退出码 0。
+- 通过 arXiv 官方 API 限速选择并核对 `2608.28486`、`2608.28583`、`2608.28449`、`2608.28297`、`2608.28434`、`2608.28483`、`2608.28468`、`2608.27711`、`2608.27681`。标题、作者、摘要二次对照为 9/9 完全一致；API 未提供显式许可 URL，manifest 如实保存 `null`。
+- 九份官方 PDF 共 56,035,415 bytes，签名、Content-Type、大小与 SHA-256 全部验证；正式 downloader 连续两次均报告 9 个 `verified`，PDF 目录由 Git 忽略且无 `.bootstrap`/`.partial` 残留。
 - 首次设计提交前 `git diff --cached --check` 报告两处 Markdown 尾随空格和一个末尾空行，但 PowerShell 命令链未因非零退出停止，仍创建了 `667c8a6`；不 amend，改用独立格式修复提交，并要求后续门禁显式检查退出码。
 
 ## 会话：2026-08-30（阶段 6）

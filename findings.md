@@ -7,6 +7,8 @@
 - 电脑 localhost 是零成本且与无登录单用户架构一致的默认部署；可信 LAN 只开放 Web，数据库与 Redis 必须保持 loopback。校园 Wi-Fi 设备隔离可能使手机访问失败，因此移动端是 best-effort。
 - 真实论文 PDF 只用于人工评审；应用导入和模型输入继续限于公开标题、元数据与摘要。
 - 已批准的实现文件边界为 worker 内严格 manifest、受控 downloader、仓储 importer 与两个显式 CLI；现有 `PaperRepository.upsertFromSource` 足够，不需要新增表或迁移。
+- arXiv 的分类查询包含交叉列出记录；除明确的 `cross-disciplinary` 医学物理样本外，语料选择要求主分类与方向来源分类一致。review-target 只存在于 manifest，不写成 `PaperClassification`。
+- 本次九条 arXiv API 记录均未返回显式 `arxiv:license`；许可证字段保持 `null`，README 要求逐篇核对记录与仓储条款，不能推断为 Creative Commons。
 
 
 ## 阶段 6 全仓审查与部署结论（2026-08-30）

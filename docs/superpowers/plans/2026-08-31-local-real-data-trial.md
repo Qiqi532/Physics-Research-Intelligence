@@ -190,21 +190,21 @@ Run: `git add apps/worker/src/review-corpus/importer.ts tests/worker/review-corp
 - Create: `data/review-corpus/README.md`
 - Create: `tests/docs/local-trial.test.ts`
 
-- [ ] **Step 1: Write failing command/config documentation tests**
+- [x] **Step 1: Write failing command/config documentation tests**
 
 Assert the worker exposes `corpus:download` and `corpus:import`; `.gitignore` ignores `data/review-corpus/pdfs/`; the committed manifest parses and covers the nine actual `PHYSICS_TAG_SLUGS`; every canonical URL is official HTTPS arXiv; the README says PDFs are not committed and distinguishes human full-text review from model abstract input.
 
-- [ ] **Step 2: Run the documentation boundary test and record the red result**
+- [x] **Step 2: Run the documentation boundary test and record the red result**
 
 Run: `pnpm vitest run tests/docs/local-trial.test.ts`
 
 Expected: FAIL because commands and corpus files do not yet exist.
 
-- [ ] **Step 3: Select and verify nine official arXiv records**
+- [x] **Step 3: Select and verify nine official arXiv records**
 
 Use the official arXiv abstract/API records to select exactly one primary paper for each existing tag. Record verbatim public metadata and canonical links; do not create evaluation scores or classifications. Download each official PDF once, then populate its actual lowercase SHA-256 and byte length in `manifest.json`. If a record has no explicit license URL, store `null` and explain arXiv's repository access terms without claiming a Creative Commons license.
 
-- [ ] **Step 4: Implement the two CLIs and scripts**
+- [x] **Step 4: Implement the two CLIs and scripts**
 
 Both CLIs load `data/review-corpus/manifest.json` relative to the repository root, strictly parse it, emit stable structured summaries via `toLogSafeData`, and set a nonzero exit code on any failure. The import CLI uses `parseConfig`, `createPrismaClient`, `createPaperRepository`, and a `finally` disconnect. Add:
 
@@ -213,7 +213,7 @@ Both CLIs load `data/review-corpus/manifest.json` relative to the repository roo
 "corpus:import": "tsx src/import-review-corpus.ts"
 ```
 
-- [ ] **Step 5: Run tests, verify downloads, and prove idempotence**
+- [x] **Step 5: Run tests, verify downloads, and prove idempotence**
 
 Run: `pnpm vitest run tests/docs/local-trial.test.ts tests/worker/review-corpus-*.test.ts`
 
@@ -221,7 +221,7 @@ Run twice: `pnpm --filter @pri/worker corpus:download`
 
 Expected: first run reports downloaded/verified nine; second run reports verified nine with no replacement. `git status --ignored --short data/review-corpus` shows the PDFs ignored and only manifest/README trackable.
 
-- [ ] **Step 6: Commit source, tests, manifest and docs but not PDFs**
+- [x] **Step 6: Commit source, tests, manifest and docs but not PDFs**
 
 Run: `git add .gitignore apps/worker/package.json apps/worker/src/download-review-corpus.ts apps/worker/src/import-review-corpus.ts data/review-corpus/manifest.json data/review-corpus/README.md tests/docs/local-trial.test.ts && git diff --cached --name-only`
 
