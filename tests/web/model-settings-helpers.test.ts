@@ -60,6 +60,8 @@ describe("model settings client helpers", () => {
   it("maps only stable safe error codes to user-facing text", () => {
     expect(modelSettingsErrorMessage("authentication")).toContain("API Key");
     expect(modelSettingsErrorMessage("settings_test_cooldown")).toContain("稍后");
+    expect(modelSettingsErrorMessage("secret_key_unavailable")).toContain("密钥存储");
+    expect(modelSettingsErrorMessage("secret_decryption_failed")).toContain("重新填写");
     expect(modelSettingsErrorMessage("unknown_internal_detail")).toBe("操作失败，请稍后重试。");
   });
 });

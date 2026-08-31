@@ -13,6 +13,8 @@ export function modelSettingsErrorMessage(errorCode: string): string {
     settings_secret_unavailable: "密钥存储暂时不可用。",
     settings_master_key_invalid: "密钥存储暂时不可用。",
     settings_master_key_unavailable: "密钥存储暂时不可用。",
+    secret_key_unavailable: "密钥存储暂时不可用，请检查本机主密钥文件。",
+    secret_decryption_failed: "现有密钥无法解密，请在本机重新填写此连接的 API Key。",
     settings_fallback_must_differ: "主连接和备用连接必须来自不同供应商。",
     profile_in_use: "该连接正在任务路由中使用，请先调整路由。",
     profile_not_found: "模型连接不存在或已被删除。",
