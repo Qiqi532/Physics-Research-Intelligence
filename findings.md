@@ -1,6 +1,7 @@
 # 发现与决策
 
 ## 阶段 8 模型连接管理台（2026-08-31）
+- 主密钥并发首次创建使用独占 `wx`；竞争者在 `EEXIST` 后有界重读 32 字节文件，避免读取创建窗口中的不完整内容。decrypt 路径只读现有 key，缺失时稳定失败。
 - 现有八类 provider adapter、统一 `healthCheck`、factory、router、成本和脱敏边界可以复用；无需重写模型协议层。
 - 当前 `createConfiguredDailyProcessor` 在 worker 启动时一次性构造 provider，不满足热切换。批准的语义是每个新批次读取一次持久化路由快照，批次执行中保持不变。
 - `AiServerConfig.providers` 以供应商名为键，不能承载跨任务的同供应商多配置；运行时解析必须改用按任务隔离的连接快照，环境变量配置再适配到该类型。

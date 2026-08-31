@@ -1,5 +1,13 @@
 export { createPrismaClient, type DatabaseClient } from "./client";
 export {
+  createModelSettingsCipher,
+  defaultModelSettingsKeyPath,
+  ModelSettingsSecretError,
+  type EncryptedModelSecret,
+  type ModelSettingsCipher,
+  type ModelSettingsSecretErrorCode,
+} from "./model-settings-crypto";
+export {
   createPaperRepository,
   syncPhysicsTags,
   type PaperDetails,

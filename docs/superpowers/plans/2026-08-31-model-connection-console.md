@@ -32,7 +32,7 @@
 - Read: `findings.md`
 - Read: `progress.md`
 
-- [ ] **Step 1: 确认设计分支干净且提交存在**
+- [x] **Step 1: 确认设计分支干净且提交存在**
 
 Run:
 
@@ -44,7 +44,7 @@ git worktree list --porcelain
 
 Expected: 只有已经提交的规格与计划；不存在产品源码未提交差异。
 
-- [ ] **Step 2: 推送设计与计划提交**
+- [x] **Step 2: 推送设计与计划提交**
 
 Run:
 
@@ -54,7 +54,7 @@ git push origin codex/stage-6-local-trial
 
 Expected: 非强制推送成功，不修改其他远端引用。
 
-- [ ] **Step 3: 从当前计划提交创建独立分支和 worktree**
+- [x] **Step 3: 从当前计划提交创建独立分支和 worktree**
 
 Run:
 
@@ -64,7 +64,7 @@ git worktree add -b codex/stage-8-model-console "D:\Physics Research Intelligenc
 
 Expected: 新 worktree 位于明确路径，原保存项目目录与 stage-6 worktree 不变。
 
-- [ ] **Step 4: 在新 worktree 复核基线**
+- [x] **Step 4: 在新 worktree 复核基线**
 
 Run:
 
@@ -85,7 +85,7 @@ Expected: `codex/stage-8-model-console` 干净，包含已批准规格。
 - Test: `tests/domain/model-settings.test.ts`
 - Test: `tests/db/model-settings-crypto.test.ts`
 
-- [ ] **Step 1: 写领域 schema 红灯**
+- [x] **Step 1: 写领域 schema 红灯**
 
 新增测试，固定公开输入边界：
 
@@ -117,13 +117,13 @@ expect(() => parseModelConnectionCreate({
 
 覆盖 16 KiB、50 个连接、名称/模型/Key/URL 长度、HTTPS 或 loopback HTTP、价格和超时范围、更新时空 Key 保留、路由主连接与备用连接字段。
 
-- [ ] **Step 2: 运行红灯**
+- [x] **Step 2: 运行红灯**
 
 Run: `pnpm test tests/domain/model-settings.test.ts`
 
 Expected: FAIL，`@pri/domain/model-settings` 尚不存在。
 
-- [ ] **Step 3: 最小实现领域类型与 strict schema**
+- [x] **Step 3: 最小实现领域类型与 strict schema**
 
 实现并导出以下稳定边界：
 
@@ -153,7 +153,7 @@ export function parseModelRoutingUpdate(value: unknown): ModelRoutingUpdateInput
 
 URL refinement 只允许 `https:`，或 hostname 为 `127.0.0.1`、`localhost`、`::1` 的 `http:`。
 
-- [ ] **Step 4: 写加密红灯**
+- [x] **Step 4: 写加密红灯**
 
 使用系统临时目录，不读取真实 Key：
 
@@ -172,13 +172,13 @@ await expect(cipher.decrypt({ ...encrypted, profileId, provider: "kimi" }))
 
 另测不同 nonce、错误 provider/profile associated data、损坏 tag、缺失主密钥和两个并发首次创建者读取同一 32 字节 key。
 
-- [ ] **Step 5: 运行加密红灯**
+- [x] **Step 5: 运行加密红灯**
 
 Run: `pnpm test tests/db/model-settings-crypto.test.ts`
 
 Expected: FAIL，crypto 模块不存在。
 
-- [ ] **Step 6: 实现 AES-256-GCM 与独占主密钥文件**
+- [x] **Step 6: 实现 AES-256-GCM 与独占主密钥文件**
 
 核心类型必须保持明确：
 
@@ -199,7 +199,7 @@ export class ModelSettingsSecretError extends Error {
 
 使用 `open(path, "wx", 0o600)` 创建，`EEXIST` 时重新读取；写入前创建父目录。默认路径通过 `defaultModelSettingsKeyPath()` 按 Windows Local App Data 或 Unix user data 目录计算，测试始终显式传临时路径。
 
-- [ ] **Step 7: 运行绿灯与类型检查**
+- [x] **Step 7: 运行绿灯与类型检查**
 
 Run:
 
@@ -211,7 +211,7 @@ pnpm --filter @pri/db typecheck
 
 Expected: 全部 PASS；无明文进入序列化结果。
 
-- [ ] **Step 8: 提交**
+- [x] **Step 8: 提交**
 
 ```powershell
 git add packages/domain/src/model-settings.ts packages/domain/package.json packages/db/src/model-settings-crypto.ts packages/db/src/index.ts tests/domain/model-settings.test.ts tests/db/model-settings-crypto.test.ts

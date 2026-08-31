@@ -1,5 +1,16 @@
 # 进度日志
 
+## 会话：2026-08-31（阶段 8 实施）
+
+### Task 0–1：隔离 worktree、领域校验与加密
+- **状态：** complete。
+- 已推送设计/计划基线，并从 `bdc6db5` 创建独立 `codex/stage-8-model-console` worktree；原 main、stage-6 和其他 worktree 未修改。
+- 新 worktree 使用 `pnpm install --offline --frozen-lockfile` 从本机 store 恢复 584 个锁定依赖，下载数为 0，锁文件未变化。
+- 首次 Task 1 测试在 pretest 阶段因新 worktree 没有 `DATABASE_URL` 安全失败，未加载测试；改用进程级专用 loopback test schema 后，红灯准确为 `model-settings` 与 `model-settings-crypto` 模块不存在。
+- 最小实现新增 strict 连接/路由 schema：16 KiB、50 配置、字段长度、数值、未知字段、HTTPS/loopback HTTP 和空更新 Key 边界。
+- AES-256-GCM 使用 32 字节独立主密钥、12 字节随机 nonce、16 字节 tag，并用版本/Profile UUID/provider 作为 associated data；decrypt 缺 key 不会自动生成替代 key。
+- 定向测试 2 文件、26 项全部通过；`@pri/domain` 与 `@pri/db` typecheck 均退出 0。
+
 ## 会话：2026-08-31（阶段 8）
 
 ### 页面内模型连接管理台设计
