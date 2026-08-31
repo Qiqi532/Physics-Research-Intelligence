@@ -49,6 +49,13 @@ describeDatabase("PostgreSQL model settings repository", () => {
       .rejects.toMatchObject({ code: "profile_name_conflict" });
   });
 
+  it("stores a service-generated id used by encryption associated data", async () => {
+    const profileId = "33333333-3333-4333-8333-333333333333";
+
+    await expect(repository.create("default", encryptedProfile(), profileId))
+      .resolves.toEqual(expect.objectContaining({ id: profileId }));
+  });
+
   it("rotates encrypted key material while retaining other fields", async () => {
     const created = await repository.create("default", encryptedProfile());
     const rotated = await repository.update("default", created.id, {

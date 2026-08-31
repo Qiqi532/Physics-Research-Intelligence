@@ -40,6 +40,7 @@ const modelConnectionUpdateSchema = z.object({
   });
 
 const nullableUuid = z.uuid().nullable();
+const modelConnectionIdSchema = z.uuid();
 const modelRoutingUpdateSchema = z.object({
   classifyPrimaryId: nullableUuid,
   classifyFallbackId: nullableUuid,
@@ -48,7 +49,9 @@ const modelRoutingUpdateSchema = z.object({
 }).strict();
 
 export type ModelConnectionCreateInput = z.infer<typeof modelConnectionCreateSchema>;
-export type ModelConnectionUpdateInput = z.infer<typeof modelConnectionUpdateSchema>;
+export type ModelConnectionUpdateInput = Partial<
+  Omit<ModelConnectionCreateInput, "apiKey">
+> & { apiKey?: string };
 export type ModelRoutingUpdateInput = z.infer<typeof modelRoutingUpdateSchema>;
 
 export type ModelConnectionPublic = {
@@ -73,12 +76,17 @@ export function parseModelConnectionUpdate(value: unknown): ModelConnectionUpdat
   return modelConnectionUpdateSchema.parse(value);
 }
 
+export function parseModelConnectionId(value: unknown): string {
+  return modelConnectionIdSchema.parse(value);
+}
+
 export function parseModelRoutingUpdate(value: unknown): ModelRoutingUpdateInput {
   return modelRoutingUpdateSchema.parse(value);
 }
 
 function isAllowedModelUrl(value: string): boolean {
   const url = new URL(value);
+  if (url.username || url.password) return false;
   if (url.protocol === "https:") return true;
   return url.protocol === "http:" && ["127.0.0.1", "localhost", "[::1]", "::1"]
     .includes(url.hostname);

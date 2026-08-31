@@ -42,6 +42,19 @@ describe("server configuration", () => {
     }));
   });
 
+  it("parses an optional model settings key file path without reading it", () => {
+    expect(parseConfig({
+      ...validEnvironment,
+      AI_SETTINGS_MASTER_KEY_FILE: "",
+    })).not.toHaveProperty("AI_SETTINGS_MASTER_KEY_FILE");
+    expect(parseConfig({
+      ...validEnvironment,
+      AI_SETTINGS_MASTER_KEY_FILE: "test-only-model-settings.key",
+    })).toEqual(expect.objectContaining({
+      AI_SETTINGS_MASTER_KEY_FILE: "test-only-model-settings.key",
+    }));
+  });
+
   it("rejects an invalid Crossref ISSN", () => {
     expect(() => parseConfig({ ...validEnvironment, CROSSREF_ISSN: "physics" })).toThrow(
       "CROSSREF_ISSN must be a valid ISSN",

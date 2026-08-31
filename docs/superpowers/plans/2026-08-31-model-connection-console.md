@@ -338,7 +338,7 @@ pnpm test tests/db/model-settings-repository-unit.test.ts tests/db/model-setting
 
 Expected: 新迁移应用于专用 schema；两组测试 PASS，teardown 后两个新表均为 0，迁移历史保留 5 条。
 
-- [ ] **Step 6: 提交**
+- [x] **Step 6: 提交**
 
 ```powershell
 git add packages/db/prisma packages/db/src/model-settings-repository.ts packages/db/src/index.ts tests/db/model-settings-repository-unit.test.ts tests/db/model-settings-repository.test.ts
@@ -410,7 +410,7 @@ Run: `pnpm test tests/ai/connection-test.test.ts`
 
 Expected: FAIL 后实现；分类与解读用 `Promise.allSettled` 并分别计算 Token 与估算费用，使用保守固定输出上限。
 
-- [ ] **Step 5: 全部 AI 定向绿灯与提交**
+- [x] **Step 5: 全部 AI 定向绿灯与提交**
 
 ```powershell
 pnpm test tests/ai/connection-provider.test.ts tests/ai/connection-test.test.ts tests/ai/provider-factory.test.ts tests/ai/providers.test.ts
@@ -438,7 +438,7 @@ Expected: 无真实网络请求，既有 provider 行为不变。
 - Test: `tests/api/model-settings.test.ts`
 - Test: `tests/api/model-settings-routes.test.ts`
 
-- [ ] **Step 1: 写请求安全红灯**
+- [x] **Step 1: 写请求安全红灯**
 
 ```ts
 expect(validateModelSettingsMutation(new Request("http://127.0.0.1/api", {
@@ -454,13 +454,13 @@ expect(validateModelSettingsMutation(localRequest, { lanMode: true }))
 
 覆盖缺失/错误 content type、Origin、16 KiB 流式上限和无 body。
 
-- [ ] **Step 2: 运行红灯并实现请求工具**
+- [x] **Step 2: 运行红灯并实现请求工具**
 
 Run: `pnpm test tests/api/model-settings-request.test.ts`
 
 Expected: FAIL 后实现共享 `readBoundedJson` 与 mutation guard；route 不重复读取无限 body。
 
-- [ ] **Step 3: 写 API service 红灯**
+- [x] **Step 3: 写 API service 红灯**
 
 使用 fake repository、fake cipher、fake provider factory：
 
@@ -480,7 +480,7 @@ expect(cipher.encrypt).not.toHaveBeenCalled();
 
 覆盖 50 个上限、同名、找不到、删除引用、Key 轮换、主备同供应商拒绝、密文损坏、数据库错误脱敏、health 5 秒与 sample 60 秒冷却、同配置并发 409。
 
-- [ ] **Step 4: 实现 service 与测试门**
+- [x] **Step 4: 实现 service 与测试门**
 
 `createModelSettingsApi` 只依赖窄接口：
 
@@ -498,7 +498,7 @@ export function createModelSettingsApi(input: {
 
 所有成功响应通过 `toPublicConnection` 投影，禁止扩展运算符把存储行直接返回。
 
-- [ ] **Step 5: 写薄 route 红灯并实现**
+- [x] **Step 5: 写薄 route 红灯并实现**
 
 route 测试直接调用导出的 GET/POST/PATCH/DELETE，注入的 service 层测试处理业务。生产 handler 只负责安全 guard、bounded JSON、路径 ID 和 `Response.json`。
 
@@ -506,11 +506,11 @@ Run: `pnpm test tests/api/model-settings.test.ts tests/api/model-settings-routes
 
 Expected: 初始 FAIL；实现所有路由后 PASS。
 
-- [ ] **Step 6: 配置边界**
+- [x] **Step 6: 配置边界**
 
 `ServerConfig` 新增可选 `AI_SETTINGS_MASTER_KEY_FILE`，只解析非空路径，不读取内容；`.env.example` 只增加空变量名和说明。不得增加真实路径或 Key 示例。
 
-- [ ] **Step 7: 定向绿灯、类型检查与提交**
+- [x] **Step 7: 定向绿灯、类型检查与提交**
 
 ```powershell
 pnpm test tests/api/model-settings-request.test.ts tests/api/model-settings.test.ts tests/api/model-settings-routes.test.ts tests/domain/config.test.ts

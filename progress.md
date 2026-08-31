@@ -27,6 +27,16 @@
 - 虚构样本固定使用项目自有标题与摘要，分类和解读通过 `Promise.allSettled` 并行执行，一项失败仍返回另一项结果；不写数据库且不进入每日预算。
 - Task 3 定向测试 4 文件、36 项通过，`@pri/ai` typecheck 退出 0；全部 provider HTTP 使用 mock fetch，无真实 API 请求。
 
+### Task 4：安全内部 API
+- **状态：** complete，待独立提交。
+- 请求工具红灯先因测试引号传输产生语法错误，修正测试后有效红灯准确为模块不存在；最终同源、LAN、JSON、声明/流式 16 KiB 上限和无效 body 共 12 项通过。
+- service 红灯准确为模块不存在；实现显式公开 DTO、50 配置上限、预生成 UUID 加密、空 Key 保留、Key 轮换、换供应商强制新 Key、主备不同供应商、稳定错误和 5/60 秒测试冷却。
+- AES associated data 需要写入前已知 profile UUID；新增仓储回归先失败于数据库生成了不同 ID，再最小扩展 create 的可选预生成 ID，原调用兼容。
+- Route Handler 红灯准确为目标路由不存在；首次 mock 重跑暴露 Vitest hoist 顺序，第二次暴露根配置缺少 Web `@` alias；分别按官方 hoisted mock 和与 Web tsconfig 一致的 alias 修复。
+- 配置回归发现空 `AI_SETTINGS_MASTER_KEY_FILE=` 仍以 undefined 属性返回；组装 ServerConfig 时显式省略后转绿，配置层只返回非空路径且不读取内容。
+- 本地审查因 CodeRabbit CLI 未安装未上传代码；3 个警告级问题均先加红灯并修复：非法路径 UUID、routing 内部 userId/Date 投影、URL 嵌入式凭证。
+- 最终定向门禁 6 文件、61 项通过；domain/db/web typecheck、Web lint 与 `git diff --check` 均退出 0。专用 schema 两个新业务表为 0，迁移历史保留 5 条。
+
 ## 会话：2026-08-31（阶段 8）
 
 ### 页面内模型连接管理台设计

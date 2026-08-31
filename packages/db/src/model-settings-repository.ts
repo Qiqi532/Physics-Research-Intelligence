@@ -45,7 +45,11 @@ export interface ModelSettingsRepository {
   count(userId: string): Promise<number>;
   list(userId: string): Promise<StoredModelConnection[]>;
   find(userId: string, id: string): Promise<StoredModelConnection | null>;
-  create(userId: string, input: StoredModelConnectionWrite): Promise<StoredModelConnection>;
+  create(
+    userId: string,
+    input: StoredModelConnectionWrite,
+    id?: string,
+  ): Promise<StoredModelConnection>;
   update(
     userId: string,
     id: string,
@@ -80,10 +84,10 @@ export function createModelSettingsRepository(
       return row ? mapConnection(row) : null;
     },
 
-    async create(userId, input) {
+    async create(userId, input, id) {
       try {
         return mapConnection(await client.aiConnectionProfile.create({
-          data: { userId, ...toPrismaWrite(input) },
+          data: { userId, ...toPrismaWrite(input), ...(id ? { id } : {}) },
         }));
       } catch (error) {
         rethrowWriteError(error);

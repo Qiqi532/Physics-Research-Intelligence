@@ -33,6 +33,7 @@ describe("model settings domain boundary", () => {
     { apiKey: "" },
     { apiKey: "x".repeat(8_193) },
     { provider: "unknown" },
+    { baseUrl: "https://user:password@api.example.test/v1" },
     { baseUrl: "http://remote.example.test/v1" },
     { baseUrl: "ftp://127.0.0.1/v1" },
     { requestTimeoutMs: 999 },

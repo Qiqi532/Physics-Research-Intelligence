@@ -8,6 +8,7 @@ export type ServerConfig = {
   SOURCE_CONTACT_EMAIL?: string;
   CROSSREF_ISSN?: string;
   OPENALEX_API_KEY?: string;
+  AI_SETTINGS_MASTER_KEY_FILE?: string;
   AI_PROVIDER_DEEPSEEK_API_KEY?: string;
   AI_PROVIDER_OPENAI_API_KEY?: string;
   AI_PROVIDER_GEMINI_API_KEY?: string;
@@ -116,6 +117,7 @@ const configSchema = z.object({
     z.string().trim().regex(/^\d{4}-?\d{3}[\dXx]$/, "CROSSREF_ISSN must be a valid ISSN").optional(),
   ),
   OPENALEX_API_KEY: optionalSecret,
+  AI_SETTINGS_MASTER_KEY_FILE: optionalSecret,
   AI_PROVIDER_DEEPSEEK_API_KEY: optionalSecret,
   AI_PROVIDER_OPENAI_API_KEY: optionalSecret,
   AI_PROVIDER_GEMINI_API_KEY: optionalSecret,
@@ -141,13 +143,17 @@ export function parseConfig(environment: NodeJS.ProcessEnv): ServerConfig {
     DAILY_PIPELINE_ENABLED: _enabled,
     DAILY_PIPELINE_TIME: _time,
     DAILY_PIPELINE_TIMEZONE: _timezone,
+    AI_SETTINGS_MASTER_KEY_FILE: masterKeyFile,
     ...serviceConfig
   } = result.data;
   const ai = parseAiConfig(environment);
   const dailyPipeline = parseDailyPipelineConfig(environment);
+  const configuredServices = masterKeyFile
+    ? { ...serviceConfig, AI_SETTINGS_MASTER_KEY_FILE: masterKeyFile }
+    : serviceConfig;
   return ai
-    ? { ...serviceConfig, DAILY_PIPELINE: dailyPipeline, AI: ai }
-    : { ...serviceConfig, DAILY_PIPELINE: dailyPipeline };
+    ? { ...configuredServices, DAILY_PIPELINE: dailyPipeline, AI: ai }
+    : { ...configuredServices, DAILY_PIPELINE: dailyPipeline };
 }
 
 function parseDailyPipelineConfig(environment: NodeJS.ProcessEnv): DailyPipelineConfig {
