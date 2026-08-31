@@ -6,7 +6,10 @@
   "exports": {
     ".": "./src/index.ts",
     "./client": "./src/client.ts",
-    "./paper-repository": "./src/paper-repository.ts"
+    "./ai-repository": "./src/ai-repository.ts",
+    "./paper-repository": "./src/paper-repository.ts",
+    "./interest-repository": "./src/interest-repository.ts",
+    "./today-repository": "./src/today-repository.ts"
   },
   "scripts": {
     "prisma:generate": "prisma generate --config prisma.config.ts",
@@ -16,7 +19,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@pri/ai": "workspace:*",
     "@pri/domain": "workspace:*",
+    "@pri/recommendation": "workspace:*",
     "@prisma/adapter-pg": "7.10.0",
     "@prisma/client": "7.10.0",
     "dotenv": "17.4.2",

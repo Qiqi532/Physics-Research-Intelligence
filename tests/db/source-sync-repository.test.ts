@@ -20,6 +20,7 @@ describeDatabase("PostgreSQL source sync repository", () => {
   });
 
   afterAll(async () => {
+    await client.sourceSyncState.deleteMany();
     await client.$disconnect();
   });
 

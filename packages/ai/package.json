@@ -1,0 +1,34 @@
+{
+  "name": "@pri/ai",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./budget": "./src/budget.ts",
+    "./cost": "./src/cost.ts",
+    "./errors": "./src/errors.ts",
+    "./factory": "./src/factory.ts",
+    "./mock-provider": "./src/mock-provider.ts",
+    "./provider": "./src/provider.ts",
+    "./prompts/classify": "./src/prompts/classify.ts",
+    "./prompts/interpret": "./src/prompts/interpret.ts",
+    "./providers/deepseek": "./src/providers/deepseek.ts",
+    "./providers/gemini": "./src/providers/gemini.ts",
+    "./providers/glm": "./src/providers/glm.ts",
+    "./providers/hunyuan": "./src/providers/hunyuan.ts",
+    "./providers/kimi": "./src/providers/kimi.ts",
+    "./providers/openai": "./src/providers/openai.ts",
+    "./providers/openai-compatible": "./src/providers/openai-compatible.ts",
+    "./providers/qwen": "./src/providers/qwen.ts",
+    "./router": "./src/router.ts",
+    "./schemas": "./src/schemas.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@pri/domain": "workspace:*",
+    "zod": "latest"
+  }
+}

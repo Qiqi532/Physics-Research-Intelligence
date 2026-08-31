@@ -5,8 +5,10 @@ import {
   type PaperRepository,
   type PaperSummary,
 } from "@pri/db";
+import { interpretationOutputSchema } from "@pri/ai/schemas";
 import { parseConfig, toLogSafeData } from "@pri/domain/config";
 import { normalizeDoi } from "@pri/domain/paper";
+import type { PaperDetailDto, PaperDetailLoadState } from "@/presentation/paper";
 
 export type ApiResult = {
   status: number;
@@ -143,6 +145,7 @@ function toPaperDto(paper: PaperSummary) {
 }
 
 function toPaperDetailsDto(paper: PaperDetails) {
+  const interpretation = toInterpretationDto(paper.interpretation);
   return {
     ...toPaperDto(paper),
     sources: paper.sources.map((source) => ({
@@ -150,6 +153,41 @@ function toPaperDetailsDto(paper: PaperDetails) {
       retrievedAt: source.retrievedAt.toISOString(),
     })),
     tags: paper.tags,
+    interpretation,
+    userState: paper.userState
+      ? {
+          ...paper.userState,
+          updatedAt: paper.userState.updatedAt.toISOString(),
+        }
+      : null,
+  };
+}
+
+export async function loadPaperDetailState(rawDoi: string): Promise<PaperDetailLoadState> {
+  const result = await withConfiguredPaperApi((api) => api.detail(rawDoi));
+  if (result.status === 404) {
+    return { kind: "not_found" };
+  }
+  return result.status === 200
+    ? { kind: "ready", data: result.body as PaperDetailDto }
+    : { kind: "error" };
+}
+
+function toInterpretationDto(interpretation: PaperDetails["interpretation"]) {
+  if (!interpretation) {
+    return null;
+  }
+  const parsed = interpretationOutputSchema.safeParse(interpretation.content);
+  if (!parsed.success) {
+    return { status: "unavailable" as const };
+  }
+  return {
+    status: "complete" as const,
+    ...parsed.data,
+    provider: interpretation.provider,
+    model: interpretation.model,
+    promptVersion: interpretation.promptVersion,
+    createdAt: interpretation.createdAt.toISOString(),
   };
 }
 

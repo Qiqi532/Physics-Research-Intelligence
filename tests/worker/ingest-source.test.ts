@@ -99,6 +99,37 @@ describe("source ingestion job", () => {
     );
   });
 
+  it("skips an already successful identical window without another source call", async () => {
+    const connector = connectorWithPages("arxiv", [
+      { records: [record("arxiv", "duplicate-call")], nextCursor: null },
+    ]);
+    const stateRepository = stateWriter();
+    stateRepository.find.mockResolvedValue({
+      sourceName: "arxiv",
+      windowFrom: window.from,
+      windowUntil: window.until,
+      cursor: null,
+      lastSuccessAt: new Date("2026-08-29T00:01:00.000Z"),
+      lastFailureAt: null,
+      lastErrorCode: null,
+      lastErrorMessage: null,
+    });
+
+    await expect(ingestSource({
+      connector,
+      paperRepository: paperWriter(),
+      stateRepository,
+      ...window,
+    })).resolves.toEqual({
+      source: "arxiv",
+      pages: 0,
+      records: 0,
+      candidateDuplicates: 0,
+    });
+    expect(connector.fetchPage).not.toHaveBeenCalled();
+    expect(stateRepository.markProgress).not.toHaveBeenCalled();
+  });
+
   it("keeps other sources successful when one connector fails", async () => {
     const failed: SourceConnector = {
       name: "crossref",

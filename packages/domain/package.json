@@ -5,8 +5,10 @@
   "type": "module",
   "exports": {
     "./config": "./src/config.ts",
+    "./interests": "./src/interests.ts",
     "./paper": "./src/paper.ts",
-    "./physics-tags": "./src/physics-tags.ts"
+    "./physics-tags": "./src/physics-tags.ts",
+    "./queue": "./src/queue.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"

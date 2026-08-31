@@ -2,8 +2,12 @@ packages:
   - apps/*
   - packages/*
 
+overrides:
+  deepmerge-ts: 8.0.0
+
 allowBuilds:
   '@prisma/engines': true
   esbuild: true
+  msgpackr-extract: false
   prisma: true
   sharp: true

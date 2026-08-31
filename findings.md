@@ -1,5 +1,18 @@
 # 发现与决策
 
+## 阶段 6 全仓审查与部署结论（2026-08-30）
+- `origin/main@6101ea5` 是 `codex/stage-5@49e163e` 的祖先，stage-5 单向领先 3 个提交；合并不存在双向分叉。
+- 保存项目目录的本地 `main@e355a1d` 含用户未跟踪内容，因此本阶段只在独立工作树审查和集成，不移动或清理该工作区。
+- npm 官方审计发现 Prisma 7.10.0 的配置依赖固定 `deepmerge-ts@7.1.5`，命中高危递归对象栈耗尽公告；pnpm 11 workspace override 到 8.0.0 后依赖树唯一版本为 8.0.0，复审为 0 个已知漏洞。
+- 构建输出显示 Next.js 默认匿名遥测提示；新增文档回归红灯后，在安全示例和生产运维边界固定 `NEXT_TELEMETRY_DISABLED=1`，重建不再出现遥测提示。
+- 生产源码未发现动态代码执行、不安全原始 SQL、受控构建产物、真实 `.env`、私钥或数据库文件。测试清理器唯一的 unsafe SQL 仅针对固定且预先校验的 loopback E2E schema。
+- 当前应用没有登录，兴趣和阅读状态写接口依赖单用户内部部署假设；首次部署必须位于私网/VPN/反向代理认证之后，公开互联网部署前应增加应用认证和 CSRF 边界。
+- 当前架构需要常驻 Next.js Web、BullMQ worker、PostgreSQL 和 Redis；单台 Linux VPS 是最小可控拓扑，纯静态托管或只部署 Web 不完整。
+- Next.js 官方自托管建议在应用前放反向代理；Docker 官方支持单服务器 Compose 生产部署；中国大陆公开非经营性网站适用工信部备案管理要求。
+- E2E 论文时间原按当前时刻回退最长 4 小时，跨上海午夜后会全部落入前一自然日，导致推荐存在但“今日新论文”为 0；fixture 已改为始终夹在当前上海日开始与当前时刻之间，并保留确定性新旧顺序。
+- 四个 PostgreSQL 集成测试只在 `beforeEach` 清理而 `afterAll` 直接断开，最后一个用例会留下 Paper/SourceSyncState；补齐对称 teardown 后，全量测试结束九张业务表均为 0，标签与迁移保留。
+
+
 ## 需求
 - 服务对象：物理学本科生，未来继续研究生学习；第一版只供本人使用。
 - 核心体验：打开网站即看到 `Today Physics`，先获知全学科动态，再得到个人化推荐。
@@ -18,6 +31,94 @@
 - OpenAlex 允许无 key 的低频请求，规模化使用应通过环境变量提供 API key；不将 key 放入 URL 日志。
 - arXiv API 返回 Atom XML，使用 `start`/`max_results` 分页，多次连续请求之间至少等待约 3 秒；相同查询每日无需重复拉取。
 - 阶段 2 只持久化公开元数据、摘要、许可证与原文链接，不下载或传递全文。
+
+## 阶段 3 工作区约束（2026-08-29）
+- 保存项目目录仍位于旧本地 main@e355a1d，并含既有未跟踪文件，不能作为阶段 3 基线。
+- 阶段 3 的唯一编辑、测试和提交工作区是 D:\Physics Research Intelligence\.worktrees\stage-3；其基线固定为 origin/main@6101ea5。
+- 旧手工阶段 3 目录已由用户删除；清理只移除了对应失效 Git 注册和无领先提交的本地分支，没有删除现存目录或其他分支。
+- 当前 Codex 桌面补丁入口的 Windows workspace 刷新辅助进程在新增 Git 根后失败；内建 apply_patch 引擎可正常更新同一文件系统，因此后续继续以补丁方式编辑，不使用脚本覆写文件。
+
+## 阶段 3 设计与配置盘点（2026-08-29）
+- 已批准设计要求统一 classify、interpret、healthCheck Provider Adapter，并明确 DeepSeek、OpenAI、Gemini、Qwen 四个独立边界。
+- 回退最多一次且只适用于网络、超时、429 和临时 5xx；合法 uncertain、输入不足、JSON/schema 错误、鉴权、永久 4xx、配置和预算错误均不得回退。
+- 只输入标题、公开元数据和摘要时必须标记“基于摘要解读”，不得声称访问受限全文；重要项使用 direct、inferred、uncertain 证据等级和引用。
+- 当前根脚本已提供全量 test、lint、typecheck、build，Vitest 统一收集 tests/**/*.test.ts；workspace 会自动包含新的 packages/ai。
+- .env.example 当前仅列 provider 密钥和 DAILY_AI_BUDGET_USD，阶段 3 需补充分类/解读主备 provider、模型、base URL、请求超时及成本估算配置名称。
+- 现有 MVP Task 4 尚未精确覆盖每次物理 provider 尝试的独立 AiRun 审计、预算 UTC 边界与并发/重复任务顺序，实施计划需补齐。
+- PostgreSQL 集成测试通过 TEST_DATABASE_URL 可选启用并使用独立 schema；阶段 3 测试只能清理该 schema 中的相关模型，不得操作 public。
+- 数据库迁移采用只追加的新目录与 SQL，阶段 3 必须新增第 4 条 migration，不改写前三条历史迁移。
+- 现有仓储从 packages/db/src/index.ts 集中导出，worker job 以 Pick 形成窄写入接口并通过 Vitest mock 注入，阶段 3 沿用此边界。
+- AiRun 当前全局唯一 idempotencyKey 与主备两次审计冲突；实施采用稳定 logical idempotency key 与 attempt 序号组合唯一，每次物理 provider 调用独立一行，成功幂等查询按 logical key + COMPLETE。
+- 预算跳过不调用 provider，不创建虚假的物理调用 attempt；逻辑 AiRun 以 SKIPPED_BUDGET 留痕。分类不参与深度解读预算阻断，也不得计入解读预算消耗。
+- packages/domain 没有 src/index.ts，包通过 exports 子路径暴露模块；新代码不得假设存在聚合入口。
+
+## 阶段 3 Provider 官方 API 核验（2026-08-29）
+- OpenAI Structured Outputs 官方文档：https://developers.openai.com/api/docs/guides/structured-outputs 。Responses API 使用 text.format 的 strict json_schema；usage 字段为 input_tokens、output_tokens、total_tokens，并需识别 refusal。
+- DeepSeek Chat Completions 官方文档：https://api-docs.deepseek.com/api/create-chat-completion/ 与 https://api-docs.deepseek.com/guides/json_mode/ 。端点为 /chat/completions，JSON 模式使用 response_format json_object，提示词仍须明确要求 JSON；usage 为 prompt_tokens、completion_tokens、total_tokens。
+- Gemini generateContent 官方文档：https://ai.google.dev/api/generate-content 。结构化输出配置在 generationConfig，usageMetadata 为 promptTokenCount、candidatesTokenCount、totalTokenCount；无 candidate 或安全拦截必须映射为稳定错误。
+- Qwen OpenAI-compatible 官方文档：https://www.alibabacloud.com/help/en/model-studio/compatibility-of-openai-with-dashscope 与 https://help.aliyun.com/zh/model-studio/qwen-api-via-dashscope 。端点为区域性 compatible-mode/v1/chat/completions，响应与 OpenAI Chat Completions 相同，JSON 模式仍要求提示词明确指定 JSON。
+- 四家 adapter 均使用注入 fetch 的服务器端 HTTP 边界；OpenAI 和 Gemini 保持原生协议，DeepSeek 与 Qwen 只共享兼容协议 transport，不共享 provider 配置或密钥。
+- 本地严格 Zod schema 是最终业务验证边界；provider 的结构化输出能力不能替代未知字段、枚举和证据引用校验。
+- AiRun 保留为 idempotencyKey 唯一的逻辑任务与并发 claim；新增 AiRunAttempt 逐次记录 provider、model、token、耗时、错误码和成本，主备两次调用不会聚合伪装成一次。
+
+## 阶段 3 实现结论（2026-08-30）
+- 新增 @pri/ai：strict 分类/解读 schema、版本化安全 prompt、统一 provider contract、MockProvider、稳定错误码、成本/UTC 预算工具与配置工厂。
+- OpenAI 使用 Responses strict JSON Schema；Gemini 使用 generateContent response schema；DeepSeek 与 Qwen 各自封装 OpenAI-compatible chat 边界。所有 HTTP 均可注入 fetch，adapter 内不重试。
+- router 最多执行主、备各一次；仅 network_error、timeout、rate_limited、upstream_5xx 触发回退，所有业务、鉴权、配置及结构错误直接终止。
+- worker 在调用前只读取标题、公开摘要、期刊、日期和访问状态；受限/摘要输入输出必须披露 abstract_only，并为关键结论附 direct、inferred 或 uncertain 证据等级。
+- AiRun 表示逻辑幂等任务，AiRunAttempt 表示每次物理供应商调用；完成或失败时聚合 token、耗时和估算成本，主备尝试保持独立审计。
+- 深度解读预算按 UTC 日、实际解读 attempt 成本和活跃 reservation 计算，并以事务级 advisory lock 串行化并发预留；分类成本明确排除。预算不足时不调用任何 provider。
+- 第 4 条迁移已只追加部署到 pri_stage3_test 专用 schema；数据库集成测试未触碰 public。
+- CodeRabbit CLI 未安装，未上传代码；本地审查发现并修复“分类成本被计入解读预算”的警告级问题，并增加无数据库回归测试。
+- 本阶段所有 provider 测试均使用 mock HTTP/fixture，没有发起真实模型 API 请求，也没有读取或写入任何真实密钥。
+
+## 阶段 5 工作区与架构盘点（2026-08-30）
+- 主工作区 `main` 含用户未跟踪的 `.superpowers/`、`.worktrees/` 和 `apps/web/tsconfig.tsbuildinfo`；阶段 5 不修改、清理或暂存这些内容。
+- 阶段 5 唯一编辑、测试和提交工作区是 `D:\Physics Research Intelligence\.worktrees\stage-5`，分支 `codex/stage-5`，基线精确为 `72aa2ec98cb2e02b852f74117ad563a8e69d2e72`。
+- Prisma 已有 `PhysicsTag` 与复合主键 `UserInterest(userId, tagSlug)`，兴趣功能不需要新表；现有九个固定标签由迁移种子提供。
+- Today 仓储已并行读取兴趣与候选论文，并通过 `@pri/recommendation` 纯函数确定性排序；兴趣保存后只需刷新 Server Component 即可同步顺序和理由。
+- 现有 worker 尚未使用 BullMQ：`apps/worker/src/index.ts` 只校验配置，`ingest.ts` 是手动入口，worker package 没有 BullMQ/Redis 依赖。阶段 5 必须新增真实队列边界，不能假设已有队列。
+- 来源 HTTP 已有默认 15 秒超时、最多 3 次、429/5xx/网络指数退避；`SourceSyncState` 保存窗口/游标/成功与稳定失败码，可直接用于恢复。
+- AI 分类/解读已经通过 `AiRun.idempotencyKey`、`AiRunAttempt`、主备各一次和 UTC 预算 reservation 建立幂等/回退边界；调度层只复用，不重写。
+- 正式 E2E 当前完全不存在：根脚本无 `test:e2e`、依赖无 Playwright、`tests/e2e` 和 Playwright 配置均不存在。
+- Next.js 使用 standalone 输出，已有 postbuild 静态资源复制脚本；健康检查、运维文档和质量评审模板尚不存在。
+
+## 阶段 5 实现与 Provider 核验（2026-08-30）
+- 兴趣设置复用现有 `PhysicsTag` 与 `UserInterest`，严格 API 只接受唯一 tagSlug 和 0–2 有限权重；事务替换后 Server Component 刷新即可改变确定性排序与推荐理由，无数据库迁移。
+- BullMQ 6 使用稳定 scheduler ID 与 `upsertJobScheduler`；时区、时间和开关来自配置，job 两次有界尝试，来源游标与 AI logical idempotency key 继续承担窗口重放安全。
+- 每日流水线实际顺序为公开来源采集、分类、预算内深度解读、Today 准备；单篇 AI 失败和预算跳过不阻断 Today，全部来源失败则在 AI 前停止。
+- 智谱官方 OpenAI 兼容基础地址为 `https://open.bigmodel.cn/api/paas/v4`，当前官方示例模型为 `glm-5.2`；来源：https://docs.bigmodel.cn/cn/guide/develop/openai/introduction 。
+- Kimi 官方兼容基础地址为 `https://api.moonshot.cn/v1`，快速开始当前默认 `kimi-k3`；来源：https://platform.kimi.com/docs/overview 。
+- 腾讯旧混元端点正在迁移并计划下线，阶段 5 采用 TokenHub 官方 OpenAI 兼容地址 `https://tokenhub.tencentmaas.com/v1` 与正式模型 `hy3`；来源：https://cloud.tencent.com/document/product/1823/130079 。
+- 三家新增 adapter 与 `compatible` 入口复用既有 OpenAI Chat Completions transport、严格 JSON 业务 schema、稳定错误码、主备一次回退和 mock fetch 测试；未调用真实模型 API。
+- 仅配置一个命名 Provider API Key 时自动生成分类/解读默认路由；多 Key 必须通过 `AI_DEFAULT_PROVIDER` 消歧。缺省成本是保守预算预留上限，不是厂商报价，准确审计需显式覆盖当前单价。
+- 正式 Playwright 使用仅允许 loopback 且固定 schema 名的专用 PostgreSQL fixture，阻断外部 HTTP，覆盖桌面/移动项目并在 teardown 清空业务数据。
+- Web 活性与就绪检查分离；就绪状态只返回 PostgreSQL、Redis、queue、worker 的安全状态和稳定错误码。通用日志脱敏不再保留 Error stack。
+
+## 技术决策
+## 阶段 4 工作区与初始边界（2026-08-30）
+- 主工作区 `main` 存在用户未跟踪的 `.superpowers/`、`.worktrees/` 和 `apps/web/tsconfig.tsbuildinfo`，本阶段不得修改或暂存它们。
+- 阶段 4 唯一编辑、测试和提交工作区是 `D:\Physics Research Intelligence\.worktrees\stage-4`，分支 `codex/stage-4`，基线精确为 `00afc9aa0dcc96445e18a6e3e132e4892f79aa4b`。
+- `codex/stage-3` 工作区状态干净；新 worktree 只从指定提交创建，未触碰其他分支或用户数据。
+- 阶段 3 已提供可直接消费的论文分类、结构化解读、证据等级和来源披露；阶段 4 不得新增模型调用。
+- 现有 Prisma 已包含 `UserInterest`、`UserPaperState`、`PaperClassification` 和 `PaperInterpretation`；阶段 4 可通过新增窄仓储完成，不需要修改 schema 或追加迁移。
+- 推荐应作为新的 `packages/recommendation` 纯函数包实现；现有 workspace 自动发现 `packages/*`，无需改 workspace 路径。
+- 当前 Web 边界是 Route Handler → 可注入服务 → `@pri/db` 仓储；阶段 4 应沿用此结构，不在页面或 Route Handler 中直接写 Prisma 查询。
+- 当前 UI 只有米白背景、砖红 eyebrow、深蓝正文和 Georgia 标题；阶段 4 扩展这一风格，不引入组件库或设计系统重构。
+- 冷启动没有兴趣时仍以分类相关度、时间新鲜度和交叉发现价值排序；没有分类时仅保留时间/状态信号并明确“尚待分类”；没有解读不影响排序但详情页必须显示缺少 AI 解读。
+- 现有设计没有重点期刊配置或权重来源；阶段 4 不硬编码主观期刊名单，先完成用户明确要求的兴趣、分类、发布时间、跨领域和阅读状态五类信号。
+- React 页面优先使用服务端组件；仅状态更新控件使用最小客户端边界，独立数据库读取并行执行，避免页面自请求内部 API 和串行瀑布。
+
+## 阶段 4 实现与审查结论（2026-08-30）
+- `@pri/recommendation` 使用注入的 `now`、固定权重和稳定并列规则；无随机数、AI、遥测、外部网络或隐藏模块状态。
+- Today 仓储并行读取兴趣与候选论文，消费阶段 3 的分类和已完成解读；冷启动、缺分类、缺解读、保存/阅读/完成/跳过状态都有确定行为。
+- 详情 DTO 只暴露公开事实、来源、验证过的结构化解读与安全用户状态；损坏的持久化解读降级为 unavailable，不影响公开事实展示。
+- 本地审查发现并以红绿测试修复两个警告级问题：切换阅读状态时旧 DISLIKE 未清除，以及重复分类版本导致详情标签重复。LIKE 反馈保持不变，非兴趣状态恢复为 NONE。
+- CodeRabbit CLI 未安装且其服务会上传差异；遵守本阶段无外部网络边界，未上传代码，改用完整本地差异审查。
+- Next.js standalone 默认不复制 `.next/static`；新增可测试 postbuild 复制步骤后，生产预览 CSS 请求恢复 200。
+- 390px 视觉检查发现首屏标题横向溢出；新增 CSS 回归测试并通过最小宽度/小屏字号修复。
+- 专用 `pri_stage4_test` schema 复用了既有 4 条迁移，无 Prisma schema 或历史迁移变更；浏览器 fixture 已全部清除。
+- 正式兴趣设置页与 Playwright E2E 不属于本次已交付差异，保留为后续任务；本阶段用隔离本地 Chrome 完成桌面、390px、详情、空态和安全错误态验收。
 
 ## 技术决策
 | 决策 | 理由 |

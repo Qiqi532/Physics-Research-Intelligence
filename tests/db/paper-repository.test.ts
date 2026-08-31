@@ -23,6 +23,7 @@ describeDatabase("PostgreSQL paper repository", () => {
   });
 
   afterAll(async () => {
+    await client.paper.deleteMany();
     await client.$disconnect();
   });
 

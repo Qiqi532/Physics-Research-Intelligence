@@ -88,37 +88,41 @@ infra/                    Docker Compose 与部署示例
 - Create: `packages/ai/src/schemas.ts`, `apps/worker/src/jobs/classify-paper.ts`, `apps/worker/src/jobs/interpret-paper.ts`
 - Test: `tests/ai/router.test.ts`, `tests/ai/schemas.test.ts`, `tests/ai/prompts.test.ts`
 
-- [ ] 先写失败测试：非法 JSON、无证据的创新点、声称读取受限全文、主 provider 网络错误与预算耗尽分别得到安全的结构化结果。
-- [ ] 定义统一 `AiProvider`：`classify(input)`、`interpret(input)`、`healthCheck()`；为 DeepSeek、OpenAI、Gemini、Qwen 创建独立 adapter，adapter 不得泄露密钥。
-- [ ] 使用 Zod 校验分类与解读 JSON；解读字段必须含 `claim_type`、`confidence`、`evidence_references`，受限全文只能产生 `uncertain`。
-- [ ] 实现路由规则：批量分类使用低成本主模型，深度解读使用质量主模型；仅对网络/限流/5xx 回退一次到备用模型。
-- [ ] 写入 `AiRun`：provider、模型、提示词版本、输入哈希、token、耗时、状态与成本；超过每日预算时跳过深度解读。
-- [ ] 使用 mock provider 跑完整 worker 测试，确保相同幂等键不会重复调用模型。
+- [x] 先写失败测试：非法 JSON、无证据的创新点、声称读取受限全文、主 provider 网络错误与预算耗尽分别得到安全的结构化结果。
+- [x] 定义统一 `AiProvider`：`classify(input)`、`interpret(input)`、`healthCheck()`；为 DeepSeek、OpenAI、Gemini、Qwen 创建独立 adapter，adapter 不得泄露密钥。
+- [x] 使用 Zod 校验分类与解读 JSON；解读字段包含证据声明、置信度和证据引用，受限全文输入明确披露仅基于摘要。
+- [x] 实现路由规则：批量分类使用低成本主模型，深度解读使用质量主模型；仅对网络/限流/5xx 回退一次到备用模型。
+- [x] 写入逻辑 `AiRun` 和物理 `AiRunAttempt`：provider、模型、提示词版本、输入哈希、token、耗时、状态与成本；超过 UTC 每日预算时跳过深度解读。
+- [x] 使用 mock provider 跑完整 worker 测试，确保相同幂等键不会重复调用模型。
 
 ### Task 5：推荐和内部 API（阶段 4 的后端部分）
+
+**状态：** complete（2026-08-30；未引入无依据的重点期刊权重）
 
 **Files:**
 - Create: `packages/recommendation/src/score.ts`, `packages/recommendation/src/reasons.ts`
 - Create: `apps/web/src/app/api/today/route.ts`, `apps/web/src/app/api/papers/[doi]/route.ts`, `apps/web/src/app/api/papers/[doi]/state/route.ts`
 - Test: `tests/recommendation/score.test.ts`, `tests/api/today.test.ts`
 
-- [ ] 先写失败测试：兴趣权重、交叉新颖度、重点期刊、时间衰减、跳过惩罚和收藏加分改变排序，且每篇结果最多生成三条真实理由。
-- [ ] 实现纯函数评分；返回 `score_breakdown` 与人类可读理由，禁止用模型临时生成推荐理由。
-- [ ] 实现 Today、论文详情和用户状态 Route Handler；验证 DOI 参数、限制响应字段，不返回密钥、受限全文或内部错误堆栈。
-- [ ] 运行 API 集成测试，覆盖空数据、失败来源、无 AI 结果和已收藏论文。
+- [x] 先写失败测试：兴趣权重、分类相关度、交叉新颖度、时间衰减、跳过惩罚和收藏加分改变排序，且每篇结果最多生成三条真实理由。
+- [x] 实现纯函数评分；返回 `score_breakdown` 与人类可读理由，禁止用模型临时生成推荐理由。
+- [x] 实现 Today、论文详情和用户状态 Route Handler；验证 DOI 参数、限制响应字段，不返回密钥、受限全文或内部错误堆栈。
+- [x] 运行 API 集成测试，覆盖空数据、失败来源、无 AI 结果和已收藏论文。
 
 ### Task 6：Today Physics 与论文解读界面（阶段 4 的前端部分）
+
+**状态：** complete（2026-08-30；首页、详情、阅读状态、兴趣设置和正式 Playwright E2E 已完成）
 
 **Files:**
 - Create: `apps/web/src/app/page.tsx`, `apps/web/src/app/papers/[doi]/page.tsx`, `apps/web/src/app/settings/interests/page.tsx`
 - Create: `apps/web/src/components/today-overview.tsx`, `recommendation-card.tsx`, `paper-interpretation.tsx`, `reading-queue.tsx`
 - Test: `tests/e2e/today.spec.ts`, `tests/e2e/paper-detail.spec.ts`
 
-- [ ] 先写 Playwright 测试：首页展示今日统计、推荐理由与阅读队列；论文页展示来源链接、字段置信度及“可能需要校园网/VPN”。
-- [ ] 实现首页，默认显示全学科概览；推荐按个人兴趣与反馈排序，不把凝聚态固定置顶。
-- [ ] 实现论文详情，分开渲染 `direct`、`inferred`、`uncertain`；当只拥有摘要时明确显示“基于摘要解读”。
-- [ ] 实现兴趣设置、收藏、稍后读、完成和不感兴趣操作，并在成功后刷新 Today 结果。
-- [ ] 在本地 fixture 数据上运行端到端测试；预期所有交互及原文外链可用。
+- [x] 先写 Playwright 测试：首页展示今日统计、推荐理由与阅读队列；论文页展示来源链接、字段置信度及“可能需要校园网/VPN”。
+- [x] 实现首页，默认显示全学科概览；推荐按个人兴趣与反馈排序，不把凝聚态固定置顶。
+- [x] 实现论文详情，分开渲染 `direct`、`inferred`、`uncertain`；当只拥有摘要时明确显示“基于摘要解读”。
+- [x] 实现兴趣设置、收藏、稍后读、完成和不感兴趣操作，并在成功后刷新 Today 结果。
+- [x] 在本地 fixture 数据上运行端到端测试；所有业务交互使用专用 PostgreSQL schema，外部网络在测试中被阻断。
 
 ### Task 7：可靠性、运维与试运行（阶段 5）
 
@@ -127,11 +131,11 @@ infra/                    Docker Compose 与部署示例
 - Create: `infra/docker-compose.yml`, `docs/operations.md`, `docs/evaluation-rubric.md`
 - Test: `tests/worker/retry.test.ts`, `tests/e2e/health.spec.ts`
 
-- [ ] 先写失败测试：来源连接器超时、模型主服务限流、Redis 重启和每日预算耗尽时，系统状态、重试次数和用户提示均符合规格。
-- [ ] 配置每天采集、分类、生成 Today 汇总的定时任务；深度解读仅由阈值或用户操作触发。
-- [ ] 增加健康检查、结构化日志、备份说明和成本仪表字段；日志脱敏测试必须覆盖所有 provider。
+- [x] 先写失败测试：来源连接器超时、模型主服务限流、Redis 重连和每日预算耗尽时，系统状态、重试次数和用户提示均符合规格。
+- [x] 配置每天采集、分类、预算内深度解读和生成 Today 汇总的幂等定时任务。
+- [x] 增加健康检查、结构化日志、备份恢复说明和既有成本审计字段；日志脱敏覆盖所有统一 provider 边界。
 - [ ] 依据 `docs/evaluation-rubric.md` 人工评审至少 30 篇不同物理方向论文：分类正确性、摘要忠实性、创新点证据和推荐有用性。
-- [ ] 完整运行 `pnpm lint`、`pnpm test`、`pnpm test:e2e` 与 `docker compose ... up`；记录版本、失败项和成本估算。
+- [ ] 完整运行 `pnpm lint`、`pnpm test`、`pnpm test:e2e`、生产构建与 Compose 健康验证；记录版本、失败项和成本估算。
 
 ## 实施顺序与里程碑
 
