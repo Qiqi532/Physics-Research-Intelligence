@@ -29,6 +29,7 @@ import {
 } from "@pri/domain/model-settings";
 import type { ApiResult } from "./papers";
 import { createModelTestGate, type ModelTestGate } from "./model-test-gate";
+import type { ModelSettingsPageState } from "../components/model-settings-page-view";
 
 const userId = "default";
 const healthMaxOutputTokens = 1_000;
@@ -264,6 +265,26 @@ export async function withConfiguredModelSettingsApi(
   } finally {
     await client?.$disconnect();
   }
+}
+
+export async function loadModelSettingsPageState(): Promise<ModelSettingsPageState> {
+  const result = await withConfiguredModelSettingsApi(async (api) => {
+    const [connections, routing] = await Promise.all([api.list(), api.getRouting()]);
+    if (connections.status !== 200) return connections;
+    if (routing.status !== 200) return routing;
+    return { status: 200, body: {
+      connections: (connections.body as { connections: ModelConnectionPublic[] }).connections,
+      routing: (routing.body as { routing: ReturnType<typeof toPublicRouting> | null }).routing,
+    } };
+  });
+  if (result.status !== 200) {
+    const code = (result.body as { errorCode?: string } | null)?.errorCode;
+    return code?.includes("secret") || code?.includes("master_key") ? { kind: "secret_error" } : { kind: "error" };
+  }
+  const body = result.body as { connections: ModelConnectionPublic[]; routing: ReturnType<typeof toPublicRouting> | null };
+  return { kind: "ready", connections: body.connections, routing: body.routing ?? {
+    classifyPrimaryId: null, classifyFallbackId: null, interpretPrimaryId: null, interpretFallbackId: null, updatedAt: null,
+  }, managementEnabled: process.env.PRI_LAN_MODE !== "true" };
 }
 
 function toPublicConnection(connection: StoredModelConnection): ModelConnectionPublic {
