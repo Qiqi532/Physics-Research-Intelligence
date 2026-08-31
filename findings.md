@@ -1,5 +1,15 @@
 # 发现与决策
 
+## 阶段 8 模型连接管理台（2026-08-31）
+- 现有八类 provider adapter、统一 `healthCheck`、factory、router、成本和脱敏边界可以复用；无需重写模型协议层。
+- 当前 `createConfiguredDailyProcessor` 在 worker 启动时一次性构造 provider，不满足热切换。批准的语义是每个新批次读取一次持久化路由快照，批次执行中保持不变。
+- Prisma 当前没有通用设置或连接配置表；新增明确的 `AiConnectionProfile` 与单用户 `AiRuntimeRouting` 比复用业务论文表更安全。
+- 用户批准同一供应商保存多个命名连接、数据库密文加本机独立主密钥、连接检查与真实示例两级测试，以及环境变量兼容回退。
+- 用户在可视化线框稿中选择管理台布局：左侧连接列表，右侧编辑/测试，集中任务路由。
+- 无认证 LAN 不能安全承担密钥管理；显式 LAN 模式只读非敏感元数据，写入与付费测试保留给默认 localhost。
+- 第一次定向读取使用了不存在的旧文件名；通过 `rg --files` 纠正为 `packages/domain/src/config.ts`、`packages/ai/src/factory.ts` 和 `apps/worker/src/jobs/*`，未产生代码改动。
+- 临时线框稿第一次通过 Windows 长命令参数写入失败；缩小内容并改用补丁工具后成功展示，用户批准后已停止服务并清理本轮临时目录。
+
 ## 阶段 7 历史审计与本地试运行边界（2026-08-31）
 - `git branch -a --no-merged origin/main` 为空；所谓“之前的 code”已经通过 stage-2 至 stage-5 历史和 `a68b5ea` 非快进合并进入远端 main，不应再次 cherry-pick 或制造重复合并。
 - 当前已有 `apps/worker/src/ingest.ts` 可真实拉取 OpenAlex/arXiv 最近一天数据，但它面向宽泛每日采集，不适合构造覆盖九方向、可重复人工评审的固定语料集。
