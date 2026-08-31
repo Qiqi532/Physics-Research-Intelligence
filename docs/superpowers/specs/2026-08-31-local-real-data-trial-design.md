@@ -1,7 +1,7 @@
 # Physics Research Intelligence Local Real-Data Trial Design
 
-**Date:** 2026-08-31  
-**Status:** approved direction; implementation pending  
+**Date:** 2026-08-31
+**Status:** approved direction; implementation pending
 **Scope:** zero-cost personal local use, optional trusted-LAN access, and a traceable open-paper review corpus
 
 ## Context
@@ -151,4 +151,3 @@ Follow TDD for all behavior changes:
 - If Windows Firewall blocks optional LAN access, the user decides whether to allow the Web process on private networks only.
 - If real AI interpretation is desired, the user places one provider key in the ignored local `.env`; no key is required for corpus download, import, or fact browsing.
 - Human reviewers fill the 30-paper evaluation rubric. The nine-paper starter corpus supplies material but does not fabricate those judgments.
-

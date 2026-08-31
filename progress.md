@@ -9,6 +9,7 @@
 - 用户确认电脑端访问为最低要求；手机/平板仅在实现简单且安全边界明确时加入。
 - 已批准方向为默认 localhost、显式可信 LAN、九方向官方开放论文、PDF 本地忽略、manifest 可追溯、现有仓储幂等导入、无 Key 可用页面。
 - 新增 `docs/superpowers/specs/2026-08-31-local-real-data-trial-design.md`，实现需等待用户审阅后再进入详细计划。
+- 首次设计提交前 `git diff --cached --check` 报告两处 Markdown 尾随空格和一个末尾空行，但 PowerShell 命令链未因非零退出停止，仍创建了 `667c8a6`；不 amend，改用独立格式修复提交，并要求后续门禁显式检查退出码。
 
 ## 会话：2026-08-30（阶段 6）
 
