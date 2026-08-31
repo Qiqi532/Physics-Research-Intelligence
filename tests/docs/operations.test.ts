@@ -47,4 +47,12 @@ describe("stage 5 operations documentation", () => {
     expect(providerKeyLines.length).toBeGreaterThanOrEqual(8);
     expect(providerKeyLines.every((line) => line.endsWith("="))).toBe(true);
   });
+
+  it("disables framework telemetry in the deployment environment", async () => {
+    const example = await readFile(".env.example", "utf8");
+    const guide = await readFile("docs/operations.md", "utf8");
+
+    expect(example).toContain("NEXT_TELEMETRY_DISABLED=1");
+    expect(guide).toContain("NEXT_TELEMETRY_DISABLED=1");
+  });
 });

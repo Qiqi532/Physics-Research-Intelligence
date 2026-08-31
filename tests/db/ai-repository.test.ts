@@ -38,6 +38,8 @@ describeDatabase("PostgreSQL AI repository", () => {
   });
 
   afterAll(async () => {
+    await client.aiRun.deleteMany();
+    await client.paper.deleteMany();
     await client.$disconnect();
   });
 

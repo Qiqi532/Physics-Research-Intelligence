@@ -61,6 +61,8 @@ The worker upserts one stable BullMQ scheduler. Each daily run executes public-s
 
 ## Production build and processes
 
+Keep `NEXT_TELEMETRY_DISABLED=1` in the server environment for both build and runtime so the framework does not send anonymous telemetry.
+
 ```powershell
 pnpm build
 pnpm --filter @pri/web start

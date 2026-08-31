@@ -2,6 +2,12 @@ import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 
 describe("Today responsive CSS", () => {
+  it("declares smooth scrolling on the root layout for Next navigation", async () => {
+    const layout = await readFile("apps/web/src/app/layout.tsx", "utf8");
+
+    expect(layout).toContain('data-scroll-behavior="smooth"');
+  });
+
   it("prevents grid children and the mobile hero title from widening the viewport", async () => {
     const css = await readFile("apps/web/src/app/globals.css", "utf8");
 

@@ -24,6 +24,8 @@ describeDatabase("PostgreSQL Today repository", () => {
   });
 
   afterAll(async () => {
+    await client.userInterest.deleteMany();
+    await client.paper.deleteMany();
     await client.$disconnect();
   });
 

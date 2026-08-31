@@ -71,7 +71,7 @@ export async function resetE2eData(): Promise<void> {
       doi: "10.5555/astro-fixture",
       title: "Astrophysics frontier fixture",
       abstract: "Public English abstract about a new transient observation.",
-      publishedAt: new Date(now.getTime() - 10 * 60_000),
+      publishedAt: recentShanghaiFixtureDate(now, 0),
       tagSlug: "astrophysics",
       relevance: 1,
     });
@@ -79,7 +79,7 @@ export async function resetE2eData(): Promise<void> {
       doi: "10.5555/amo-fixture",
       title: "AMO precision fixture",
       abstract: "Public English abstract about precision optical measurements.",
-      publishedAt: new Date(now.getTime() - 60 * 60_000),
+      publishedAt: recentShanghaiFixtureDate(now, 1),
       tagSlug: "amo-optics",
       relevance: 0.5,
     });
@@ -100,7 +100,7 @@ export async function resetE2eData(): Promise<void> {
       doi: "10.5555/cross-fixture",
       title: "Cross-disciplinary discovery fixture",
       abstract: "Public abstract connecting materials and biophysics.",
-      publishedAt: new Date(now.getTime() - 2 * 60 * 60_000),
+      publishedAt: recentShanghaiFixtureDate(now, 2),
       tagSlug: "cross-disciplinary",
       relevance: 0.9,
     });
@@ -108,7 +108,7 @@ export async function resetE2eData(): Promise<void> {
       doi: "10.5555/corrupt-fixture",
       title: "Corrupt interpretation fixture",
       abstract: "Public facts remain available.",
-      publishedAt: new Date(now.getTime() - 3 * 60 * 60_000),
+      publishedAt: recentShanghaiFixtureDate(now, 3),
       tagSlug: "nuclear",
       relevance: 0.7,
     });
@@ -128,7 +128,7 @@ export async function resetE2eData(): Promise<void> {
         title: "Unclassified fixture",
         normalizedTitle: "unclassified fixture",
         abstract: "Public abstract awaiting classification.",
-        publishedAt: new Date(now.getTime() - 4 * 60 * 60_000),
+        publishedAt: recentShanghaiFixtureDate(now, 4),
         originalUrl: "https://example.test/unclassified-fixture",
         accessStatus: "OPEN",
         sources: {
@@ -149,6 +149,17 @@ export async function dropE2eSchemaForFailureTest(): Promise<void> {
   } finally {
     await client.$disconnect();
   }
+}
+
+function recentShanghaiFixtureDate(now: Date, minutesAgo: number): Date {
+  const shanghaiOffsetMs = 8 * 60 * 60_000;
+  const shifted = new Date(now.getTime() + shanghaiOffsetMs);
+  const dayStart = Date.UTC(
+    shifted.getUTCFullYear(),
+    shifted.getUTCMonth(),
+    shifted.getUTCDate(),
+  ) - shanghaiOffsetMs;
+  return new Date(Math.max(dayStart, now.getTime() - minutesAgo * 60_000));
 }
 
 async function createPaper(

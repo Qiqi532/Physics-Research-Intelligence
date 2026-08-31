@@ -1,5 +1,23 @@
 # 进度日志
 
+## 会话：2026-08-30（阶段 6）
+
+### 全仓审查、可回退合并与后续交接
+- **状态：** in_progress
+- 已确认 `codex/stage-5` 工作树干净且与 `origin/codex/stage-5` 同步，当前提交为 `49e163e57f8bf4fbfa8816490a49842145cea759`。
+- 已确认保存项目目录的 `main` 工作树仍含用户未提交内容；本阶段不在该工作树执行 checkout、清理或合并。
+- 计划先刷新远端并完成全仓审查与全量复验，再建立合并前备份分支，最后在新独立工作树完成可追溯合并。
+- 远端图确认 `origin/main@6101ea5` 是 stage-5 祖先，分支计数为 0/3，无双向分叉；CodeRabbit CLI 未安装，因此未安装、登录或上传代码。
+- 本地全仓审查发现并修复两个 Warning：Prisma 配置链的 `deepmerge-ts@7.1.5` 高危公告，以及部署环境未显式禁用 Next.js 匿名遥测。
+- 依赖修复红灯为官方审计 1 个 high；pnpm 11 workspace override 到 8.0.0 后 `pnpm why` 只解析 8.0.0，官方审计为 0，Prisma generate/validate 通过。
+- 遥测修复红灯为文档测试 4 项中 1 项失败；补充 `NEXT_TELEMETRY_DISABLED=1` 后 4/4 通过，Web 生产构建不再输出遥测提示。
+- 全量 Vitest 使用新 `pri_stage6_test` schema 应用 4 条既有迁移，43 个文件、259 项通过；Playwright 状态为 passed、失败用例为空，桌面/移动共 16 项。
+- 全仓 lint、typecheck、Web standalone 与 worker 生产构建通过；新增根 README 汇总能力、部署建议、用户事项、后续优先级和已知限制。
+- 2026-08-31 上海午夜复跑 Playwright 发现 Today 统计 14/16：fixture 的 10 分钟至 4 小时回退跨日后不再属于“今天”。以失败的桌面/移动断言为红灯，改为当前上海日内的稳定发布时间后定向 4/4、全量 16/16 通过。
+- Next 16 smooth-scroll 声明测试先 1/2 失败；按本地官方文档为根 `html` 增加 `data-scroll-behavior="smooth"` 后 2/2、Web typecheck/lint 通过，E2E 不再出现该框架警告。
+- 首次全量测试后 `pri_stage6_test` 仍有 1 篇 Paper 和 1 条 SourceSyncState，作为 teardown 红灯；为四个 PostgreSQL 集成测试补齐 `afterAll` 后，全量 43 文件、261 项通过，九张业务表均为 0，9 个标签种子与 4 条迁移保留。
+- 进度证据补丁曾因跨文件上下文错误只应用了前置 task_plan 勾选；核对三份文件后以小上下文补齐 findings/progress，未覆盖其他内容。
+
 ## 会话：2026-08-30（阶段 5）
 
 ### 产品补全、可靠性、自动运行与部署准备
