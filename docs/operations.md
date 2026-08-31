@@ -60,7 +60,15 @@ Do not add a router port-forward or public tunnel. If Windows Firewall asks, the
 
 ## AI provider setup
 
-For the simplest setup, fill exactly one named key, for example `AI_PROVIDER_GLM_API_KEY`, `AI_PROVIDER_KIMI_API_KEY`, or `AI_PROVIDER_HUNYUAN_API_KEY`. The application supplies the official base URL, a current default model, 45-second timeout, output limits, and conservative local budget reservation rates.
+For personal localhost use, open `http://127.0.0.1:3000/settings/models`. Create any number of named connections, choose the provider, and enter its API Key. The form fills the provider's official base URL and default model; review the current model name and prices before saving. A blank Key while editing retains the existing encrypted value. Copying a profile clears the Key, and changing providers requires a new Key.
+
+The first save creates a 32-byte local master key outside the repository. `AI_SETTINGS_MASTER_KEY_FILE=` may be left empty to use the operating-system user data directory, or set to an absolute path outside the checkout when Web and worker run under different service layouts. Web and worker must access the same database and the same master-key file. The database stores only AES-256-GCM ciphertext, nonce, tag, and public connection metadata; the browser never receives the saved Key.
+
+Run the lightweight connection check before the synthetic sample. The sample sends only a project-owned fictional title and abstract, writes no paper data, and can incur a small provider charge. Saved task routing is resolved once per worker batch: a change takes effect on the next batch without restarting the worker, while an already-running batch keeps its original snapshot.
+
+LAN mode is read-only for model metadata. Key writes and paid tests remain available only at localhost because the application has no login. Structured logs use stable event/error codes and must never contain a real API Key, ciphertext, database URL, or internal stack.
+
+Environment-based provider configuration remains a compatibility fallback only when no database task routing exists. For that mode, fill exactly one named key, for example `AI_PROVIDER_GLM_API_KEY`, `AI_PROVIDER_KIMI_API_KEY`, or `AI_PROVIDER_HUNYUAN_API_KEY`.
 
 If multiple named keys are present, set `AI_DEFAULT_PROVIDER` to one of `deepseek`, `openai`, `gemini`, `qwen`, `glm`, `kimi`, or `hunyuan`. Explicit classification and interpretation primary/fallback routes remain available through the `AI_CLASSIFY_*` and `AI_INTERPRET_*` variables.
 
@@ -128,6 +136,8 @@ Get-FileHash ./backups/pri-backup.dump -Algorithm SHA256
 
 Store the dump and checksum away from the application host. The Redis queue is operational state, not the source of record; after a restore the stable daily scheduler is recreated by the worker.
 
+Back up the database and master key separately. Do not print, hash into application logs, or commit the master key. Copy the file as an opaque secret into a protected backup location, record only that the copy exists, and restrict access to the service account. A database dump without its matching master key cannot decrypt saved provider credentials; a master key without the database contains no connection records.
+
 ## Restore and verify
 
 Never test a restore over the active database. The local example creates a separate validation database:
@@ -141,7 +151,9 @@ docker compose -f infra/docker-compose.yml exec -T postgres psql -U pri -d pri_r
 docker compose -f infra/docker-compose.yml exec -T postgres rm -f /tmp/pri-backup.dump
 ```
 
-Then point a temporary Web/worker process at `pri_restore_check`, call both health endpoints, open Today and one paper detail, and verify reading state. Delete the validation database only after recording the result. Restoring the active database is an explicit maintenance-window operation: stop Web and worker, preserve the failed database, restore, run `prisma:deploy`, verify, and then restart.
+Restore the database dump and its matching opaque master-key file to the configured path; restore both before starting Web or worker. Verify the key file exists and is readable by only the intended service account without displaying its contents. Then point a temporary Web/worker process at `pri_restore_check`, call both health endpoints, open Today and one paper detail, and run one lightweight connection check from localhost. Delete the validation database only after recording the result. Restoring the active database is an explicit maintenance-window operation: stop Web and worker, preserve the failed database, restore, run `prisma:deploy`, verify, and then restart.
+
+If the master key is lost, existing ciphertext is intentionally unrecoverable. Stop the worker, move the unusable key path aside if present, start Web locally, and re-enter every API Key in the model console so each profile is encrypted with the newly created master key. Re-save task routing, run lightweight checks, then restart the worker. Never try to recover keys from logs or browser artifacts.
 
 ## Troubleshooting
 

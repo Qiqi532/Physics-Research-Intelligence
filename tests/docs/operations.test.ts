@@ -55,4 +55,22 @@ describe("stage 5 operations documentation", () => {
     expect(example).toContain("NEXT_TELEMETRY_DISABLED=1");
     expect(guide).toContain("NEXT_TELEMETRY_DISABLED=1");
   });
+
+  it("documents model console secrets, recovery and worker hot switching", async () => {
+    const example = await readFile(".env.example", "utf8");
+    const guide = await readFile("docs/operations.md", "utf8");
+
+    expect(example).toContain("AI_SETTINGS_MASTER_KEY_FILE=");
+    for (const boundary of [
+      "http://127.0.0.1:3000/settings/models",
+      "LAN mode is read-only",
+      "Back up the database and master key separately",
+      "restore both before starting Web or worker",
+      "re-enter every API Key",
+      "next batch",
+      "never contain a real API Key",
+    ]) {
+      expect(guide).toContain(boundary);
+    }
+  });
 });

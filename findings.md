@@ -1,6 +1,11 @@
 # 发现与决策
 
 ## 阶段 8 模型连接管理台（2026-08-31）
+- Next 开发服务器会在内部规范化 `request.url` 的 hostname；同源写保护必须用原始 HTTP `Host` 与浏览器 `Origin` 比较，且不信任转发头，否则合法的 127.0.0.1 页面写请求会被误拒绝。
+- 模型连接测试的 HTTP 200 只表示测试执行成功返回，结构化 `result.status=failed` 仍是供应商失败；页面必须继续读取稳定 `errorCode`，不能误报“连接测试成功”。
+- 根 Vitest 原先只收集 `.test.ts`；管理台 Server/Client 组合渲染测试需要显式收集 `.test.tsx`，并在根工作区声明匹配 Web 的 React 测试运行时。
+- E2E 主密钥必须位于系统临时目录，并在 global setup/teardown 对称删除；数据库清理顺序仍为路由后连接，避免 RESTRICT 外键残留。
+- 服务端主密钥错误码是 `secret_key_unavailable` 与 `secret_decryption_failed`；页面需分别提示检查本机文件与重新填写 Key，不能落入不具恢复信息的通用错误。
 - Worker provider 和价格都必须在每次 `process()` 开头从同一个 snapshot 构造；分类与解读要使用两个任务级价格表，否则同供应商不同命名配置的单价仍会被 provider 键覆盖。
 - `config.AI` 不应再作为 worker 启动前置条件；resolver 在无持久化路由时适配它，在两者都缺失时于批次开始抛出稳定 `worker_ai_configuration_missing`，由现有 BullMQ 有界重试。
 - Web 启动器必须显式设置 `PRI_LAN_MODE`，不能仅依赖 hostname 推断；standalone server 与 dev 子进程都会继承同一标记。

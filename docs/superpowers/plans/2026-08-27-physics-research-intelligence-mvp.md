@@ -137,6 +137,14 @@ infra/                    Docker Compose 与部署示例
 - [ ] 依据 `docs/evaluation-rubric.md` 人工评审至少 30 篇不同物理方向论文：分类正确性、摘要忠实性、创新点证据和推荐有用性。
 - [x] 完整运行 `pnpm lint`、`pnpm test`、`pnpm test:e2e`、生产构建与 Compose 健康验证；阶段 7 本地试运行已记录版本、失败项与零外部 API 成本边界。
 
+### Task 8：页面内模型连接管理（阶段 8）
+
+- [x] 使用 AES-256-GCM 将多个命名连接的 API Key 以数据库密文保存，主密钥独立留在仓库外本机文件。
+- [x] 提供 localhost 模型管理台、严格内部 API、轻量连接检查和合成论文分类/解读测试；LAN 模式保持只读。
+- [x] 分类与解读分别配置主备连接，同一供应商可保存多个命名配置；worker 每批次读取一次快照并在下一批热切换。
+- [x] 使用 loopback mock provider 和专用 PostgreSQL schema 覆盖桌面/移动 Playwright，不调用真实模型或论文来源。
+- [ ] 由用户在 localhost 输入一个真实供应商 Key，核对当前价格后完成小额连接/样本测试。
+
 ## 实施顺序与里程碑
 
 1. **第 1 周：骨架 + 事实层。** 阶段 0 已完成；下一步进入阶段 1，实现手动录入与检索 DOI。

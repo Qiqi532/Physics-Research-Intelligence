@@ -2,6 +2,19 @@
 
 ## 会话：2026-08-31（阶段 8 实施）
 
+### Task 6–8：模型管理台、正式 E2E 与发布门禁
+- **状态：** complete（本地实现与验证）；最终文档提交和远端 push 待执行。
+- 管理台组件红灯因模块不存在准确失败；实现 `/settings/models`、公开页面状态、多命名连接列表、官方 preset、编辑/复制/删除、空 Key 保留、Key 轮换、连接/合成样本测试和四路任务路由后，2 文件 9 项转绿。
+- 首轮真实 E2E 暴露 Next 内部 hostname 规范化导致合法 127.0.0.1 写请求被拒绝；新增同源回归红灯并改为比较 HTTP Host 后，13 项请求边界测试通过。
+- E2E 又暴露结构化鉴权失败被页面误报成功；页面同时判断 `result.status` 后，鉴权错误显示安全 API Key 提示。loopback mock 只监听 127.0.0.1:3211，不代理外部网络。
+- 模型管理台 Playwright 桌面 3/3、移动 3/3 定向通过；完整 Playwright 桌面/移动共 22/22 通过，覆盖命名连接、空 Key 保留、复制清 Key、鉴权、冷却、合成样本、主备路由、引用删除保护、焦点与无横向溢出。
+- 运维文档红灯准确缺少 localhost 页面、LAN 只读、主密钥分离备份/恢复和丢失恢复；补齐后文档 5/5 通过。
+- 本地审查发现真实主密钥错误码未映射为可恢复文案；回归红灯后分别增加检查密钥文件和重新填写 Key 提示。复审无剩余严重或警告级问题。
+- 最终 Vitest/PostgreSQL 61 文件、385 项通过；Prisma generate/validate/status 通过，`pri_stage7_test` 与 `pri_stage5_e2e` 均为 5 条迁移且 Paper/PaperSource/UserInterest/AiConnectionProfile/AiRuntimeRouting 计数全为 0。
+- 全仓 lint、typecheck、Web standalone 与 worker production build 通过；standalone server、静态资源和 worker dist 均存在，验证后已清理构建与 Playwright 产物。
+- 应用内浏览器控制仍因 Windows 本地运行时路径初始化故障不可用；同一 Chromium Playwright 已完成真实桌面/窄屏交互，stage-8 开发页另启动于 `http://127.0.0.1:3220/settings/models` 供可见审查。
+- 本轮没有使用真实 Provider Key、调用真实模型/论文 API、读取 `.env` 内容或接触生产数据库；真实小额 Provider 测试与 30 篇人工质量评审继续保留为人工任务。
+
 ### Task 0–1：隔离 worktree、领域校验与加密
 - **状态：** complete。
 - 已推送设计/计划基线，并从 `bdc6db5` 创建独立 `codex/stage-8-model-console` worktree；原 main、stage-6 和其他 worktree 未修改。

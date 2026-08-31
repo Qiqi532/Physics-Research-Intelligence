@@ -79,8 +79,11 @@
 - [x] 完成八供应商单连接工厂与安全两级连接测试运行器
 - [x] 完成本地写保护、密文 service、测试限流与内部模型设置 API
 - [x] 完成 worker 每批次路由快照、同供应商任务隔离与无需重启热切换
-- [ ] 在新独立分支/worktree 实现、验证、提交与 push
-- **状态：** in_progress（规格与 8 项实施任务已通过，进入独立 worktree 的 TDD 开发）
+- [x] 完成 `/settings/models` 管理台、多命名配置、复制/轮换/删除与任务路由
+- [x] 完成 loopback mock provider、专用 schema、桌面与移动 Playwright
+- [x] 完成主密钥备份恢复文档、全量验证、数据清理和本地代码审查
+- [ ] 推送 `codex/stage-8-model-console` 供用户审查
+- **状态：** in_progress（代码和全部本地门禁完成，待最终提交与 push；真实 Provider Key 测试和 30 篇人工评审留给人工执行）
 
 ## 已做决策
 | 决策 | 理由 |

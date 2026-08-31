@@ -638,7 +638,7 @@ git commit -m "feat(worker): reload model routing per batch"
 - Test: `tests/web/model-settings-components.test.tsx`
 - Test: `tests/web/model-settings-helpers.test.ts`
 
-- [ ] **Step 1: 写 Server Component/公开 props 红灯**
+- [x] **Step 1: 写 Server Component/公开 props 红灯**
 
 ```ts
 const testOnlyValue = ["test", "only", "value"].join("-");
@@ -655,13 +655,13 @@ expect(html).not.toContain(testOnlyValue);
 
 覆盖 loading、数据库错误、空连接、LAN 只读和密钥存储不可用状态。
 
-- [ ] **Step 2: 运行红灯并实现页面骨架**
+- [x] **Step 2: 运行红灯并实现页面骨架**
 
 Run: `pnpm test tests/web/model-settings-components.test.tsx`
 
 Expected: FAIL 后实现 Server Component 页面、skip link、返回 Today 链接和管理台两栏；只向 Client Component 传公开 DTO。
 
-- [ ] **Step 3: 写纯客户端 helper 红灯**
+- [x] **Step 3: 写纯客户端 helper 红灯**
 
 ```ts
 const testOnlyValue = ["test", "only", "value"].join("-");
@@ -677,7 +677,7 @@ expect(routingPayload(draft)).toEqual({
 
 覆盖 provider preset 切换、复制时清空 Key、取消编辑恢复、主备同供应商前端提示和响应错误映射。
 
-- [ ] **Step 4: 实现最小 Client Components**
+- [x] **Step 4: 实现最小 Client Components**
 
 - `model-settings-console.tsx` 只管理选中 ID、筛选和组合子表单。
 - `model-connection-form.tsx` 负责新建/修改/复制/删除、空 Key 保留与高级设置。
@@ -685,11 +685,11 @@ expect(routingPayload(draft)).toEqual({
 - `model-test-result.tsx` 负责 health/sample 的 pending、成功、部分成功、费用确认和安全错误。
 - 所有异步状态使用 `aria-live`，按钮 pending 时 disabled；删除、轮换 Key 和付费示例用明确确认对话框。
 
-- [ ] **Step 5: 增加现有视觉风格与响应式 CSS**
+- [x] **Step 5: 增加现有视觉风格与响应式 CSS**
 
 新增 `.model-settings-grid` 的桌面 `minmax(16rem, 22rem) minmax(0, 1fr)` 双栏；42rem 以下单栏。复用 `--paper`、`--line`、`--accent`、按钮和 focus-visible，不重构无关样式。
 
-- [ ] **Step 6: 页面定向验证与提交**
+- [x] **Step 6: 页面定向验证与提交**
 
 ```powershell
 pnpm test tests/web/model-settings-components.test.tsx tests/web/model-settings-helpers.test.ts tests/web/components.test.ts
@@ -709,7 +709,7 @@ git commit -m "feat(web): add model connection console"
 - Modify: `tests/e2e/fixtures/global-teardown.ts`
 - Modify: `playwright.config.ts`
 
-- [ ] **Step 1: 写 E2E 红灯**
+- [x] **Step 1: 写 E2E 红灯**
 
 新增桌面与移动共享用例：
 
@@ -734,13 +734,13 @@ test("manages named connections and switches routing", async ({ page }) => {
 
 另覆盖空状态、空 Key 编辑保留、复制后必须重新填 Key、轮换、引用删除保护、鉴权失败、冷却、键盘焦点、可访问名称和窄屏无横向溢出。
 
-- [ ] **Step 2: 运行红灯**
+- [x] **Step 2: 运行红灯**
 
 Run: `pnpm test:e2e tests/e2e/model-settings.spec.ts --project=desktop-chromium`
 
 Expected: FAIL，页面/API/mock provider 尚未接入 E2E。
 
-- [ ] **Step 3: 实现 loopback mock provider**
+- [x] **Step 3: 实现 loopback mock provider**
 
 `mock-ai-provider.ts` 仅监听 `127.0.0.1:3211`：
 
@@ -750,11 +750,11 @@ Expected: FAIL，页面/API/mock provider 尚未接入 E2E。
 
 在 `playwright.config.ts` 增加第二个 webServer，并给 Web 进程设置指向系统临时目录的 `AI_SETTINGS_MASTER_KEY_FILE`、`PRI_LAN_MODE=false`。测试配置的 base URL 只允许 `http://127.0.0.1:3211`。
 
-- [ ] **Step 4: 扩展 fixture 清理**
+- [x] **Step 4: 扩展 fixture 清理**
 
 在重置和 teardown 中先删除 `AiRuntimeRouting`，再删除 `AiConnectionProfile`；删除系统临时目录中的 E2E 主密钥文件。保留 `_prisma_migrations` 和 PhysicsTag 种子。
 
-- [ ] **Step 5: 桌面与移动绿灯**
+- [x] **Step 5: 桌面与移动绿灯**
 
 ```powershell
 pnpm test:e2e tests/e2e/model-settings.spec.ts --project=desktop-chromium
@@ -764,7 +764,7 @@ pnpm test:e2e
 
 Expected: 全部 PASS；mock provider 日志无外部请求，teardown 后模型配置表和既有业务表均为 0。
 
-- [ ] **Step 6: 提交**
+- [x] **Step 6: 提交**
 
 ```powershell
 git add tests/e2e playwright.config.ts
@@ -783,7 +783,7 @@ git commit -m "test(e2e): cover model connection console"
 - Modify: `progress.md`
 - Test: `tests/docs/operations.test.ts`
 
-- [ ] **Step 1: 写运维文档红灯**
+- [x] **Step 1: 写运维文档红灯**
 
 断言文档包含：localhost 页面配置、LAN 只读、`AI_SETTINGS_MASTER_KEY_FILE` 空示例、数据库与主密钥分离备份、恢复顺序、主密钥丢失后的重新填 Key、worker 热切换和无真实 Key 日志。
 
@@ -791,11 +791,11 @@ Run: `pnpm test tests/docs/operations.test.ts`
 
 Expected: FAIL，文档尚未覆盖新边界。
 
-- [ ] **Step 2: 最小更新运维文档**
+- [x] **Step 2: 最小更新运维文档**
 
 说明个人本机无需手写 provider `.env`；首次页面保存自动创建主密钥。部署 Web/worker 时必须共享只读/读写适当的主密钥 volume。备份命令不得输出 key 内容，恢复验证只检查文件存在、权限和一次页面连通测试。
 
-- [ ] **Step 3: 完整自动验证**
+- [x] **Step 3: 完整自动验证**
 
 使用专用 PostgreSQL 测试 schema 和 mock provider：
 
@@ -813,21 +813,21 @@ git diff --check
 
 Expected: 全部退出 0；Web standalone 静态资源存在，worker `dist/index.js` 存在。
 
-- [ ] **Step 4: 数据与敏感信息门禁**
+- [x] **Step 4: 数据与敏感信息门禁**
 
 - 专用单元/集成/E2E schema 的两个新表和既有业务表计数为 0；迁移历史为 5。
 - 删除 `.next`、`dist`、Playwright 输出、截图、`*.tsbuildinfo` 和临时 E2E key；保留忽略的论文 PDF 与既有备份。
 - 只暂存本阶段文件；扫描 staged diff 中 `.env`、Key 值、密文、主密钥、连接串、PDF、dump 和构建产物。
 
-- [ ] **Step 5: 本地代码审查**
+- [x] **Step 5: 本地代码审查**
 
 审查完整 stage diff：AES nonce/tag、associated data、并发首次创建、Key 生命周期、DTO 投影、同源/LAN 绕过、请求上限、测试费用重复点击、跨任务同供应商配置、批次快照、损坏持久化配置不静默回退、数据库 teardown。严重或警告发现必须先加红灯再修复。
 
-- [ ] **Step 6: 本地浏览器验收**
+- [x] **Step 6: 本地浏览器验收**
 
 用 loopback mock provider 验证桌面和窄屏：新建两个 Kimi 命名连接、GLM 备用、Key 轮换、health、sample、主备路由、删除保护、空/错误状态和键盘焦点。随后使用 `pri_stage7_trial` 启动真实事实页面；不在自动流程输入真实 Key。
 
-- [ ] **Step 7: 更新记录并提交**
+- [x] **Step 7: 更新记录并提交**
 
 ```powershell
 git add README.md docs task_plan.md findings.md progress.md tests/docs/operations.test.ts
