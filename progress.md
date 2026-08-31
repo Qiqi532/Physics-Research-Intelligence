@@ -3,7 +3,7 @@
 ## 会话：2026-08-31（阶段 7）
 
 ### 零成本本地真实数据试运行
-- **状态：** in_progress，书面规格与详细 TDD 计划已通过，进入实现。
+- **状态：** complete，实现、验证、清理、审查与分支发布均已完成；30 篇人工内容评审不虚构结果，保留为人工任务。
 - 历史分支审计确认本地与远端 stage-2、stage-3、stage-4、stage-5、集成分支和备份分支全部已合并进 `origin/main@64115e7`，`--no-merged origin/main` 为空。
 - 从 `origin/main@64115e7` 创建独立 `codex/stage-6-local-trial` 工作树；未触碰保存项目目录的旧 main 或其他 worktree。
 - 用户确认电脑端访问为最低要求；手机/平板仅在实现简单且安全边界明确时加入。
@@ -26,6 +26,11 @@
 - 应用内浏览器控制连续三次因 Windows sandbox workspace refresh helper 退出，未能获取可控标签页；改用仓库锁定 Playwright 完成真实桌面/390px 验收。390px 首页和兴趣页均无横向溢出、主要控件可见。
 - trusted-LAN production 模式打印 no-login 警告，候选 `http://172.17.49.138:3000` 本机访问 200；监听为 Web `0.0.0.0:3000`、PostgreSQL/Redis `127.0.0.1`。验收后立即停止 LAN 并恢复 production Web `http://127.0.0.1:3000`。
 - 首次设计提交前 `git diff --cached --check` 报告两处 Markdown 尾随空格和一个末尾空行，但 PowerShell 命令链未因非零退出停止，仍创建了 `667c8a6`；不 amend，改用独立格式修复提交，并要求后续门禁显式检查退出码。
+- 完整 Vitest 使用 `pri_stage7_test` 专用 schema：48 个文件、289 项全部通过；完整 Playwright 使用 `pri_stage5_e2e` 专用 schema：桌面 8/8、移动 8/8，共 16/16 通过，测试后两个 schema 的 Paper/PaperSource/UserInterest 均为 0/0/0。
+- Playwright 首轮在新增公开摘要后为 10 通过、2 失败、4 跳过：同一摘要同时出现在双语概述与公开摘要区，旧全页文本定位不再唯一。将断言分别约束到 `.bilingual-overview` 和 `.public-abstract` 后全量 16/16 转绿，产品代码无需改动。
+- Prisma generate、validate 和 migration status 均通过，`pri_stage7_trial` 的 4 条迁移最新；全仓 lint、typecheck、Next.js 生产构建、worker 生产构建及 standalone `.next/static` 复制全部通过。仓库无 `public` 源目录，因此没有公共资源需要复制。
+- 本地代码审查覆盖路径穿越、URL/redirect 白名单、大小上限、PDF 签名与 SHA-256、并发落盘、幂等导入、脱敏日志、数据库边界和 LAN 暴露，未发现严重或警告级问题。CodeRabbit CLI 未安装，未安装或上传源码；npm 官方审计为 0 个已知漏洞。
+- 验证期间 Codex 执行器再次遇到 workspace refresh helper 故障；只读与验证命令改走获批的独立 worktree 边界，未触碰其他 worktree 或分支。Prisma 首次临时环境变量未被 `cmd` 子进程继承，在加载配置前安全失败；改用进程级 PowerShell 变量后通过。
 
 ## 会话：2026-08-30（阶段 6）
 

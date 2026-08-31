@@ -18,7 +18,16 @@ test("paper detail discloses bilingual summary, evidence, confidence and abstrac
 
   await expect(page.getByRole("heading", { name: "AMO precision fixture" })).toBeVisible();
   await expect(page.locator(".bilingual-overview").getByText("中文概述")).toBeVisible();
-  await expect(page.getByText("Public English abstract about precision optical measurements.")).toBeVisible();
+  await expect(
+    page.locator(".bilingual-overview").getByText(
+      "Public English abstract about precision optical measurements.",
+    ),
+  ).toBeVisible();
+  await expect(
+    page.locator(".public-abstract").getByText(
+      "Public English abstract about precision optical measurements.",
+    ),
+  ).toBeVisible();
   await expect(page.getByText("基于摘要解读")).toBeVisible();
   await expect(page.getByRole("heading", { name: "证据等级：原文直接信息" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "证据等级：归纳推断" })).toBeVisible();

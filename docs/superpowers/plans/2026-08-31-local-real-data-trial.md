@@ -302,29 +302,29 @@ After loopback verification for PostgreSQL/Redis, start the explicit LAN Web com
 - Modify: `progress.md`
 - Modify: `docs/superpowers/plans/2026-08-27-physics-research-intelligence-mvp.md`
 
-- [ ] **Step 1: Update tracked planning and evidence files**
+- [x] **Step 1: Update tracked planning and evidence files**
 
 Record every TDD red/green command and count, the nine real paper identifiers and checksums, import replay counts, browser URL/result, LAN attempt, backup checksum location (not its contents), known limitations, and the remaining manual 30-paper evaluation. Mark only genuinely completed MVP items complete.
 
-- [ ] **Step 2: Run complete automated verification**
+- [x] **Step 2: Run complete automated verification**
 
 Run full Vitest with the dedicated PostgreSQL test schema, full Playwright, Prisma generate/validate/migration status, workspace lint/typecheck, Web production build, worker production build, standalone static-resource checks, and `git diff --check`.
 
 Expected: every command exits 0; Playwright remains fixture-only and makes no real source/provider calls.
 
-- [ ] **Step 3: Clean generated artifacts and test business data**
+- [x] **Step 3: Clean generated artifacts and test business data**
 
 Remove only generated `.next`, worker `dist`, Playwright outputs, screenshots, `.partial` files and `*.tsbuildinfo` inside this worktree. Delete business fixture rows from dedicated test schemas while preserving `_prisma_migrations`. Keep the intentionally downloaded ignored corpus PDFs for human review.
 
-- [ ] **Step 4: Perform local code review and fix all serious/warning findings with TDD**
+- [x] **Step 4: Perform local code review and fix all serious/warning findings with TDD**
 
 Review the complete stage diff for path traversal, redirect bypass, partial-file corruption, unbounded response memory, checksum race, logging of abstracts/secrets, production database/test crossover, duplicate import, process cleanup and LAN exposure. For each finding, add a failing regression test, implement the smallest fix, and rerun the affected suite.
 
-- [ ] **Step 5: Scan staged content and create the final Conventional Commit**
+- [x] **Step 5: Scan staged content and create the final Conventional Commit**
 
 Stage only stage-related source/tests/docs/manifest. Confirm staged paths contain no `.env`, key/token/credential values, PDF, database dump, `.next`, `dist`, Playwright output, screenshot, `*.tsbuildinfo`, or test database content. Run `git diff --cached --check`, then commit with a message matching the actual remaining diff, such as `feat(trial): add local real-paper workflow`.
 
-- [ ] **Step 6: Push without merging or rewriting other branches**
+- [x] **Step 6: Push without merging or rewriting other branches**
 
 Run: `git push -u origin codex/stage-6-local-trial`
 

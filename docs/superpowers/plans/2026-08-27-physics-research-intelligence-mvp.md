@@ -135,7 +135,7 @@ infra/                    Docker Compose 与部署示例
 - [x] 配置每天采集、分类、预算内深度解读和生成 Today 汇总的幂等定时任务。
 - [x] 增加健康检查、结构化日志、备份恢复说明和既有成本审计字段；日志脱敏覆盖所有统一 provider 边界。
 - [ ] 依据 `docs/evaluation-rubric.md` 人工评审至少 30 篇不同物理方向论文：分类正确性、摘要忠实性、创新点证据和推荐有用性。
-- [ ] 完整运行 `pnpm lint`、`pnpm test`、`pnpm test:e2e`、生产构建与 Compose 健康验证；记录版本、失败项和成本估算。
+- [x] 完整运行 `pnpm lint`、`pnpm test`、`pnpm test:e2e`、生产构建与 Compose 健康验证；阶段 7 本地试运行已记录版本、失败项与零外部 API 成本边界。
 
 ## 实施顺序与里程碑
 
