@@ -1,5 +1,29 @@
 # 进度日志
 
+## 会话：2026-09-01（模型管理发布与阶段 9 交接）
+
+### 模型管理发布恢复
+- **状态：** complete。
+- 在修改前建立并推送 Git 备份 `backup/main-before-stage8-20260901@e355a1d`，并创建可列出恢复内容的 PostgreSQL custom-format 备份 `backups/pri-before-stage8-main-20260901-100127.dump`。
+- 将 `codex/stage-8-model-console` 纯快进到本地 `main`，部署缺失的第 4、5 条迁移，再以普通快进推送到 `origin/main`。
+- 新增从 Today 首页进入模型管理台的正式 Playwright 回归；提交与远端 `main` 均为 `35faeadec3e9f01b68131dc50db4dc771f31956b`。
+- 本地生产 Web 运行于 `http://127.0.0.1:3000`；`/api/health/live` 与 `/api/health/ready` 均为 200。
+
+### 最新验证证据
+- Vitest：61 个文件、385 项通过。
+- Playwright：桌面与移动合计 24/24，通过新增首页导航、模型管理、Today、论文详情、恢复和可访问性边界。
+- lint、全仓 typecheck、Web standalone 与 worker 生产构建全部退出码 0；standalone 静态资源复制成功。
+- Prisma generate、validate、migrate deploy、migrate status 通过；`public` 与专用 schema 均识别 5 条迁移。
+- 真实 3000 生产页 Chromium 检查：桌面/移动入口可见、跳转与标题成功、首个焦点为 skip link、横向溢出为 0。
+- E2E teardown 后论文、模型连接、任务路由、兴趣和来源游标计数均为 0；Playwright 报告与测试产物已删除。
+- 应用内浏览器连接器因桌面运行目录缺失无法初始化；项目正式 Playwright 和仓库内 Chromium 已完成等价页面验证，并保留该工具限制说明。
+
+### 阶段 9 计划交接
+- 用户批准普通论文 30 天、收藏长期保留、明确开放许可 PDF 自动保存及合法个人 PDF 手动导入边界。
+- 新建 `docs/superpowers/plans/2026-09-01-local-library-ai-reading-roadmap.md`，把工作拆为 9A 每日/收藏/清理、9B PDF 资产、10 阅读助手、11 收藏库 RAG。
+- 根 `task_plan.md` 已把阶段 8 修正为 complete，并把阶段 9 标记为 planned。
+- 下一次对话从最新 `origin/main` 新建 `codex/stage-9-local-library` 独立 worktree，先写收藏状态失败测试；不得在同一差异中提前实现 9B、10 或 11。
+
 ## 会话：2026-08-31（阶段 8 实施）
 
 ### Task 6–8：模型管理台、正式 E2E 与发布门禁
