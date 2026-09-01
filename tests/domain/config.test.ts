@@ -169,4 +169,14 @@ describe("server configuration", () => {
       }),
     ).toThrow("DAILY_PAPER_TARGET_MIN must not exceed DAILY_PAPER_TARGET_MAX");
   });
+
+  it.each([
+    ["PAPER_RETENTION_DAYS", "3651", "3650"],
+    ["DAILY_PAPER_TARGET_MIN", "501", "500"],
+    ["DAILY_PAPER_TARGET_MAX", "501", "500"],
+  ])("rejects %s above its supported maximum", (name, value, maximum) => {
+    expect(() => parseConfig({ ...validEnvironment, [name]: value })).toThrow(
+      `${name} must be at most ${maximum}`,
+    );
+  });
 });

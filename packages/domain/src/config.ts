@@ -155,9 +155,24 @@ export function parseConfig(environment: NodeJS.ProcessEnv): ServerConfig {
     ? { ...serviceConfig, AI_SETTINGS_MASTER_KEY_FILE: masterKeyFile }
     : serviceConfig;
   const retention = {
-    PAPER_RETENTION_DAYS: parseOptionalPositiveInteger(environment, "PAPER_RETENTION_DAYS", 30),
-    DAILY_PAPER_TARGET_MIN: parseOptionalPositiveInteger(environment, "DAILY_PAPER_TARGET_MIN", 10),
-    DAILY_PAPER_TARGET_MAX: parseOptionalPositiveInteger(environment, "DAILY_PAPER_TARGET_MAX", 15),
+    PAPER_RETENTION_DAYS: parseOptionalBoundedPositiveInteger(
+      environment,
+      "PAPER_RETENTION_DAYS",
+      30,
+      3_650,
+    ),
+    DAILY_PAPER_TARGET_MIN: parseOptionalBoundedPositiveInteger(
+      environment,
+      "DAILY_PAPER_TARGET_MIN",
+      10,
+      500,
+    ),
+    DAILY_PAPER_TARGET_MAX: parseOptionalBoundedPositiveInteger(
+      environment,
+      "DAILY_PAPER_TARGET_MAX",
+      15,
+      500,
+    ),
   };
   if (retention.DAILY_PAPER_TARGET_MIN > retention.DAILY_PAPER_TARGET_MAX) {
     throw new Error("DAILY_PAPER_TARGET_MIN must not exceed DAILY_PAPER_TARGET_MAX");
@@ -408,6 +423,19 @@ function parseOptionalPositiveInteger(
   return optionalEnvironmentValue(environment, name)
     ? parsePositiveInteger(environment, name)
     : defaultValue;
+}
+
+function parseOptionalBoundedPositiveInteger(
+  environment: NodeJS.ProcessEnv,
+  name: string,
+  defaultValue: number,
+  maximum: number,
+): number {
+  const value = parseOptionalPositiveInteger(environment, name, defaultValue);
+  if (value > maximum) {
+    throw new Error(`${name} must be at most ${maximum}`);
+  }
+  return value;
 }
 
 function parseOptionalNonNegativeNumber(

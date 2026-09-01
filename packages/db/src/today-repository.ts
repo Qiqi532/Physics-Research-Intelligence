@@ -255,25 +255,24 @@ export function createTodayRepository(client: DatabaseClient): TodayRepository {
         return { status: "not_found" as const };
       }
 
-      const existing = await client.userPaperState.findUnique({
-        where: {
-          userId_paperId: { userId: input.userId, paperId: paper.id },
-        },
-        select: { isFavorite: true, favoritedAt: true },
-      });
-
-      let isFavorite: boolean;
-      let favoritedAt: Date | null;
-      if (input.isFavorite === undefined) {
-        isFavorite = existing?.isFavorite ?? false;
-        favoritedAt = existing?.favoritedAt ?? null;
-      } else if (input.isFavorite) {
-        isFavorite = true;
-        favoritedAt = existing?.isFavorite ? existing.favoritedAt : new Date();
-      } else {
-        isFavorite = false;
-        favoritedAt = null;
-      }
+      const existing = input.isFavorite === undefined
+        ? null
+        : await client.userPaperState.findUnique({
+            where: {
+              userId_paperId: { userId: input.userId, paperId: paper.id },
+            },
+            select: { isFavorite: true, favoritedAt: true },
+          });
+      const createFavorite = input.isFavorite ?? false;
+      const createFavoritedAt = createFavorite ? new Date() : null;
+      const favoriteUpdate = input.isFavorite === undefined
+        ? {}
+        : {
+            isFavorite: input.isFavorite,
+            favoritedAt: input.isFavorite
+              ? existing?.isFavorite ? existing.favoritedAt : new Date()
+              : null,
+          };
 
       const state = await client.userPaperState.upsert({
         where: {
@@ -285,15 +284,14 @@ export function createTodayRepository(client: DatabaseClient): TodayRepository {
           status: input.status,
           feedback: input.feedback,
           note: input.note,
-          isFavorite,
-          favoritedAt,
+          isFavorite: createFavorite,
+          favoritedAt: createFavoritedAt,
         },
         update: {
           status: input.status,
           feedback: input.feedback,
           note: input.note,
-          isFavorite,
-          favoritedAt,
+          ...favoriteUpdate,
         },
         select: {
           status: true,

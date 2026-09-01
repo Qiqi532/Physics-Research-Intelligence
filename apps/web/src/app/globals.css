@@ -367,6 +367,24 @@ h3 {
   gap: 1rem;
 }
 
+.library-list {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.library-item {
+  min-width: 0;
+}
+
+.paper-favorite-date {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
 .paper-card {
   display: grid;
   gap: 1.2rem;
@@ -581,6 +599,18 @@ h3 {
 
 .state-controls button[aria-pressed="true"] {
   background: var(--accent-dark);
+  color: white;
+}
+
+.state-controls .favorite-button {
+  border-color: var(--green);
+  color: var(--green);
+}
+
+.state-controls .favorite-button:hover,
+.state-controls .favorite-button-active {
+  border-color: var(--green);
+  background: var(--green);
   color: white;
 }
 

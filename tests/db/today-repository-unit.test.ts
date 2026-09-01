@@ -146,8 +146,13 @@ describe("Today repository aggregation", () => {
     expect(upsert).toHaveBeenCalledWith(
       expect.objectContaining({
         create: expect.objectContaining({ isFavorite: false, favoritedAt: null }),
+        update: expect.not.objectContaining({
+          isFavorite: expect.anything(),
+          favoritedAt: expect.anything(),
+        }),
       }),
     );
+    expect(findExistingState).not.toHaveBeenCalled();
 
     await expect(
       repository.setPaperStateByDoi({
