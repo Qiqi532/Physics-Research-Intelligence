@@ -4,6 +4,9 @@ export type ServerConfig = {
   DATABASE_URL: string;
   REDIS_URL: string;
   DAILY_AI_BUDGET_USD: number;
+  PAPER_RETENTION_DAYS: number;
+  DAILY_PAPER_TARGET_MIN: number;
+  DAILY_PAPER_TARGET_MAX: number;
   DAILY_PIPELINE: DailyPipelineConfig;
   SOURCE_CONTACT_EMAIL?: string;
   CROSSREF_ISSN?: string;
@@ -151,9 +154,17 @@ export function parseConfig(environment: NodeJS.ProcessEnv): ServerConfig {
   const configuredServices = masterKeyFile
     ? { ...serviceConfig, AI_SETTINGS_MASTER_KEY_FILE: masterKeyFile }
     : serviceConfig;
+  const retention = {
+    PAPER_RETENTION_DAYS: parseOptionalPositiveInteger(environment, "PAPER_RETENTION_DAYS", 30),
+    DAILY_PAPER_TARGET_MIN: parseOptionalPositiveInteger(environment, "DAILY_PAPER_TARGET_MIN", 10),
+    DAILY_PAPER_TARGET_MAX: parseOptionalPositiveInteger(environment, "DAILY_PAPER_TARGET_MAX", 15),
+  };
+  if (retention.DAILY_PAPER_TARGET_MIN > retention.DAILY_PAPER_TARGET_MAX) {
+    throw new Error("DAILY_PAPER_TARGET_MIN must not exceed DAILY_PAPER_TARGET_MAX");
+  }
   return ai
-    ? { ...configuredServices, DAILY_PIPELINE: dailyPipeline, AI: ai }
-    : { ...configuredServices, DAILY_PIPELINE: dailyPipeline };
+    ? { ...configuredServices, ...retention, DAILY_PIPELINE: dailyPipeline, AI: ai }
+    : { ...configuredServices, ...retention, DAILY_PIPELINE: dailyPipeline };
 }
 
 function parseDailyPipelineConfig(environment: NodeJS.ProcessEnv): DailyPipelineConfig {

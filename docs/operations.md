@@ -84,9 +84,13 @@ Set:
 DAILY_PIPELINE_ENABLED=true
 DAILY_PIPELINE_TIME=06:00
 DAILY_PIPELINE_TIMEZONE=Asia/Shanghai
+PAPER_RETENTION_DAYS=30
+DAILY_PAPER_TARGET_MIN=10
+DAILY_PAPER_TARGET_MAX=15
 ```
 
 The worker upserts one stable BullMQ scheduler. Each daily run executes public-source ingestion, classification, budgeted interpretation, and Today preparation in order. The schedule has two bounded attempts with exponential backoff. Source cursors, AI idempotency keys, interpretation budget reservations, and the stable scheduler ID make repeated execution in the same window safe.
+Papers published inside the current stable daily window form the deterministic selection pool. Each run picks a diverse 10–15 paper daily set (bounded by `DAILY_PAPER_TARGET_MIN` and `DAILY_PAPER_TARGET_MAX`, with a per-direction cap) and feeds only that set into budgeted interpretation, so a single physics direction cannot consume the whole daily set when alternatives exist. Classification still processes the window candidates needed to establish direction under the existing idempotency keys and provider fallback rules. After Today preparation, papers older than `PAPER_RETENTION_DAYS` that have never been favorited are pruned with their dependent records; a recoverable cleanup failure never makes Today unavailable, and rerunning the same window converges to the same result.
 
 ## Production build and processes
 

@@ -88,4 +88,85 @@ describe("server configuration", () => {
       expect(JSON.stringify(toLogSafeData(error))).not.toContain(secret);
     }
   });
+
+  it("defaults retention to 30 days and the daily target to 10–15 papers", () => {
+    const config = parseConfig(validEnvironment);
+
+    expect(config.PAPER_RETENTION_DAYS).toBe(30);
+    expect(config.DAILY_PAPER_TARGET_MIN).toBe(10);
+    expect(config.DAILY_PAPER_TARGET_MAX).toBe(15);
+  });
+
+  it("accepts explicit bounded retention and daily-target values", () => {
+    const config = parseConfig({
+      ...validEnvironment,
+      PAPER_RETENTION_DAYS: "60",
+      DAILY_PAPER_TARGET_MIN: "12",
+      DAILY_PAPER_TARGET_MAX: "20",
+    });
+
+    expect(config.PAPER_RETENTION_DAYS).toBe(60);
+    expect(config.DAILY_PAPER_TARGET_MIN).toBe(12);
+    expect(config.DAILY_PAPER_TARGET_MAX).toBe(20);
+  });
+
+  it("accepts an equal daily-target min and max", () => {
+    const config = parseConfig({
+      ...validEnvironment,
+      DAILY_PAPER_TARGET_MIN: "12",
+      DAILY_PAPER_TARGET_MAX: "12",
+    });
+
+    expect(config.DAILY_PAPER_TARGET_MIN).toBe(12);
+    expect(config.DAILY_PAPER_TARGET_MAX).toBe(12);
+  });
+
+  it.each([
+    "0",
+    "-1",
+    "1.5",
+    "abc",
+  ])("rejects malformed retention days %j", (value) => {
+    expect(() => parseConfig({ ...validEnvironment, PAPER_RETENTION_DAYS: value })).toThrow(
+      "PAPER_RETENTION_DAYS must be a positive integer",
+    );
+  });
+
+  it.each([
+    ["0", "10"],
+    ["10", "0"],
+    ["10.5", "15"],
+    ["abc", "15"],
+  ])("rejects malformed daily-target values min=%j max=%j", (min, max) => {
+    expect(() =>
+      parseConfig({
+        ...validEnvironment,
+        DAILY_PAPER_TARGET_MIN: min,
+        DAILY_PAPER_TARGET_MAX: max,
+      }),
+    ).toThrow(/DAILY_PAPER_TARGET_(MIN|MAX) must be a positive integer/u);
+  });
+
+  it("treats blank retention and target variables as defaults", () => {
+    const config = parseConfig({
+      ...validEnvironment,
+      PAPER_RETENTION_DAYS: "",
+      DAILY_PAPER_TARGET_MIN: "  ",
+      DAILY_PAPER_TARGET_MAX: "",
+    });
+
+    expect(config.PAPER_RETENTION_DAYS).toBe(30);
+    expect(config.DAILY_PAPER_TARGET_MIN).toBe(10);
+    expect(config.DAILY_PAPER_TARGET_MAX).toBe(15);
+  });
+
+  it("rejects a daily target where min exceeds max", () => {
+    expect(() =>
+      parseConfig({
+        ...validEnvironment,
+        DAILY_PAPER_TARGET_MIN: "16",
+        DAILY_PAPER_TARGET_MAX: "15",
+      }),
+    ).toThrow("DAILY_PAPER_TARGET_MIN must not exceed DAILY_PAPER_TARGET_MAX");
+  });
 });
