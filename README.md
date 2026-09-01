@@ -1,85 +1,318 @@
 # Physics Research Intelligence
 
-面向个人物理学习与研究的论文情报平台。系统聚合公开论文事实，使用可切换的模型完成保守分类与结构化解读，并通过确定性、可解释的兴趣评分生成 Today Physics。
+> 面向个人物理研究的可解释 AI 论文情报平台。An explainable AI paper-intelligence platform for personal physics research.
 
-## 零成本本地试运行
+[中文](#中文) · [English](#english)
 
-当前个人使用不需要购买域名或 VPS。推荐先在电脑上运行 PostgreSQL、Redis、Web 和 worker，浏览器访问 `http://127.0.0.1:3000`。真实开放论文语料的下载、校验和导入见 [本地语料说明](data/review-corpus/README.md) 与 [个人部署与运维](docs/operations.md#local-real-data-trial)。浏览公开事实不需要模型 API Key；未生成的 AI 解读会如实显示为缺失。
+## 中文
 
-手机或平板属于可选能力：确认 PostgreSQL/Redis 仍只监听本机后，可显式运行 Web 的可信局域网模式。同一校园网可能启用设备隔离，因此电脑端是本阶段的保证路径。应用当前没有登录，不能把局域网端口映射到公网。
+### 项目简介
 
-## 当前完成度
+Physics Research Intelligence 是一个面向个人物理学习与研究的论文情报平台。它聚合公开论文事实，使用可切换的大模型完成保守分类与结构化解读，再通过确定性、可解释的兴趣评分生成 Today Physics。
 
-当前代码已完成阶段 1–5 的 MVP 交付：
+项目当前处于可本地试运行的单用户 MVP 阶段。核心原则是把“来源事实”“AI 解读”和“个人阅读状态”分开保存：模型输出不能覆盖原始事实，推荐结果必须给出理由，缺失或失败的解读会如实显示。
 
-- 公开来源采集：Crossref、OpenAlex、arXiv，包含游标、超时、有界重试、429/5xx 处理和保守去重。
-- 事实层：PostgreSQL/Prisma 保存公开元数据、摘要、来源、许可证和原文链接，不保存或发送受限全文。
-- AI 流水线：分类、结构化中英文解读、证据等级、置信度、来源披露、预算预留、幂等审计和一次主备回退。
-- 模型接入：OpenAI、DeepSeek、Gemini、Qwen、智谱 GLM、Kimi、混元，以及通用 OpenAI Chat Completions 兼容端点。
-- 模型管理台：在 localhost 页面保存多个命名连接，加密 Key，执行轻量/合成示例测试，并分别切换分类与解读主备路由。
-- Today Physics：今日统计、跨方向信号、解释性推荐、阅读队列、论文详情和降级错误态。
-- 兴趣与阅读状态：兴趣权重设置，以及稍后读、正在阅读、完成和不感兴趣状态。
-- 自动运行：BullMQ 每日采集、分类、预算内解读和 Today 准备，支持时区、开关和同窗口幂等。
-- 可靠性：存活/就绪健康检查、稳定错误码、脱敏结构化日志、队列/worker 状态和失败恢复。
-- 测试：385 项 Vitest（含 PostgreSQL 集成）和 22 项 Playwright 桌面/移动 E2E。
-- 运维：启动停止、迁移、备份恢复、健康检查和故障排查文档，以及 30 篇人工质量评审空白模板。
+### MVP 当前能力
 
-## 推荐部署方式
+- 公开来源采集：Crossref、OpenAlex 与 arXiv，支持游标、超时、有界重试、限流处理和保守去重。
+- 论文事实层：PostgreSQL/Prisma 保存标题、作者、摘要、期刊、DOI、来源、许可证信息和原文链接。
+- AI 流水线：物理方向分类、中文结构化解读、证据等级、来源披露、预算预留、幂等审计和一次主备回退。
+- 多模型适配：OpenAI、DeepSeek、Gemini、Qwen、智谱 GLM、Kimi、混元及通用 OpenAI Chat Completions 兼容端点。
+- 模型管理台：在 localhost 保存多个命名连接，加密 API Key，执行轻量连通测试与合成论文示例，并配置分类/解读主备路由。
+- Today Physics：首页统计、跨方向信号、可解释推荐、阅读队列、论文详情和可恢复错误状态。
+- 个性化：物理方向兴趣权重，以及稍后读、正在阅读、完成和不感兴趣等阅读状态。
+- 自动处理：BullMQ 每日采集、分类、预算内解读和 Today 准备，支持时区、启停和同窗口幂等。
+- 可靠性：存活/就绪检查、稳定错误码、脱敏结构化日志、队列状态与失败恢复。
+- 测试与运维：Vitest、PostgreSQL 集成测试、Playwright 桌面/移动端 E2E，以及启动、迁移、备份恢复和故障排查文档。
 
-现阶段首选上文的 Windows 本机方案，成本为零。只有需要电脑关机后仍可访问、跨网络访问或公开分享时，才考虑一台香港或新加坡 Linux VPS：PostgreSQL 与 Redis 使用持久卷，Web 与 worker 作为两个独立的常驻进程，Next.js 前放 Nginx/Caddy 等反向代理并启用 HTTPS。2 vCPU、4 GB 内存和 40 GB 磁盘可作为以后的小规模起点，实际容量应按论文量、构建峰值和备份保留期调整。
+### 系统架构
 
-选择香港/新加坡主要是为了减少个人首发的备案步骤并兼顾国际论文来源连通性；这是工程建议，不是网络质量保证。如果服务器位于中国大陆并公开提供非经营性网站，应先按工信部要求完成备案。Docker 官方支持在单服务器上用 Compose 运行生产应用，Next.js 官方自托管说明建议在 Node 服务前使用反向代理。
+```text
+公开论文来源 / 本地公开元数据清单
+                │
+                ▼
+       Worker 采集与 AI 任务 ────── Redis / BullMQ
+                │                    可替换队列状态
+                ▼
+          PostgreSQL / Prisma
+   事实、分类、解读、阅读状态、AI 审计
+                │
+                ▼
+       Next.js Web / Today Physics
+```
 
-不建议只部署到纯静态托管或仅使用 Vercel Web 项目：本系统有服务端数据库访问和需要持续在线的 BullMQ worker。可以拆分托管，但 Web、worker、PostgreSQL 和 Redis 四个运行边界都必须存在。
+PostgreSQL 是事实来源，Redis/BullMQ 只保存可重建的运行状态。Web 与 worker 共享同一数据库和模型设置主密钥，但浏览器永远不会收到已保存的 API Key。
 
-当前是无登录的单用户应用。首次部署必须限制为本人访问，例如校园/家庭私网、VPN，或带密码/身份验证的反向代理。未增加应用认证前，不应直接暴露到公共互联网。
+### 零成本本地启动
 
-详细命令见 [个人部署与运维](docs/operations.md)。生产自托管参考：[Next.js self-hosting](https://nextjs.org/docs/app/guides/self-hosting)、[Docker Compose production](https://docs.docker.com/compose/how-tos/production/)、[工信部非经营性互联网信息服务备案管理办法](https://www.miit.gov.cn/gyhxxhb/jgsj/cyzcyfgs/bmgz/xxtxl/art/2024/art_84a0cfa0ebd049bbbe751dca9a008e56.html)。
+现阶段推荐在 Windows 电脑上本地运行，不需要购买域名或 VPS。
 
-## 你主要需要完成的事项
+前置要求：
 
-1. 决定只供本人访问，还是未来公开；公开前先实现应用认证，位于中国大陆则办理备案。
-2. 准备一台长期在线的 Linux 主机、域名和 HTTPS；不要把校园电脑直接作为公网生产服务器。
-3. 创建强 PostgreSQL 密码，设置 `DATABASE_URL`、`REDIS_URL`、每日时间/预算；在 localhost 模型管理台填写 API Key，并把数据库与仓库外主密钥分别备份。密钥不提交 Git。
-4. 按运维文档安装锁定依赖、执行 Prisma migration、启动一个 Web 和一个 worker，然后验证 live/ready、Today、兴趣、详情和阅读状态。
-5. 配置每日异机备份及恢复演练，至少保留一份可验证的 PostgreSQL dump 和校验和。
-6. 用真实公开来源做小流量试运行，核对来源配额、模型费用、队列积压和每天的失败记录。
-7. 按 [质量评审模板](docs/evaluation-rubric.md) 人工评审至少 30 篇跨方向论文；模板为空，不得把未评审内容当成结果。
+- Node.js 22 或更高版本；
+- pnpm 11.19.0；
+- PostgreSQL 17 与 Redis 7，或 Docker Compose；
+- 仅在执行真实 AI 分类/解读时需要模型 API Key。
 
-## 后续开发优先级
+从仓库根目录开始：
 
-### P0：公开部署前
+```powershell
+Copy-Item .env.example .env
+docker compose -f infra/docker-compose.yml up -d postgres redis
+pnpm install --frozen-lockfile
+pnpm --filter @pri/db prisma:generate
+pnpm --filter @pri/db prisma:deploy
+pnpm dev
+```
 
-- 增加登录/会话与 CSRF 防护，移除固定 `default` 用户假设，或明确保持单用户并由外部访问控制保护。
-- 增加可重复的 Web/worker 生产镜像或 systemd 服务文件、反向代理示例和自动化发布/回滚脚本。
-- 在隔离试运行环境中分别验证一个真实论文来源和一个真实模型 Provider；限制请求量并保留费用与失败审计。
-- 完成 30 篇人工内容质量评审，按结果校准标签、提示词和证据规则。
+请先在 `.env` 中设置专用本地数据库连接；不要提交 `.env`。打开：
 
-### P1：稳定试运行
+- 应用首页：`http://127.0.0.1:3000`
+- 模型设置：`http://127.0.0.1:3000/settings/models`
+- 存活检查：`http://127.0.0.1:3000/api/health/live`
+- 就绪检查：`http://127.0.0.1:3000/api/health/ready`
 
-- 增加 CI 门禁，自动运行 lint、typecheck、Vitest、Playwright、Prisma validate 和生产构建。
-- 增加仅面向管理员的每日任务、预算、来源失败和队列积压视图；继续使用现有结构化日志，不接入外部遥测平台。
-- 完成异机备份保留策略、定期恢复演练和发布后的首个每日任务验收。
-- 根据真实数据补充搜索、筛选、来源覆盖率和推荐反馈闭环。
+停止 Web 与 worker 使用 `Ctrl+C`；保留 PostgreSQL 数据时只停止本地依赖，不删除 Compose volume。完整说明见[个人部署与运维](docs/operations.md)。
 
-### P2：研究能力扩展
+### Kimi 模型接入
 
-- 仅在许可证和来源条款明确允许时处理开放获取全文，并继续把受限全文排除在采集和模型输入之外。
-- 增加人工校正、评审数据集版本和可重复模型比较；成本默认值应按供应商最新价格人工维护。
-- 评估多用户、向量检索或更复杂推荐前，先验证个人试运行是否持续产生研究价值。
+1. 启动 Web 与 worker 后打开 `http://127.0.0.1:3000/settings/models`。
+2. 新建一个命名连接并选择 Kimi。
+3. 根据 Moonshot AI 当前官方文档核对 Base URL、可用模型和价格。仓库默认值只是起点，不是长期价格保证。
+4. 只在本地页面粘贴 API Key；不要把 Key 写入 README、命令、聊天记录或 Git。
+5. 先执行“轻量连通测试”，再执行可能产生少量费用的“合成论文示例”。
+6. 测试通过后，将该连接设置为分类与解读的主路由。
 
-## 已知限制
+API Key 使用 AES-256-GCM 加密后保存到本地数据库，主密钥独立存放在仓库外。数据库备份与主密钥需要分别保护；丢失主密钥后，已有密文无法恢复。
 
-- 尚未创建真实云资源、域名、TLS、生产数据库或正式备份任务。
-- 尚未用真实模型 Key、真实生产来源流量或校园订阅全文执行自动流程。
-- 30 篇跨方向人工评审尚未填写。
-- 本地旧 PostgreSQL/Redis 容器仍沿用历史的全网卡端口绑定；仓库当前 Compose 已改为 loopback，重建容器后才会生效。
-- Web/worker 尚无仓库内完整生产 Dockerfile 或 systemd 单元，当前按运维文档使用 Node/pnpm 与操作系统进程管理器部署。
+### 首次三论文试运行
 
-## 文档入口
+`data/journal-corpus/manifest.json` 当前整理了 45 篇顶刊物理论文的公开元数据，PDF 仅保存在本机并由 Git 忽略。首次 Kimi 对比试运行选择三个方向清晰、体量可控的记录：
+
+| 方向 | arXiv ID | 论文 |
+|---|---|---|
+| 精密测量 | `2504.21524v1` | *Levitated Sensor for Magnetometry in Ambient Environment* |
+| 量子气体 | `2410.10611v2` | *A phase microscope for quantum gases* |
+| 核物理 | `2408.15441v2` | *Tracking the baryon number with nuclear collisions* |
+
+本轮只导入并发送公开元数据与摘要，包括标题、摘要、期刊和发表日期。导入器不读取本地 PDF 字节，模型调用不上传 PDF 全文，也不会声称已经阅读全文。
+
+试运行成功标准：
+
+- Kimi 轻量连通测试和合成论文示例通过；
+- 三篇记录幂等入库并完成物理方向分类；
+- 每篇生成带证据等级和来源引用的中文结构化解读；
+- 页面明确显示“基于摘要解读”；
+- AI 审计记录模型、Prompt 版本、Token、耗时、估算费用和真实失败状态；
+- 人工比较三篇结果，将第一次运行作为质量基线，而不是最终学术结论。
+
+语料来源、校验与许可说明见[顶刊物理论文语料](data/journal-corpus/README.md)。本轮设计见[双语 README 与 Kimi 试运行设计](docs/superpowers/specs/2026-09-01-bilingual-readme-kimi-trial-design.md)。
+
+### 数据与安全边界
+
+- 公开事实与模型解读分层保存；AI 输出不能修改来源事实。
+- 当前自动 AI 输入只包含公开元数据和摘要，不包含受限全文。
+- `data/journal-corpus/pdfs/` 与 `data/review-corpus/pdfs/` 都不得提交 Git 或从项目重新分发。
+- arXiv 文件存在不等于拥有任意再分发或外部模型处理许可；全文能力需要独立的许可证和用户授权状态。
+- 当前应用没有登录，只适合 localhost 或受保护的可信私网；不要直接暴露到公共互联网。
+- 模型调用有费用。首次真实试运行固定为三篇，并保留预算、Token 和失败审计。
+- 自动化测试全部使用 Mock Provider，不调用真实论文来源或真实模型 API。
+
+### 验证与测试
+
+常用检查：
+
+```powershell
+pnpm lint
+pnpm typecheck
+pnpm test
+pnpm test:e2e
+pnpm build
+```
+
+测试需要专用 PostgreSQL schema，不能指向个人或生产数据库。Playwright 使用本地 Mock Provider，禁止外部网络请求。执行真实 Kimi 连接和三篇论文试运行是明确的人工操作，不属于自动测试。
+
+### 已知限制
+
+- 尚未完成浏览器 PDF 上传、全文解析、段落定位、单篇对话或跨论文 RAG。
+- 尚未用真实 Kimi Key 完成首批三论文基线，本次会话将执行该试运行。
+- 30 篇跨方向人工内容质量评审仍未完成。
+- 应用是无登录单用户 MVP；公开部署前必须增加应用认证或可靠的外部访问控制。
+- 尚未提供完整的生产 Dockerfile、systemd 单元、自动发布与回滚流程。
+- 模型名称、限额和价格会变化，真实调用前必须核对供应商官方文档。
+
+### 路线图与文档
+
+近期顺序：
+
+1. 完成 Kimi 三论文摘要试运行并校准分类/解读 Prompt；
+2. 实现每日 10–15 篇选择、独立收藏状态和 30 天普通论文保留；
+3. 设计合法本地 PDF 资产边界；
+4. 实现带证据定位的单篇阅读助手；
+5. 在收藏论文上构建可重建、可评估的 RAG。
+
+文档入口：
 
 - [系统设计](docs/superpowers/specs/2026-08-27-physics-research-intelligence-design.md)
-- [事实层设计](docs/superpowers/specs/2026-08-29-paper-fact-layer-design.md)
-- [MVP 实施计划](docs/superpowers/plans/2026-08-27-physics-research-intelligence-mvp.md)
+- [模型连接管理台设计](docs/superpowers/specs/2026-08-31-model-connection-console-design.md)
+- [双语 README 与 Kimi 试运行设计](docs/superpowers/specs/2026-09-01-bilingual-readme-kimi-trial-design.md)
+- [本地论文库与 AI 阅读路线图](docs/superpowers/plans/2026-09-01-local-library-ai-reading-roadmap.md)
 - [个人部署与运维](docs/operations.md)
 - [人工质量评审](docs/evaluation-rubric.md)
+
+## English
+
+### Overview
+
+Physics Research Intelligence is a personal paper-intelligence platform for physics learning and research. It aggregates public paper facts, uses interchangeable language models for conservative classification and structured interpretation, and produces Today Physics with deterministic, explainable interest scoring.
+
+The project is currently a single-user MVP ready for local trials. Its central rule is to keep source facts, AI interpretations, and personal reading state separate: model output cannot overwrite source facts, recommendations must explain themselves, and missing or failed interpretations remain visible.
+
+### Current MVP capabilities
+
+- Public-source ingestion from Crossref, OpenAlex, and arXiv with cursors, timeouts, bounded retries, rate-limit handling, and conservative deduplication.
+- A PostgreSQL/Prisma fact layer for titles, authors, abstracts, journals, DOIs, provenance, license information, and original links.
+- AI classification and Chinese structured interpretation with evidence levels, source disclosure, budget reservation, idempotent audit records, and one primary/fallback attempt.
+- Provider adapters for OpenAI, DeepSeek, Gemini, Qwen, GLM, Kimi, Hunyuan, and generic OpenAI Chat Completions-compatible endpoints.
+- A localhost model console for encrypted named connections, lightweight health checks, synthetic-paper samples, and independent classification/interpretation routes.
+- Today Physics statistics, cross-disciplinary signals, explainable recommendations, a reading queue, paper details, and recoverable error states.
+- Interest weights and reading states such as saved, reading, complete, and not interested.
+- BullMQ-based daily ingestion, classification, budgeted interpretation, and Today preparation with timezone-aware idempotent windows.
+- Liveness/readiness checks, stable error codes, redacted structured logs, queue visibility, and recovery behavior.
+- Vitest, PostgreSQL integration tests, Playwright desktop/mobile E2E, and operational guides for startup, migrations, backup, restore, and troubleshooting.
+
+### Architecture
+
+```text
+Public paper sources / local public metadata manifest
+                         │
+                         ▼
+              Worker ingestion and AI jobs ───── Redis / BullMQ
+                         │                        replaceable queue state
+                         ▼
+                  PostgreSQL / Prisma
+       facts, classifications, interpretations,
+              reading state, and AI audits
+                         │
+                         ▼
+               Next.js Web / Today Physics
+```
+
+PostgreSQL is the source of truth. Redis and BullMQ hold replaceable operational state. Web and worker share the database and model-settings master key, but the browser never receives a saved API key.
+
+### Zero-cost local start
+
+The recommended MVP setup runs on a Windows computer and does not require a domain or VPS.
+
+Prerequisites:
+
+- Node.js 22 or newer;
+- pnpm 11.19.0;
+- PostgreSQL 17 and Redis 7, or Docker Compose;
+- an AI provider key only when running real classification or interpretation.
+
+From the repository root:
+
+```powershell
+Copy-Item .env.example .env
+docker compose -f infra/docker-compose.yml up -d postgres redis
+pnpm install --frozen-lockfile
+pnpm --filter @pri/db prisma:generate
+pnpm --filter @pri/db prisma:deploy
+pnpm dev
+```
+
+Configure a dedicated local database in `.env` before migration and never commit that file. Open:
+
+- app: `http://127.0.0.1:3000`
+- model settings: `http://127.0.0.1:3000/settings/models`
+- liveness: `http://127.0.0.1:3000/api/health/live`
+- readiness: `http://127.0.0.1:3000/api/health/ready`
+
+Stop Web and worker with `Ctrl+C`. Stop rather than remove the Compose volume when preserving local PostgreSQL data. See [Personal deployment and operations](docs/operations.md) for the full procedure.
+
+### Kimi model setup
+
+1. Start Web and worker, then open `http://127.0.0.1:3000/settings/models`.
+2. Create a named connection and choose Kimi.
+3. Check Moonshot AI's current official documentation for the base URL, available model, and current prices. Repository defaults are starting values, not permanent billing claims.
+4. Paste the API key only into the local form. Never place it in README, commands, chat, or Git.
+5. Run the lightweight connection test, followed by the synthetic-paper sample that may incur a small charge.
+6. After both pass, assign the connection as the classification and interpretation primary route.
+
+The key is encrypted with AES-256-GCM before database storage, while the master key lives outside the repository. Protect database and master-key backups separately. Existing ciphertext cannot be recovered if the master key is lost.
+
+### First three-paper trial
+
+`data/journal-corpus/manifest.json` currently describes 45 papers from leading journals using public metadata. PDFs remain local and ignored by Git. The first Kimi comparison uses:
+
+| Area | arXiv ID | Paper |
+|---|---|---|
+| Precision measurement | `2504.21524v1` | *Levitated Sensor for Magnetometry in Ambient Environment* |
+| Quantum gases | `2410.10611v2` | *A phase microscope for quantum gases* |
+| Nuclear physics | `2408.15441v2` | *Tracking the baryon number with nuclear collisions* |
+
+This trial imports and sends public metadata and abstracts only: title, abstract, journal, and publication date. The importer does not read local PDF bytes, the model request does not upload PDF full text, and the application must not claim that the full paper was read.
+
+Acceptance criteria:
+
+- Kimi's lightweight check and synthetic-paper sample pass;
+- all three records are imported idempotently and classified;
+- each paper receives a Chinese structured interpretation with evidence levels and source references;
+- the page displays the disclosure `基于摘要解读` (interpretation based on abstract);
+- AI audit records contain model, prompt version, tokens, duration, estimated cost, and truthful failures;
+- a human compares the three outputs as a first quality baseline, not a final scientific judgment.
+
+See [Journal physics corpus](data/journal-corpus/README.md) for provenance, verification, and license notes, and [Bilingual README and Kimi Trial Design](docs/superpowers/specs/2026-09-01-bilingual-readme-kimi-trial-design.md) for the approved boundary.
+
+### Data and safety boundaries
+
+- Public facts and model interpretations are stored separately; AI output cannot modify source facts.
+- Current automated model input is limited to public metadata and abstracts, not restricted full text.
+- Files under `data/journal-corpus/pdfs/` and `data/review-corpus/pdfs/` must not be committed to Git or redistributed by this project.
+- An arXiv copy does not automatically grant arbitrary redistribution or external-model processing rights. Full-text features require an explicit license and user-permission state.
+- The current app has no login and is intended for localhost or a protected trusted network. Do not expose it directly to the public internet.
+- Model calls cost money. The first real trial is bounded to three papers and retains budget, token, and failure audits.
+- Automated tests use mock providers and do not call real paper sources or real AI APIs.
+
+### Verification and tests
+
+Common checks:
+
+```powershell
+pnpm lint
+pnpm typecheck
+pnpm test
+pnpm test:e2e
+pnpm build
+```
+
+Tests require a dedicated PostgreSQL schema and must never target personal or production data. Playwright uses a local mock provider and blocks external network requests. Real Kimi connection checks and the three-paper run are explicit human operations, not automated tests.
+
+### Known limitations
+
+- Browser PDF upload, full-text extraction, section locators, one-paper chat, and cross-paper RAG are not implemented.
+- The first three-paper baseline has not yet been run with a real Kimi key; this guided session will perform it.
+- The 30-paper cross-disciplinary human quality evaluation is incomplete.
+- This is an unauthenticated single-user MVP. Public deployment requires application authentication or reliable external access control.
+- The repository does not yet contain complete production Dockerfiles, systemd units, or automated release and rollback workflows.
+- Provider models, limits, and prices change; verify them against official documentation before real calls.
+
+### Roadmap and documentation
+
+Near-term order:
+
+1. complete the Kimi three-paper abstract trial and calibrate the classification/interpretation prompts;
+2. add a daily 10–15 paper selection, independent favorites, and 30-day retention for ordinary papers;
+3. design a lawful local PDF asset boundary;
+4. implement a one-paper reading assistant with evidence locators;
+5. build a reproducible and evaluated RAG layer over favorite papers.
+
+Documentation:
+
+- [System design](docs/superpowers/specs/2026-08-27-physics-research-intelligence-design.md)
+- [Model connection console design](docs/superpowers/specs/2026-08-31-model-connection-console-design.md)
+- [Bilingual README and Kimi trial design](docs/superpowers/specs/2026-09-01-bilingual-readme-kimi-trial-design.md)
+- [Local library and AI reading roadmap](docs/superpowers/plans/2026-09-01-local-library-ai-reading-roadmap.md)
+- [Personal deployment and operations](docs/operations.md)
+- [Human evaluation rubric](docs/evaluation-rubric.md)
