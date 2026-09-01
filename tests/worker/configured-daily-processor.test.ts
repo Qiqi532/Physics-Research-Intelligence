@@ -39,7 +39,10 @@ vi.mock("../../apps/worker/src/jobs/interpret-paper", () => ({
   interpretPaper: mocks.interpretPaper,
 }));
 
-import { createConfiguredDailyProcessor } from "../../apps/worker/src/configured-daily-processor";
+import {
+  createConfiguredDailyProcessor,
+  retentionCutoffAt,
+} from "../../apps/worker/src/configured-daily-processor";
 
 describe("configured daily processor runtime routing", () => {
   beforeEach(() => {
@@ -82,6 +85,36 @@ describe("configured daily processor runtime routing", () => {
     expect(mocks.classifyPaper.mock.calls[2]![0].primary.model).toBe("model-b-classify");
     expect(mocks.classifyPaper.mock.calls[0]![0].prices.kimi.inputCostPerMillionUsd).toBe(1);
     expect(mocks.interpretPaper.mock.calls[0]![0].prices.kimi.inputCostPerMillionUsd).toBe(7);
+  });
+
+  it("wires a retention-based pruneExpired step into the daily pipeline", async () => {
+    const processor = createConfiguredDailyProcessor(config(), {
+      resolver: {
+        resolve: vi.fn().mockResolvedValue(snapshot("model-a")),
+      },
+      createProvider: vi.fn(() => ({
+        name: "kimi",
+        model: "model-a",
+        classify: vi.fn(),
+        interpret: vi.fn(),
+        healthCheck: vi.fn(),
+      })),
+    });
+
+    const result = await processor.process();
+    await processor.close();
+
+    const deps = mocks.runDailyPipeline.mock.calls[0]![0];
+    expect(typeof deps.pruneExpired).toBe("function");
+    expect(typeof deps.prepareToday).toBe("function");
+    expect(typeof deps.listInterpretationPaperIds).toBe("function");
+    expect(result).toEqual(expect.objectContaining({ status: "complete" }));
+  });
+
+  it("derives the retention cutoff from a stable number of days", () => {
+    const until = new Date("2026-08-30T06:00:00.000Z");
+    expect(retentionCutoffAt(until, 30)).toEqual(new Date("2026-07-31T06:00:00.000Z"));
+    expect(retentionCutoffAt(until, 0)).toEqual(until);
   });
 });
 

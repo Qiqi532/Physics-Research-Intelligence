@@ -14,6 +14,10 @@ type DailyPipelineDependencies = {
   listInterpretationPaperIds(window: DailyWindow): Promise<string[]>;
   interpret(paperId: string): Promise<InterpretationStatus>;
   prepareToday(window: DailyWindow): Promise<{ recommendations: number }>;
+  pruneExpired(window: DailyWindow): Promise<
+    | { status: "ok"; deleted: number }
+    | { status: "failed"; errorCode: string }
+  >;
 };
 
 export type DailyPipelineResult = {
@@ -33,6 +37,7 @@ export type DailyPipelineResult = {
     skippedBudget: number;
   };
   recommendations: number;
+  cleanup: { status: "ok"; deleted: number } | { status: "failed"; errorCode: string };
 };
 
 export async function runDailyPipeline(
@@ -86,11 +91,18 @@ export async function runDailyPipeline(
     }
   }
   const today = await dependencies.prepareToday(dependencies.window);
+  let cleanup: DailyPipelineResult["cleanup"];
+  try {
+    cleanup = await dependencies.pruneExpired(dependencies.window);
+  } catch {
+    cleanup = { status: "failed", errorCode: "retention_cleanup_failed" };
+  }
   return {
     windowKey: dependencies.window.key,
     ingestedRecords: ingestion.records,
     classification,
     interpretation,
     recommendations: today.recommendations,
+    cleanup,
   };
 }

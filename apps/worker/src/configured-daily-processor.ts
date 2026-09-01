@@ -96,6 +96,10 @@ export function perDirectionCapFor(maxCount: number): number {
   return Math.max(1, Math.ceil(maxCount / 3));
 }
 
+export function retentionCutoffAt(until: Date, retentionDays: number): Date {
+  return new Date(until.getTime() - retentionDays * 24 * 60 * 60 * 1_000);
+}
+
 export function createConfiguredDailyProcessor(
   config: ServerConfig,
   options: {
@@ -216,6 +220,16 @@ export function createConfiguredDailyProcessor(
           });
           return { recommendations: today.recommendations.length };
         },
+        async pruneExpired(input) {
+          try {
+            const cutoff = retentionCutoffAt(input.until, config.PAPER_RETENTION_DAYS);
+            const outcome = await paperRepository.pruneExpiredPapers({ cutoff });
+            return { status: "ok", deleted: outcome.deleted };
+          } catch {
+            return { status: "failed", errorCode: "retention_cleanup_failed" };
+          }
+        },
+
       });
     },
     close: () => client.$disconnect(),

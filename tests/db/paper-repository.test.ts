@@ -20,10 +20,12 @@ describeDatabase("PostgreSQL paper repository", () => {
 
   beforeEach(async () => {
     await client.paper.deleteMany();
+    await client.aiRun.deleteMany();
   });
 
   afterAll(async () => {
     await client.paper.deleteMany();
+    await client.aiRun.deleteMany();
     await client.$disconnect();
   });
 
@@ -163,6 +165,211 @@ describeDatabase("PostgreSQL paper repository", () => {
       "2026-08-29T00:00:00.000Z",
     );
   });
+  it("prunes only papers older than the cutoff at the exact boundary", async () => {
+    const cutoff = new Date("2026-08-30T00:00:00.000Z");
+    const old = await client.paper.create({
+      data: {
+        title: "Expired paper",
+        normalizedTitle: "expired paper",
+        createdAt: new Date("2026-07-01T00:00:00.000Z"),
+      },
+    });
+    const atBoundary = await client.paper.create({
+      data: {
+        title: "At boundary paper",
+        normalizedTitle: "at boundary paper",
+        createdAt: cutoff,
+      },
+    });
+    const fresh = await client.paper.create({
+      data: {
+        title: "Fresh paper",
+        normalizedTitle: "fresh paper",
+        createdAt: new Date("2026-09-01T00:00:00.000Z"),
+      },
+    });
+
+    const outcome = await repository.pruneExpiredPapers({ cutoff });
+
+    expect(outcome).toEqual({ deleted: 1 });
+    expect(await client.paper.findUnique({ where: { id: old.id } })).toBeNull();
+    expect(await client.paper.findUnique({ where: { id: atBoundary.id } })).not.toBeNull();
+    expect(await client.paper.findUnique({ where: { id: fresh.id } })).not.toBeNull();
+  });
+
+  it("preserves favorited papers and prunes non-favorites past the cutoff", async () => {
+    const cutoff = new Date("2026-08-30T00:00:00.000Z");
+    const favorite = await client.paper.create({
+      data: {
+        title: "Favorite paper",
+        normalizedTitle: "favorite paper",
+        createdAt: new Date("2026-07-01T00:00:00.000Z"),
+        userStates: {
+          create: {
+            userId: "default",
+            status: "SAVED",
+            isFavorite: true,
+            favoritedAt: new Date("2026-08-01T00:00:00.000Z"),
+          },
+        },
+      },
+    });
+    const plain = await client.paper.create({
+      data: {
+        title: "Plain expired paper",
+        normalizedTitle: "plain expired paper",
+        createdAt: new Date("2026-07-02T00:00:00.000Z"),
+      },
+    });
+
+    const outcome = await repository.pruneExpiredPapers({ cutoff });
+
+    expect(outcome).toEqual({ deleted: 1 });
+    expect(await client.paper.findUnique({ where: { id: favorite.id } })).not.toBeNull();
+    expect(await client.paper.findUnique({ where: { id: plain.id } })).toBeNull();
+  });
+
+  it("cascades cleanup through dependent records and nulls AiRun paper ids", async () => {
+    await syncPhysicsTags(client);
+    const cutoff = new Date("2026-08-30T00:00:00.000Z");
+    const paper = await client.paper.create({
+      data: {
+        title: "Cascading paper",
+        normalizedTitle: "cascading paper",
+        createdAt: new Date("2026-07-01T00:00:00.000Z"),
+        sources: {
+          create: {
+            sourceName: "arxiv",
+            sourceRecordId: "cascade-source",
+            sourceUrl: "https://example.test/cascade",
+            retrievedAt: new Date("2026-07-01T00:00:00.000Z"),
+            title: "Cascading paper",
+          },
+        },
+        classifications: {
+          create: {
+            tagSlug: "amo-optics",
+            relevance: 0.8,
+            reason: "Cascade.",
+            model: "fixture-model",
+            promptVersion: "classify-v1",
+          },
+        },
+        interpretations: {
+          create: {
+            content: { basis: "abstract_only" },
+            status: "COMPLETE",
+            provider: "fixture-provider",
+            model: "fixture-model",
+            promptVersion: "interpret-v1",
+          },
+        },
+        userStates: {
+          create: {
+            userId: "default",
+            status: "READING",
+            feedback: "LIKE",
+          },
+        },
+      },
+    });
+    const aiRun = await client.aiRun.create({
+      data: {
+        paperId: paper.id,
+        runType: "CLASSIFY",
+        idempotencyKey: "cascade-run",
+        provider: "fixture-provider",
+        model: "fixture-model",
+        promptVersion: "classify-v1",
+        inputHash: "cascade-hash",
+        status: "COMPLETE",
+        attempts: {
+          create: {
+            ordinal: 1,
+            provider: "fixture-provider",
+            model: "fixture-model",
+            inputTokens: 10,
+            outputTokens: 10,
+            totalTokens: 20,
+            durationMs: 5,
+            status: "COMPLETE",
+            estimatedCostUsd: 0,
+            completedAt: new Date("2026-07-01T00:00:00.000Z"),
+          },
+        },
+      },
+    });
+
+    const outcome = await repository.pruneExpiredPapers({ cutoff });
+
+    expect(outcome).toEqual({ deleted: 1 });
+    expect(await client.paper.count()).toBe(0);
+    expect(await client.paperSource.count()).toBe(0);
+    expect(await client.paperClassification.count()).toBe(0);
+    expect(await client.paperInterpretation.count()).toBe(0);
+    expect(await client.userPaperState.count()).toBe(0);
+    const storedRun = await client.aiRun.findUnique({ where: { id: aiRun.id } });
+    expect(storedRun?.paperId).toBeNull();
+    expect(await client.aiRunAttempt.count()).toBe(1);
+  });
+
+  it("prunes a paper once its favorite is removed", async () => {
+    const cutoff = new Date("2026-08-30T00:00:00.000Z");
+    const paper = await client.paper.create({
+      data: {
+        title: "Was favorite paper",
+        normalizedTitle: "was favorite paper",
+        createdAt: new Date("2026-07-01T00:00:00.000Z"),
+      },
+    });
+    await client.userPaperState.create({
+      data: { userId: "default", paperId: paper.id, isFavorite: true },
+    });
+
+    await repository.pruneExpiredPapers({ cutoff });
+    expect(await client.paper.findUnique({ where: { id: paper.id } })).not.toBeNull();
+
+    await client.userPaperState.update({
+      where: { userId_paperId: { userId: "default", paperId: paper.id } },
+      data: { isFavorite: false, favoritedAt: null },
+    });
+    const outcome = await repository.pruneExpiredPapers({ cutoff });
+
+    expect(outcome).toEqual({ deleted: 1 });
+    expect(await client.paper.findUnique({ where: { id: paper.id } })).toBeNull();
+  });
+
+  it("converges across two cleanup executions in the same window", async () => {
+    const cutoff = new Date("2026-08-30T00:00:00.000Z");
+    for (const record of ["converge-1", "converge-2"]) {
+      await client.paper.create({
+        data: {
+          title: `Converge ${record}`,
+          normalizedTitle: `converge ${record}`,
+          createdAt: new Date("2026-07-01T00:00:00.000Z"),
+        },
+      });
+    }
+    const favorite = await client.paper.create({
+      data: {
+        title: "Converge favorite",
+        normalizedTitle: "converge favorite",
+        createdAt: new Date("2026-07-01T00:00:00.000Z"),
+        userStates: {
+          create: { userId: "default", isFavorite: true },
+        },
+      },
+    });
+
+    const first = await repository.pruneExpiredPapers({ cutoff });
+    const second = await repository.pruneExpiredPapers({ cutoff });
+
+    expect(first).toEqual({ deleted: 2 });
+    expect(second).toEqual({ deleted: 0 });
+    expect(await client.paper.count()).toBe(1);
+    expect(await client.paper.findUnique({ where: { id: favorite.id } })).not.toBeNull();
+  });
+
 });
 
 function sourceInput(

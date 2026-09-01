@@ -74,6 +74,7 @@ export interface PaperRepository {
   }>;
   list(input: { limit: number; cursor?: string }): Promise<PaperPage>;
   findByDoi(doi: string, userId?: string): Promise<PaperDetails | null>;
+  pruneExpiredPapers(input: { cutoff: Date }): Promise<{ deleted: number }>;
 }
 
 export function createPaperRepository(client: DatabaseClient): PaperRepository {
@@ -208,6 +209,16 @@ export function createPaperRepository(client: DatabaseClient): PaperRepository {
         interpretation: paper.interpretations[0] ?? null,
         userState: paper.userStates[0] ?? null,
       };
+    },
+
+    async pruneExpiredPapers({ cutoff }) {
+      const result = await client.paper.deleteMany({
+        where: {
+          createdAt: { lt: cutoff },
+          userStates: { none: { isFavorite: true } },
+        },
+      });
+      return { deleted: result.count };
     },
   };
 }
