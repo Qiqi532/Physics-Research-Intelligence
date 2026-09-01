@@ -1,0 +1,1334 @@
+[
+  {
+    "arxiv_id": "2408.15441v2",
+    "journal": "Science",
+    "title": "Tracking the baryon number with nuclear collisions",
+    "journal_ref": null,
+    "doi": "10.1126/science.ads5962",
+    "published": "2024-08-27T23:23:35Z",
+    "authors": [
+      "STAR Collaboration"
+    ],
+    "primary_category": "nucl-ex",
+    "categories": [
+      "nucl-ex",
+      "hep-ex"
+    ],
+    "abstract": "Baryon quantum number is believed to be conserved since baryogenesis in the early Universe. While fractionally charged valence quarks are understood conventionally to each carry a baryon number of 1/3, the baryon junction, a non-perturbative Y-shaped topology of neutral gluons, has also been proposed as an alternative entity tracing the baryon number. Neither scenario has been verified experimentally. The STAR Collaboration reports measurements at mid-rapidity of baryon number ($\\boldsymbol{B}$) over the electric charge number difference ($\\boldsymbol{ΔQ}$) in isobar nuclear collisions, and the net-proton yield along rapidity in photonuclear collisions. A larger $\\boldsymbol{B/ΔQ}$ ratio and less asymmetric net-proton yield are observed than predicted from models assigning baryon number to",
+    "pdf_file": "2408.15441v2.pdf",
+    "pdf_size": 3201480,
+    "pdf_sha256": "987bfc792d43130b1c77f8622cf5761971a2b755fda6e124d22e46686e7d5d8f",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2504.21524v1",
+    "journal": "Science",
+    "title": "Levitated Sensor for Magnetometry in Ambient Environment",
+    "journal_ref": null,
+    "doi": "10.1126/science.adx1707",
+    "published": "2025-04-30T11:18:46Z",
+    "authors": [
+      "Wei Ji",
+      "Changhao Xu",
+      "Guofeng Qu",
+      "Dmitry Budker"
+    ],
+    "primary_category": "physics.ins-det",
+    "categories": [
+      "physics.ins-det"
+    ],
+    "abstract": "Levitated particle systems have gained significant attention as a rapidly advancing platform for precision sensing, offering low-loss, highly isolated environments by eliminating mechanical contact and associated noise. Current room-temperature levitation techniques are primarily sensitive to acceleration, with magnetic sensing often relying on the Meissner effect, which is impractical under ambient conditions. Here, we demonstrate a diamagnetically stabilized magnetically levitated magnet magnetometer (LeMaMa), where the motion of the magnet is detected optically. Leveraging strong spin-lattice coupling in the ferromagnet to suppress spin-projection noise and minimizing dissipation through levitation, we achieve a sensitivity of 32 fT $/Hz^{1/2}$. This sensitivity is adequate for a wide r",
+    "pdf_file": "2504.21524v1.pdf",
+    "pdf_size": 409709,
+    "pdf_sha256": "e869e71170e05fdedb14e3b6aefcfb491e13d8eff108147c4907997662e24c47",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2410.10611v2",
+    "journal": "Science",
+    "title": "A phase microscope for quantum gases",
+    "journal_ref": "Science 393, 167 (2026)",
+    "doi": "10.1126/science.adt1712",
+    "published": "2024-10-14T15:17:45Z",
+    "authors": [
+      "Justus C. Brüggenjürgen",
+      "Mathis S. Fischer",
+      "Christof Weitenberg"
+    ],
+    "primary_category": "cond-mat.quant-gas",
+    "categories": [
+      "cond-mat.quant-gas",
+      "cond-mat.stat-mech",
+      "quant-ph"
+    ],
+    "abstract": "Coherence properties are central to quantum systems and are at the heart of phenomena such as superconductivity. Here we study coherence properties of an ultracold Bose gas in a two-dimensional optical lattice across the thermal phase transition. To infer the phase coherence and phase fluctuation profile, we use direct matter-wave imaging of higher Talbot revivals as well as a new phase microscope based on a site-resolved mapping of phase fluctuations to density fluctuations during matter-wave imaging. We observe the algebraic decay of the phase correlations in the superfluid phase and a linear temperature increase of the exponent. These techniques will also allow studying coherence properties in strongly-correlated quantum systems with full spatial resolution.",
+    "pdf_file": "2410.10611v2.pdf",
+    "pdf_size": 3493364,
+    "pdf_sha256": "a9485d0d62a91ff864149d5d077d906936a4dd4b51ade4634e1931df3a4786eb",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2508.08368v2",
+    "journal": "Science",
+    "title": "Production and spectroscopy of cold radioactive molecules",
+    "journal_ref": "Science 393, 319 (2026)",
+    "doi": "10.1126/science.aea9413",
+    "published": "2025-08-11T18:00:11Z",
+    "authors": [
+      "Chandler J. Conn",
+      "Phelan Yu",
+      "Madison I. Howard",
+      "Yuxi Yang",
+      "Chaoqun Zhang",
+      "Arian Jadbabaie",
+      "Aikaterini Gorou",
+      "Alyssa N. Gaiser",
+      "Timothy C. Steimle",
+      "Lan Cheng",
+      "Nicholas R. Hutzler"
+    ],
+    "primary_category": "physics.atom-ph",
+    "categories": [
+      "physics.atom-ph",
+      "nucl-ex",
+      "physics.chem-ph"
+    ],
+    "abstract": "Molecules with heavy, radioactive nuclei promise extreme sensitivity to fundamental nuclear and particle physics. However, these nuclei are available in limited quantities, which challenges their use in precision measurements. Here we demonstrate the gas-phase synthesis, cryogenic cooling, and high-resolution laser spectroscopy of radium monohydroxide, monodeuteroxide, and monofluoride molecules ($^{226}$RaOH, $^{226}$RaOD, and $^{226}$RaF) in a tabletop apparatus by combining novel radioactive target production protocols, optically driven chemistry in a cryogenic buffer gas, and low-background spectroscopic detection methods. The molecules are cooled in the lab frame, creating conditions that are the same starting points as many current molecular precision measurement and quantum informat",
+    "pdf_file": "2508.08368v2.pdf",
+    "pdf_size": 8919729,
+    "pdf_sha256": "4f001e8f86da3aea84c1d6260cadecf3af0eb21f155d5864e3e3f438216e071e",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2607.14326v1",
+    "journal": "Science",
+    "title": "Helium escaping from the atmosphere of a nearby rocky exoplanet orbiting in a habitable zone",
+    "journal_ref": null,
+    "doi": "10.1126/science.aea9708",
+    "published": "2026-07-15T19:45:28Z",
+    "authors": [
+      "Collin Cherubim",
+      "Shreyas Vissapragada",
+      "Tim Cunningham",
+      "Annabella G. Meech",
+      "David Charbonneau",
+      "Robin Wordsworth",
+      "Aaron Householder",
+      "Johanna Teske",
+      "Leonardo A. Dos Santos",
+      "Nicole L. Wallack",
+      "William Misener",
+      "Zifan Lin"
+    ],
+    "primary_category": "astro-ph.EP",
+    "categories": [
+      "astro-ph.EP"
+    ],
+    "abstract": "Observations of highly irradiated gas giant exoplanets have shown helium escaping from their atmospheres. There is limited evidence for atmospheres on rocky exoplanets, perhaps because they have already escaped. We report spectroscopic observations of LHS 1140b, a rocky exoplanet that orbits in the habitable zone of a nearby low-mass star. The near-infrared transit spectra show absorption by helium escaping from the planet's atmosphere. Helium absorption is detected in 2024 but not in 2025, indicating time-variable atmospheric escape. We interpret these results as indicating an upper atmosphere dominated by helium and depleted in hydrogen, with other volatile species trapped at lower altitudes, consistent with atmospheric fractionation models. No helium absorption is detected for LHS 1140c",
+    "pdf_file": "2607.14326v1.pdf",
+    "pdf_size": 4093108,
+    "pdf_sha256": "4b31c887abfcb484d60c1412204ebe5a1f7e210f940b332c7bc39e7716257542",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2503.04621v2",
+    "journal": "Science",
+    "title": "Surface-dominant transport in Weyl semimetal NbAs nanowires for next-generation interconnects",
+    "journal_ref": null,
+    "doi": "10.1126/science.adx3027",
+    "published": "2025-03-06T17:07:01Z",
+    "authors": [
+      "Yeryun Cheon",
+      "Mehrdad T. Kiani",
+      "Yi-Hsin Tu",
+      "Sushant Kumar",
+      "Nghiep Khoan Duong",
+      "Jiyoung Kim",
+      "Quynh P. Sam",
+      "Han Wang",
+      "Satya K. Kushwaha",
+      "Nicolas Ng",
+      "Seng Huat Lee",
+      "Sam Kielar"
+    ],
+    "primary_category": "cond-mat.mes-hall",
+    "categories": [
+      "cond-mat.mes-hall",
+      "cond-mat.mtrl-sci",
+      "physics.app-ph"
+    ],
+    "abstract": "Ongoing demands for smaller and more energy efficient electronic devices necessitate alternative interconnect materials with lower electrical resistivity at reduced dimensions. Despite the emergence of many promising candidates, synthesizing high quality nanostructures remains a major bottleneck in evaluating their performance. Here, we report the successful synthesis of Weyl semimetal NbAs nanowires via thermomechanical nanomolding, achieving single crystallinity and controlled diameters as small as 40 nm. Our NbAs nanowires exhibit a remarkably low room-temperature resistivity of 9.7 +/- 1.6 microOhm-cm, which is three to four times lower than their bulk counterpart. Theoretical calculations corroborate the experimental observations, attributing this exceptional resistivity reduction to ",
+    "pdf_file": "2503.04621v2.pdf",
+    "pdf_size": 994375,
+    "pdf_sha256": "f653e0fe1631d460fc13fe6c778a223150eaa39f6a1d9360726dce282b8c0f01",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2506.16346v2",
+    "journal": "Science",
+    "title": "Preferred Synthesis of Armchair Transition Metal Dichalcogenide Nanotubes",
+    "journal_ref": null,
+    "doi": "10.1126/science.aeh1429",
+    "published": "2025-06-19T14:23:23Z",
+    "authors": [
+      "Abid",
+      "Luneng Zhao",
+      "Ju Huang",
+      "Yongjia Zheng",
+      "Yuta Sato",
+      "Tianyu Wang",
+      "Dmitry Levshov",
+      "Lingfeng Wang",
+      "Qingyun Lin",
+      "Zhen Han",
+      "Chunxia Yang",
+      "Bill Herve Nduwarugira"
+    ],
+    "primary_category": "cond-mat.mtrl-sci",
+    "categories": [
+      "cond-mat.mtrl-sci",
+      "physics.app-ph"
+    ],
+    "abstract": "In this work, we present the synthesis of transition-metal dichalcogenide (TMDC) nanotubes with a preferred chiral angle. SnS2, MoS2, and WS2 are formed with high yield and structural purity inside the channels of boron nitride nanotubes. Atomic-resolution imaging, nano-area electron diffraction, and Circular Dichroism spectroscopy reveal that these synthesized TMDC nanotubes prefer to have an armchair configuration, with a probability up to 84%. Density functional theory reveals a negligible difference in the formation energy between armchair and zigzag nanotubes, suggesting that the chirality preference does not originate from the differences in structural stability. However, a detailed TEM investigation revealed that these TMDC nanotubes formed via a transition state of nanoribbons, and",
+    "pdf_file": "2506.16346v2.pdf",
+    "pdf_size": 1703983,
+    "pdf_sha256": "611af1af60c19be2d3a25652b05d5daf5db00ad6e4ad199786cc57fafcf6282b",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2606.18410v1",
+    "journal": "Science",
+    "title": "Super-earths and mini-neptunes follow different orbital period-eccentricity relations",
+    "journal_ref": "Science 392,1167-1170(2026)",
+    "doi": "10.1126/science.adu3916",
+    "published": "2026-06-16T19:04:42Z",
+    "authors": [
+      "Ke-Ting Shin",
+      "Dong-Sheng An",
+      "Ji-Wei Xie",
+      "Ji-Lin Zhou",
+      "Fei Dai"
+    ],
+    "primary_category": "astro-ph.EP",
+    "categories": [
+      "astro-ph.EP"
+    ],
+    "abstract": "Many exoplanets have been observed with radius sizes between that of Earth and that of Neptune and are thus classified into two groups: super-earths (SEs) and mini-neptunes (MNs). There are no SEs and MNs in the Solar System, and the mechanisms responsible for their formation and evolution are debated. We investigate the relationships between the orbital period and eccentricity of SEs and MNs using both ensemble analyses and individual measurements. We found that MNs follow an anti-correlation between orbital period and eccentricity, but SEs follow a different relation, possibly in the opposit",
+    "pdf_file": "2606.18410v1.pdf",
+    "pdf_size": 12232332,
+    "pdf_sha256": "8ed0b82f9aca02b8aaec20430c07fe2fe9d27d7176e7adccba7a7d69633e38d4",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2605.02590v1",
+    "journal": "Science",
+    "title": "Shape anisotropy governs organization of active rods: Swarming, turbulence, flocking, and jamming",
+    "journal_ref": "Science 392, 202-206 (2026)",
+    "doi": "10.1126/science.ady7618",
+    "published": "2026-05-04T13:37:45Z",
+    "authors": [
+      "Yogesh Shelke",
+      "Anpuj Nair S",
+      "Hanumantha Rao Vutukuri"
+    ],
+    "primary_category": "cond-mat.soft",
+    "categories": [
+      "cond-mat.soft",
+      "physics.bio-ph"
+    ],
+    "abstract": "Shape anisotropy of individual building blocks plays a crucial role in creating exotic structures and controlling phase behavior in equilibrium systems. We present a combined experimental and simulation study in which we used light-driven self-propelled rods to investigate when and how shape-induced alignment and steric and hydrodynamic interactions govern self-organization. Varying rod aspect ratio and area fraction causes the system to evolve from active Brownian motion to swarming, active turbulence, flocking, large clusters, and jamming. A state diagram summarizes emergent behaviors, and s",
+    "pdf_file": "2605.02590v1.pdf",
+    "pdf_size": 39667638,
+    "pdf_sha256": "f9589cd53237264d5d406f1ed2680065bc15da3c64cf5e93fcc72eb2516b1a97",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2608.17627v1",
+    "journal": "Physical Review Letters",
+    "title": "Quantized Spin Hall Effect in Three-Dimensional Nodal-Ring Semimetal: Geometric Scaling and Symmetry-Engineered Spin Response",
+    "journal_ref": "Physical Review Letters 137, 086301 (2026)",
+    "doi": "10.1103/74ky-d71n",
+    "published": "2026-08-18T10:43:42Z",
+    "authors": [
+      "Jiali Chen",
+      "Chaoxi Cui",
+      "Zhi-Ming Yu",
+      "Wei Jiang",
+      "Yugui Yao"
+    ],
+    "primary_category": "cond-mat.mtrl-sci",
+    "categories": [
+      "cond-mat.mtrl-sci"
+    ],
+    "abstract": "The anomalous Hall conductivity in magnetic Weyl semimetals scales linearly with the momentum separation between Weyl nodes, establishing a geometric paradigm for three-dimensional Hall responses. Here we discover an analogous phenomenon in the spin Hall effect: a quantized spin Hall conductivity (SHC) in nodal-ring semimetals that scales linearly with the nodal-ring radius $R$. From an ideal model with a single nodal ring, we derive analytically that the SHC inside the spin-orbit-coupled gap obeys $σ_{αβ}^{S, 3D}=σ_0^{S,2D} \\cdot (πR/2 π)$, where $σ_0^{S,2D}=(e^2/h) \\cdot (\\hbar/2 e)$ is the ",
+    "pdf_file": "2608.17627v1.pdf",
+    "pdf_size": 5315030,
+    "pdf_sha256": "b88ce0ab911d7d6c26c9db801b719b180a2393c39ea2ac8e8dfbe8ea9f13fae0",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2602.22028v1",
+    "journal": "Physical Review Letters",
+    "title": "XY Model with Persistent Noise",
+    "journal_ref": "Physical Review Letters 136, 088302 (2026)",
+    "doi": "10.1103/1zk4-gx9x",
+    "published": "2026-02-25T15:34:32Z",
+    "authors": [
+      "Xia-qing Shi",
+      "Hugues Chaté",
+      "Benoît Mahault"
+    ],
+    "primary_category": "cond-mat.stat-mech",
+    "categories": [
+      "cond-mat.stat-mech",
+      "cond-mat.soft"
+    ],
+    "abstract": "We consider a 2D XY model subjected to time-correlated noise, a model of direct relevance to active crystals, which were shown recently to be able to support very large deformations without melting in the presence of persistent fluctuations. We find that our persistent XY model can remain quasi-ordered in spite of correlations decaying much faster than allowed in equilibrium. We then investigate theoretically and numerically the order-disorder transition and conclude that it remains of the Berezinskii-Kosterlitz-Thouless type, but with scaling exponents that vary with the persistence time of t",
+    "pdf_file": "2602.22028v1.pdf",
+    "pdf_size": 681087,
+    "pdf_sha256": "06a7bf3d5e23d977db9a976202244a439e955c99e3176de2dbd6a4f3a49eede3",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2607.00287v1",
+    "journal": "Physical Review Letters",
+    "title": "Improved Particle Confinement with Resonant Magnetic Perturbations in DIII-D Tokamak H-Mode Plasmas",
+    "journal_ref": "Physical Review Letters 129, 205001 (2022)",
+    "doi": "10.1103/PhysRevLett.129.205001",
+    "published": "2026-07-01T00:30:33Z",
+    "authors": [
+      "N. C. Logan",
+      "Q. Hu",
+      "C. Paz-Soldan",
+      "R. Nazikian",
+      "T. Rhodes",
+      "T. Wilks",
+      "S. Munaretto",
+      "A. Bortolon",
+      "F. Laggner",
+      "F. Scotti",
+      "R. Hong",
+      "H. Wang"
+    ],
+    "primary_category": "physics.plasm-ph",
+    "categories": [
+      "physics.plasm-ph"
+    ],
+    "abstract": "Experiments on the DIII-D tokamak have identified a novel regime in which applied resonant magnetic perturbations (RMPs) increase the particle confinement and overall performance. This Letter details a robust range of counter-current rotation over which RMPs cause this density pump-in effect for high confinement (H mode) plasmas. The pump in is shown to be caused by a reduction of the turbulent transport and to be correlated with a change in the sign of the induced neoclassical transport. This novel reversal of the RMP induced transport has the potential to significantly improve reactor releva",
+    "pdf_file": "2607.00287v1.pdf",
+    "pdf_size": 1223525,
+    "pdf_sha256": "dee6aad227ff417b6c753fccaca3b6a9c11d239ac2ad5ef1efdcd09dd23e6bff",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2606.21149v1",
+    "journal": "Physical Review Letters",
+    "title": "Room-Temperature Noncolinear Ferroelectricity in van der Waals WO$_2$Cl$_2$ with a Wide Bandgap",
+    "journal_ref": "Physical Review Letters 137, 086801 (2026)",
+    "doi": "10.1103/zjyw-z6s6",
+    "published": "2026-06-19T06:39:00Z",
+    "authors": [
+      "Yu Xing",
+      "Ning Ding",
+      "Zhipeng Wang",
+      "Zhiwen Pan",
+      "Lei Guo",
+      "Guowei Du",
+      "Yangrui Liu",
+      "Xiaoxing Cao",
+      "Ran Su",
+      "Mengting Jiang",
+      "Xuezhi Ma",
+      "Xiyu Chen"
+    ],
+    "primary_category": "cond-mat.mtrl-sci",
+    "categories": [
+      "cond-mat.mtrl-sci",
+      "cond-mat.mes-hall"
+    ],
+    "abstract": "Low-dimensional ferroelectrics are attractive for their promising prospects in nanoelectronics. Compared with widely-used ferroelectric perovskites, most low-dimensional ferroelectrics exhibit several inborn weaknesses such as small bandgaps (mostly <2 eV, i.e. semiconductors-like) or faint polarizations (e.g. $<1$ $μ$C/cm$^2$ for sliding ferroelectrics even if their bandgaps can be large). Here we experimentally demonstrate the room-temperature ferroelectricity of van der Waals WO$_2$Cl$_2$ . The well-tested d0 rule inherited from ferroelectric perovskites leads to a large dipole (~3 eÅ) from",
+    "pdf_file": "2606.21149v1.pdf",
+    "pdf_size": 2567141,
+    "pdf_sha256": "7b56ae2cbe3d31a826dad634e296b620f5ac7d4c44914e26dbc8bcbc3fec18cf",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2604.21383v1",
+    "journal": "Physical Review Letters",
+    "title": "Analytic Inverse Design of Temporal Metamaterials via Space-Time Duality",
+    "journal_ref": "Physical Review Letters, vol. 136, no. 20, 206901, 2026",
+    "doi": "10.1103/wmlj-gffb",
+    "published": "2026-04-23T07:52:16Z",
+    "authors": [
+      "Giuseppe Castaldi",
+      "Marino Coppolaro",
+      "Massimo Moccia",
+      "Carlo Rizza",
+      "Nader Engheta",
+      "Vincenzo Galdi"
+    ],
+    "primary_category": "physics.optics",
+    "categories": [
+      "physics.optics",
+      "cond-mat.mtrl-sci"
+    ],
+    "abstract": "Temporal metamaterials, created by modulating the refractive index in time, offer powerful means of controlling wave propagation but still lack a systematic design methodology. Here, we develop an analytic inverse-design framework rooted in space-time duality and the established theory of one-dimensional spatial inverse scattering. By prescribing reflection (backward-wave) and transmission (forward-wave) responses in rational-function form, we obtain closed-form refractive-index modulations that are guaranteed to be physically admissible. This approach avoids iterative optimization and provide",
+    "pdf_file": "2604.21383v1.pdf",
+    "pdf_size": 1024928,
+    "pdf_sha256": "48d3516734131f6bfe6141d69f3fbd0af30f346c68b56e9156127687b8f07a90",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2604.11698v2",
+    "journal": "Physical Review Letters",
+    "title": "Interaction of Strong Electromagnetic Waves with Unmagnetized Pair Plasmas",
+    "journal_ref": "Physical Review Letters 137, 045102 (2026)",
+    "doi": "10.1103/h7fg-xjby",
+    "published": "2026-04-13T16:35:06Z",
+    "authors": [
+      "Navin Sridhar",
+      "Emanuele Sobacchi",
+      "Lorenzo Sironi",
+      "Masanori Iwamoto",
+      "Daniel Grošelj",
+      "Brandon K. Russell"
+    ],
+    "primary_category": "physics.plasm-ph",
+    "categories": [
+      "physics.plasm-ph",
+      "astro-ph.HE",
+      "physics.class-ph",
+      "physics.optics",
+      "physics.space-ph"
+    ],
+    "abstract": "We investigate analytically and numerically the interaction of strong electromagnetic waves with unmagnetized pair plasmas. We show that the interaction is governed by a single nonlinearity parameter, $\\varepsilon_{\\rm p}$, defined as the ratio of the wave strength parameter to the wave frequency in units of the plasma frequency (with both frequencies measured in the plasma rest frame prior to the interaction). When $\\varepsilon_{\\rm p}<1$, the number of wavelengths that propagate through the plasma without attenuation from induced Compton scattering is approximately $\\varepsilon_{\\rm p}^{-2/3",
+    "pdf_file": "2604.11698v2.pdf",
+    "pdf_size": 1357464,
+    "pdf_sha256": "121457b8cf8b9db5512906b5a7fd741ebdf862a37dfa9935738ea8520897b6d7",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2603.17955v3",
+    "journal": "Physical Review Letters",
+    "title": "Approaching the Ultimate Limit of Quantum Multiparameter Estimation by Many-Body Physics",
+    "journal_ref": "Physical Review Letters 137, 070804 (2026)",
+    "doi": "10.1103/cghv-j44h",
+    "published": "2026-03-18T17:28:57Z",
+    "authors": [
+      "Mankei Tsang"
+    ],
+    "primary_category": "quant-ph",
+    "categories": [
+      "quant-ph"
+    ],
+    "abstract": "I propose a physical measurement scheme on multiple independent and identically distributed quantum objects to approach the Holevo--Nagaoka bound for quantum multiparameter estimation. The scheme entails a physical interaction of the objects with bosonic ancillas, followed by a general-dyne measurement of the ancillas. The proposal offers a more concrete description of the experimental setup needed to achieve the ultimate precision limit set by the bound.",
+    "pdf_file": "2603.17955v3.pdf",
+    "pdf_size": 519969,
+    "pdf_sha256": "683a70aa0fb9f26383ec5750fe7197cd676e1c72b433bfcc8b4fe059ec0cf25b",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2601.20814v2",
+    "journal": "Physical Review Letters",
+    "title": "Real-Space Dynamic Electron Correlation in Beryllium",
+    "journal_ref": "Physical Review Letters 136, 256402 (2026)",
+    "doi": "10.1103/vzrc-5m39",
+    "published": "2026-01-28T18:03:27Z",
+    "authors": [
+      "Rudra B. Bista",
+      "Yuya Shinohara",
+      "Wojciech Dmowski",
+      "Chae Woo Ryu",
+      "Jung Ho Kim",
+      "Mary Upton",
+      "Hlynur Gretarsson",
+      "Martin Sundermann",
+      "Takeshi Egami"
+    ],
+    "primary_category": "cond-mat.other",
+    "categories": [
+      "cond-mat.other"
+    ],
+    "abstract": "Electron correlation in solid has a major impact on material properties. However, it has been studied mainly by theory, with very limited direct experimental investigations. Here, we demonstrate that dynamic electron correlation function can be experimentally measured using inelastic X-ray scattering on polycrystalline beryllium. The data are expressed as the energy-resolved dynamic pair-distribution function. Our results confirm the size of the exchange-correlation hole as ~2 Å, consistent with theoretical expectations. However, at the plasmon energy of ~21 eV, the exchange-correlation hole i",
+    "pdf_file": "2601.20814v2.pdf",
+    "pdf_size": 1556835,
+    "pdf_sha256": "1762fbfb473e3e53b3fe55a4a515df43decc184cd4dc24224e35febe9f6bb42f",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2601.18083v1",
+    "journal": "Physical Review Letters",
+    "title": "Two-Polariton Blockade via Ultrastrong Light-Matter Coupling",
+    "journal_ref": "Physical Review Letters 136, 033601 (2026)",
+    "doi": "10.1103/nfz3-txyt",
+    "published": "2026-01-26T02:37:37Z",
+    "authors": [
+      "Ting-Ting Ma",
+      "Jian Tang",
+      "Yun-Lan Zuo",
+      "Ran Huang. Adam Miranowicz",
+      "Franco Nori",
+      "Hui Jing"
+    ],
+    "primary_category": "quant-ph",
+    "categories": [
+      "quant-ph"
+    ],
+    "abstract": "We demonstrate that a two-polariton blockade (2PB) can occur under resonant single-polariton driving in an atom-cavity system operating in the ultrastrong coupling (USC) regime-a phenomenon qualitatively distinct from, and unattainable in, both the strong and weak coupling regimes. In the USC regime, where the ratio of the atom-cavity coupling strength to the cavity resonance frequency exceeds 0.1, hybrid light-matter quasiparticles known as polaritons emerge. By employing modified second- and third-order correlation functions appropriate for the USC regime, we predict the emergence of 2PB, ch",
+    "pdf_file": "2601.18083v1.pdf",
+    "pdf_size": 6761107,
+    "pdf_sha256": "424f3e36c0df2a955ce548c96c292d4ca9ff4250f063d148900efe6a546da3d7",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2601.13374v2",
+    "journal": "Physical Review Letters",
+    "title": "Trace Anomaly of Cold Dense Matter Constrained by Collective Flow",
+    "journal_ref": "Physical Review Letters 136, 242301 (2026)",
+    "doi": "10.1103/b2t4-km2r",
+    "published": "2026-01-19T20:19:47Z",
+    "authors": [
+      "Bao-An Li"
+    ],
+    "primary_category": "nucl-th",
+    "categories": [
+      "nucl-th",
+      "astro-ph.HE",
+      "hep-ph",
+      "nucl-ex"
+    ],
+    "abstract": "The trace anomaly of dense matter, $Δ\\equiv 1/3 - P/\\varepsilon$, defined through the ratio $w \\equiv P/\\varepsilon$ of pressure $P$ to energy density $\\varepsilon$, quantifies deviations from conformal symmetry and provides a dimensionless measure of the stiffness of the equation of state (EOS) relevant for both neutron stars and heavy-ion collisions. While $Δ(\\varepsilon)$ has recently been inferred from neutron star observations, we report the first Bayesian extraction of the trace anomaly from collective flow observables in intermediate-energy heavy-ion collisions. By employing transport-m",
+    "pdf_file": "2601.13374v2.pdf",
+    "pdf_size": 469393,
+    "pdf_sha256": "63f03d2009996e6dc4bf93556ccd9f31bd082c201a27783cd8d48bba4261a710",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2601.02350v1",
+    "journal": "Physical Review Letters",
+    "title": "Binarisation-loophole-free observation of high-dimensional quantum nonlocality",
+    "journal_ref": "Physical Review Letters 136, 240201 (2026)",
+    "doi": "10.1103/ydch-vgmy",
+    "published": "2026-01-05T18:48:49Z",
+    "authors": [
+      "Jia-le Miao",
+      "Elna Svegborn",
+      "Zhuo Chen",
+      "Yu Guo",
+      "Xiao-Min Hu",
+      "Yun-Feng Huang",
+      "Chuan-Feng Li",
+      "Guang-Can Guo",
+      "Armin Tavakoli",
+      "Bi-Heng Liu"
+    ],
+    "primary_category": "quant-ph",
+    "categories": [
+      "quant-ph"
+    ],
+    "abstract": "Bell inequality tests based on high-dimensional entanglement usually require measurements that can resolve multiple possible outcomes. However, the implementation of high-dimensional multi-outcome measurements is often only emulated via a collection of ``click or no-click'' measurements. This reduction of multi-outcome measurements to binary-outcome measurements opens a loophole in high-dimensional tests Bell inequalities which can be exploited by local hidden variable models [Tavakoli et al., Phys. Rev. A 111, 042433 (2025)]. Here, we close this loophole by using four-dimensional photonic pat",
+    "pdf_file": "2601.02350v1.pdf",
+    "pdf_size": 23091044,
+    "pdf_sha256": "470274cf907ecd065800940cb2fffe2907584125f67e809f427035a1be3c8a9d",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2601.01759v1",
+    "journal": "Physical Review Letters",
+    "title": "Demonstration of Discrete-Time Quantum Walks and Observation of Topological Edge States in a Superconducting Qutrit Chain",
+    "journal_ref": "Physical Review Letters 135, 250601 (2025)",
+    "doi": "10.1103/5lm1-2kpk",
+    "published": "2026-01-05T03:28:41Z",
+    "authors": [
+      "Kun Zhou",
+      "Jian-Wen Xu",
+      "Qi-Ping Su",
+      "Yu Zhang",
+      "Xiang-Min Yu",
+      "Zhuang Ma",
+      "Han-Yu Zhang",
+      "Hong-Yi Shi",
+      "Wen Zheng",
+      "Shu-Yi Pan",
+      "Yi-Hao Kang",
+      "Zhi-Guo Huang"
+    ],
+    "primary_category": "quant-ph",
+    "categories": [
+      "quant-ph"
+    ],
+    "abstract": "Quantum walk serves as a versatile tool for universal quantum computing and algorithmic research. However, the implementation of discrete-time quantum walks (DTQWs) with superconducting circuits is still constrained by some limitations such as operation precision, circuit depth and connectivity. With improved hardware efficiency by using superconducting qutrits (three-level systems), we experimentally demonstrate a scalable DTQW in a superconducting circuit, observing the ballistic spreading of quantum walk in a qutrit chain. The usage of qutrits in our implementation allows hardware efficient",
+    "pdf_file": "2601.01759v1.pdf",
+    "pdf_size": 9086528,
+    "pdf_sha256": "cc36640b5b557ce6b7810463a983800ccfe35a84a0f6bc73fe2f9842be9f26d3",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2608.26320v1",
+    "journal": "Nature",
+    "title": "Non-equilibrium condensation of the first Solar System solids",
+    "journal_ref": "Nature 652 (2026)",
+    "doi": "10.1038/s41586-026-10257-5",
+    "published": "2026-08-26T18:51:57Z",
+    "authors": [
+      "Sebastien Charnoz",
+      "Jérome Aleon",
+      "Marc Chaussidon",
+      "Paolo Sossi",
+      "Yves Marrocchi",
+      "Patrick Franco"
+    ],
+    "primary_category": "astro-ph.EP",
+    "categories": [
+      "astro-ph.EP"
+    ],
+    "abstract": "Primitive meteorites (chondrites) consist of an out-of-equilibrium assemblage of minerals formed during the assembling of our Solar Nebula. The conditions under which their precursors condensed remain unclear as a result of subsequent re-processing in the protoplanetary disk or in asteroidal parent bodies. Chondrites are classified into three main classes enstatite (EC), ordinary (OC), and carbonaceous (CC) distinguished by different bulk composition and oxidation state. While equilibrium condensation models explain the composition of some of their refractory components they do not explain the",
+    "pdf_file": "2608.26320v1.pdf",
+    "pdf_size": 8438372,
+    "pdf_sha256": "37012330923bdcab7a717e73107fb717607130e3be7406a5f346ebc52c4193f8",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2607.01316v1",
+    "journal": "Nature",
+    "title": "Aerosols and hydrocarbons in the atmosphere of a white dwarf planet",
+    "journal_ref": "Nature 655, 76-80 (2026)",
+    "doi": "10.1038/s41586-026-10514-7",
+    "published": "2026-07-01T18:00:00Z",
+    "authors": [
+      "Ryan J. MacDonald",
+      "Christopher E. O'Connor",
+      "Victoria A. Boehm",
+      "E. M. May",
+      "David K. Sing",
+      "Elijah Mullens",
+      "L. C. Mayorga",
+      "Trevor O. Foote",
+      "Simon Blouin",
+      "Logan A. Pearce",
+      "Nikole K. Lewis",
+      "Jeff Valenti"
+    ],
+    "primary_category": "astro-ph.EP",
+    "categories": [
+      "astro-ph.EP",
+      "astro-ph.SR"
+    ],
+    "abstract": "Most stars, including our Sun, will one day evolve into red giants and, subsequently, white dwarfs. Several planet candidates have recently been identified orbiting white dwarfs, demonstrating that planets can survive the stellar post-main-sequence stage intact. Little is known about the atmospheric composition of post-main-sequence planets, with the most evolved transiting planets with atmospheric detections to date orbiting subgiants. Here we report an atmospheric detection for the white dwarf planet WD 1856 b, achieved through transmission spectroscopy with the JWST NIRSpec PRISM. Our 0.5-5",
+    "pdf_file": "2607.01316v1.pdf",
+    "pdf_size": 12909933,
+    "pdf_sha256": "8263e97e3fba8546df132ed7bf2c87507d60c8e3d32fa9342aaea348c3d85822",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2604.16216v2",
+    "journal": "Nature",
+    "title": "A digitally controlled silicon quantum processing unit",
+    "journal_ref": "Nature 655, 1154 2026",
+    "doi": "10.1038/s41586-026-10754-7",
+    "published": "2026-04-17T16:25:01Z",
+    "authors": [
+      "Members of the HRL Quantum Team",
+      "Collaborators",
+      ":",
+      "Michael Abraham",
+      "Edwin Acuna",
+      "Tower S. Adams",
+      "Moonmoon Akmal",
+      "Matthew R. Alfaro",
+      "I. Alvarado",
+      "Jacob Amontree",
+      "Carter Andrews",
+      "Reed W. Andrews"
+    ],
+    "primary_category": "quant-ph",
+    "categories": [
+      "quant-ph"
+    ],
+    "abstract": "Commercially-relevant quantum computers will require large numbers of high-performing qubits that can be manufactured, integrated, and controlled at scale. Silicon exchange-only (EO) qubits are a strong candidate modality due to their control-signal simplicity and compatibility with advanced semiconductor manufacturing, but questions remain around the achievability of sufficiently low noise and a scalable control and wiring solution. Here we introduce a quantum processing unit composed of a custom-designed cryogenic CMOS controller, a novel high-density superconducting ribbon cable, and a low-",
+    "pdf_file": "2604.16216v2.pdf",
+    "pdf_size": 21795751,
+    "pdf_sha256": "987e53c52a13db2193210f678587c3c18e74647a07c1504b8f299b517627d78b",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2603.16115v1",
+    "journal": "Nature",
+    "title": "Stoichiometric FeTe is a Superconductor",
+    "journal_ref": "Nature 652, 342(2026)",
+    "doi": "10.1038/s41586-026-10321-0",
+    "published": "2026-03-17T04:27:55Z",
+    "authors": [
+      "Zi-Jie Yan",
+      "Zihao Wang",
+      "Bing Xia",
+      "Stephen Paolini",
+      "Ying-Ting Chan",
+      "Nikalabh Dihingia",
+      "Hongtao Rong",
+      "Pu Xiao",
+      "Kalana D. Halanayake",
+      "Jiatao Song",
+      "Veer Gowda",
+      "Danielle Reifsnyder Hickey"
+    ],
+    "primary_category": "cond-mat.supr-con",
+    "categories": [
+      "cond-mat.supr-con",
+      "cond-mat.mes-hall",
+      "cond-mat.mtrl-sci"
+    ],
+    "abstract": "Iron-based superconductors are a fascinating family of materials in which multiple electronic bands and strong antiferromagnetic (AFM) correlations are key ingredients for competing ground states, including antiferromagnetism, electronic nematicity, and unconventional superconductivity. FeTe, unlike its superconducting isostructural counterpart FeSe, has long been regarded as an AFM metal sans superconductivity. In this work, we employ molecular beam epitaxy to grow FeTe films and perform post-growth annealing under a Te flux. By performing spin-polarized scanning tunneling microscopy and spec",
+    "pdf_file": "2603.16115v1.pdf",
+    "pdf_size": 2494433,
+    "pdf_sha256": "6c1b6a5445613c35408b17e6a76cd2553027b1be2e201855fa4cb685931d1b56",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2602.22637v1",
+    "journal": "Nature",
+    "title": "Moire Engineering of Cooper-Pair Density Modulation States",
+    "journal_ref": "Nature 652, 335 (2026)",
+    "doi": "10.1038/s41586-026-10325-w",
+    "published": "2026-02-26T05:29:23Z",
+    "authors": [
+      "Zihao Wang",
+      "Bing Xia",
+      "Stephen Paolini",
+      "Zi-Jie Yan",
+      "Pu Xiao",
+      "Jiatao Song",
+      "Veer Gowda",
+      "Hongtao Rong",
+      "Di Xiao",
+      "Xiaodong Xu",
+      "Weida Wu",
+      "Ziqiang Wang"
+    ],
+    "primary_category": "cond-mat.supr-con",
+    "categories": [
+      "cond-mat.supr-con",
+      "cond-mat.mtrl-sci"
+    ],
+    "abstract": "Cooper-pair density modulation (CPDM) states are superconducting phases in which the order parameter varies periodically in real space without breaking translational symmetry. Recently, moire superlattices in layered materials have emerged as powerful platforms for engineering charge density with tunable lattice symmetry, offering a new route to creating and controlling CPDM states. In this work, we demonstrate moire-induced CPDM states in a bilayer heterostructure formed by epitaxially stacking one quintuple layer (1 QL) of topological insulator Sb2Te3 on a six-unit-cell (6 UC) antiferromagne",
+    "pdf_file": "2602.22637v1.pdf",
+    "pdf_size": 3527948,
+    "pdf_sha256": "10345b94fab36d54fdd926465897c354d72de708166a2ed27ecd3835addcd867",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2601.20956v2",
+    "journal": "Nature",
+    "title": "Universal Gates from Braiding and Fusing Anyons on Quantum Hardware",
+    "journal_ref": "Nature 655, 591-597 (2026)",
+    "doi": "10.1038/s41586-026-10709-y",
+    "published": "2026-01-28T19:00:09Z",
+    "authors": [
+      "Chiu Fan Bowen Lo",
+      "Anasuya Lyons",
+      "Dan Gresh",
+      "Michael Mills",
+      "Peter E. Siegfried",
+      "Maxwell D. Urmey",
+      "Nathanan Tantivasadakarn",
+      "Henrik Dreyer",
+      "Ashvin Vishwanath",
+      "Ruben Verresen",
+      "Mohsin Iqbal"
+    ],
+    "primary_category": "quant-ph",
+    "categories": [
+      "quant-ph",
+      "cond-mat.str-el"
+    ],
+    "abstract": "Topological quantum computation encodes quantum information in the internal fusion space of non-Abelian anyonic quasiparticles, whose braiding implements logical gates. This goes beyond Abelian topological order (TO) such as the toric code, as its anyons lack internal structure. However, the simplest non-Abelian generalizations of the toric code do not support universality via braiding alone. Here we demonstrate that such minimally non-Abelian TOs can be made universal by treating anyon fusion as a computational primitive. We prepare a 54-qubit TO wavefunction associated with the smallest non-",
+    "pdf_file": "2601.20956v2.pdf",
+    "pdf_size": 6634734,
+    "pdf_sha256": "5f237e58b4a9476393e1fd18310e41f9d635af979ae7729b0540607bf6c0c726",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2601.14526v2",
+    "journal": "Nature",
+    "title": "3D bulk-resolved $g$-wave altermagnetic order parameter in CrSb",
+    "journal_ref": "Nature 656, 854-860 (2026)",
+    "doi": "10.1038/s41586-026-10902-z",
+    "published": "2026-01-20T22:40:35Z",
+    "authors": [
+      "Mengmeng Long",
+      "Theodore I. Weinberger",
+      "Zheyu Wu",
+      "Mads F. Hansen",
+      "Ran Tao",
+      "Mridul Shrestha",
+      "Dave Graf",
+      "Yurii Skourski",
+      "F. Malte Grosche",
+      "Alexander G. Eaton"
+    ],
+    "primary_category": "cond-mat.mtrl-sci",
+    "categories": [
+      "cond-mat.mtrl-sci",
+      "cond-mat.mes-hall",
+      "cond-mat.str-el"
+    ],
+    "abstract": "Electronic phases of matter, such as magnetism and superconductivity, are defined and distinguished by their order parameters quantifying the spontaneous symmetry breaking underlying each phase. Simple cases include the uniform magnetisation of ferromagnets and isotropic gap function of conventional superconductors. Unconventional superconductors often have a nodal gap function, where the gap changes sign at nodes on the Fermi surface. This concept of unconventional/nodal order parameter symmetry has recently been extended to numerous magnetic systems, including altermagnets, in which up- and ",
+    "pdf_file": "2601.14526v2.pdf",
+    "pdf_size": 7662000,
+    "pdf_sha256": "5c169c8dcb0ecfa0453e43dca31bea9f37173333ca8a8b14739fb9a9cf827737",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2512.07159v1",
+    "journal": "Nature",
+    "title": "Search for Light Sterile Neutrinos With Two Neutrino Beams at MicroBooNE",
+    "journal_ref": "Nature 648, 64-69 (2025)",
+    "doi": "10.1038/s41586-025-09757-7",
+    "published": "2025-12-08T04:47:02Z",
+    "authors": [
+      "MicroBooNE collaboration",
+      "P. Abratenko",
+      "D. Andrade Aldana",
+      "L. Arellano",
+      "J. Asaadi",
+      "A. Ashkenazi",
+      "S. Balasubramanian",
+      "B. Baller",
+      "A. Barnard",
+      "G. Barr",
+      "D. Barrow",
+      "J. Barrow"
+    ],
+    "primary_category": "hep-ex",
+    "categories": [
+      "hep-ex"
+    ],
+    "abstract": "The existence of three distinct neutrino flavours, $ν_{e}$, $ν_μ$, and $ν_τ$, is a central tenet of the Standard Model of particle physics. Quantum-mechanical interference can allow a neutrino of one initial flavour to be detected some time later as a different flavour, a process called neutrino oscillation. Several anomalous observations inconsistent with this three-flavour picture have motivated the hypothesis that an additional neutrino state exists which does not interact directly with matter, termed a \"sterile\" neutrino, $ν_s$. This includes anomalous observations from the LSND and MiniBo",
+    "pdf_file": "2512.07159v1.pdf",
+    "pdf_size": 3616004,
+    "pdf_sha256": "5e3f595f5b32a37e8224d33522c5d2f3deefd365d530e28effbfc1cf3b80d7e5",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2608.27064v1",
+    "journal": "Nature Communications",
+    "title": "Giant bulk photovoltaic effect driven by interfacial symmetry breaking in MoS2/Ta2NiSe5 heterostructures",
+    "journal_ref": "Nature Communications (2026)",
+    "doi": "10.1038/s41467-026-76804-w",
+    "published": "2026-08-27T12:51:13Z",
+    "authors": [
+      "Jianwen Ma",
+      "Pengliang Leng",
+      "Lei Peng",
+      "Congming Hao",
+      "Xianghao Meng",
+      "Jiaqi Liu",
+      "Yang Gan",
+      "Min Luo",
+      "Zifan Zhang",
+      "Jiaming Gu",
+      "Qinghang Liu",
+      "Lidan Duan"
+    ],
+    "primary_category": "cond-mat.mes-hall",
+    "categories": [
+      "cond-mat.mes-hall"
+    ],
+    "abstract": "Van der Waals (vdW) heterostructures offer a versatile platform for engineering unconventional bulk photovoltaic (BPV) effect through interfacial symmetry breaking. However, the coexistence of multiple photophysical mechanisms, driven by structural complexity, spontaneous charge transfer, and strong interlayer coupling, often obscures the microscopic origin of the BPV response and hinders its rational optimization. Here, we demonstrate a pronounced BPV effect localized at the overlap region of a cross-bar MoS2/Ta2NiSe5 vdW heterostructure, where symmetry breaking induced by vertical stacking l",
+    "pdf_file": "2608.27064v1.pdf",
+    "pdf_size": 2294176,
+    "pdf_sha256": "e8cd55e7734a7227b080acbdcd03a0e7d395e251849846caf3c9a5378a35482f",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2608.23208v1",
+    "journal": "Nature Communications",
+    "title": "Potential sublimating exocomets around the young star PDS 70",
+    "journal_ref": "Nature Communications 17, 8894 (2026)",
+    "doi": "10.1038/s41467-026-76880-y",
+    "published": "2026-08-24T12:57:24Z",
+    "authors": [
+      "Aline Novais",
+      "H. Jens Hoeijmakers",
+      "Alexandra Stockwell Murphy",
+      "Bibiana Prinoth",
+      "Anders Johansen",
+      "Klaudia Jaworska",
+      "Luan Ghezzi"
+    ],
+    "primary_category": "astro-ph.EP",
+    "categories": [
+      "astro-ph.EP",
+      "astro-ph.SR"
+    ],
+    "abstract": "Recent observations by the James Webb Space Telescope (JWST) have indicated the presence of water in the inner regions of the disc around the young protostar PDS 70, but the origin of this water remains unclear. Here we report the discovery of variable absorption lines of neutral sodium in archival High Accuracy Radial velocity Planet Searcher (HARPS) spectra of PDS 70. These lines vary strongly and stochastically on a daily basis, in amplitude, number, and radial velocity. Our measurements indicate that this gas tends to be optically thick, and partially cover the stellar disc, meaning this f",
+    "pdf_file": "2608.23208v1.pdf",
+    "pdf_size": 11015886,
+    "pdf_sha256": "a835a6c58d3e8fe8b19f1478711754385dc1a1cbf333c68c191b2b4b7b2f6d7e",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2608.18467v1",
+    "journal": "Nature Communications",
+    "title": "Room-temperature ferroelectrically switchable quantum geometry in few-layer WTe2 for complementary in-memory computing",
+    "journal_ref": "Nature Communications, 2026,",
+    "doi": "10.1038/s41467-026-76369-8",
+    "published": "2026-08-19T02:40:58Z",
+    "authors": [
+      "Ruihan Wang",
+      "Pengfei Wang",
+      "Haoyun Chen",
+      "Yunze Peng",
+      "Bingyan Liu",
+      "Junlin Xiong",
+      "Xueyuan Zhang",
+      "Chen Pan",
+      "Xin Chen",
+      "Shengyuan A. Yang",
+      "Shi-Jun Liang",
+      "Feng Miao"
+    ],
+    "primary_category": "cond-mat.mtrl-sci",
+    "categories": [
+      "cond-mat.mtrl-sci"
+    ],
+    "abstract": "Quantum geometry, describing the inherent geometric structure of electron wavefunctions in momentum space, transcends the traditional charge degree of freedom and provides a novel physical basis for information encoding and processing. The key to such new computing paradigms is the non-volatile electrical programming of quantum geometric states at room temperature, which, however, has not been established. Here, we demonstrate ferroelectrically switchable quantum geometry in few-layer WTe2, which uniquely enables complementary convolutional processing. By employing the intrinsic coupling betwe",
+    "pdf_file": "2608.18467v1.pdf",
+    "pdf_size": 1525424,
+    "pdf_sha256": "8a56d77cfec9e3cd903ded26f96b2c112ed0eb6166c450c70fc8a49ad872fcab",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2607.21889v1",
+    "journal": "Nature Communications",
+    "title": "Current-induced creation and dynamics of embedded magnetic skyrmion bags",
+    "journal_ref": "Nature Communications 2026",
+    "doi": "10.1038/s41467-026-74046-4",
+    "published": "2026-07-24T01:33:30Z",
+    "authors": [
+      "Yaodong Wu",
+      "Jialiang Jiang",
+      "Lingyao Kong",
+      "Meng Shi",
+      "Shouguo Wang",
+      "Mingliang Tian",
+      "Haifeng Du",
+      "Jin Tang"
+    ],
+    "primary_category": "cond-mat.mes-hall",
+    "categories": [
+      "cond-mat.mes-hall",
+      "cond-mat.mtrl-sci"
+    ],
+    "abstract": "Magnetic skyrmion bags-vortex-like structures hosting multiple skyrmions with tunable topological charge (Q)-hold significant promise for next-generation spintronic computing. However, while their creation using magnetic fields has been demonstrated, their direct electrical generation remains an outstanding challenge. Here, we report the direct current-induced formation and manipulation of embedded skyrmion bags in a FeGe nanoplate under zero magnetic field. Using in-situ Lorentz transmission electron microscopy, we capture the transformation of a distorted helical ground state into embedded s",
+    "pdf_file": "2607.21889v1.pdf",
+    "pdf_size": 4972218,
+    "pdf_sha256": "ee78d19d1fa4a461d5ada820f91f56d550100450596bb3749c65d56d3b531a91",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2607.21507v1",
+    "journal": "Nature Communications",
+    "title": "Supercurrent effect in a charge density wave intertwined superconductor",
+    "journal_ref": "Nature Communications 17, 7009 (2026)",
+    "doi": "10.1038/s41467-026-73778-7",
+    "published": "2026-07-23T16:54:38Z",
+    "authors": [
+      "Zhen Zhu",
+      "Wei Cheng",
+      "Dang Liu",
+      "Pengyu Hu",
+      "Yi Yang",
+      "Qiaoyan Yu",
+      "Shasha Xue",
+      "Ruijun Xi",
+      "Xingsen Chen",
+      "Jice Sun",
+      "Dandan Guan",
+      "Yaoyi Li"
+    ],
+    "primary_category": "cond-mat.supr-con",
+    "categories": [
+      "cond-mat.supr-con",
+      "cond-mat.mes-hall",
+      "cond-mat.mtrl-sci"
+    ],
+    "abstract": "The energy-momentum (E-k) dispersion of quasiparticles constitutes a fundamental concept in condensed matter systems. The ability to modify the E-k dispersion, exemplified by supercurrent-induced Doppler shifts of Bogoliubov quasiparticle spectra in superconductors, enables manipulation of various emergent quantum properties. However, investigations into the supercurrent effect on superconductors intertwined with charge orders remain scarce. Here, we report that the Meissner current, generated by the diamagnetic response to an applied in-plane magnetic field, can tailor Bogoliubov quasiparticl",
+    "pdf_file": "2607.21507v1.pdf",
+    "pdf_size": 4273947,
+    "pdf_sha256": "c83f16f48ba8d54251a83ea0bf54d41ffb08a8c7f0dd71b70e289f396a3bf8a3",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2606.05653v1",
+    "journal": "Nature Communications",
+    "title": "BCS-BEC crossover driven by small Fermi pockets of a high-Tc cuprate superconductor",
+    "journal_ref": "Nature Communications 17, 4810 (2026)",
+    "doi": "10.1038/s41467-026-73081-5",
+    "published": "2026-06-04T03:31:36Z",
+    "authors": [
+      "Junhyeok Jeong",
+      "Yamato Enomoto",
+      "Yoshimitsu Kohama",
+      "Tomotaka Nakayama",
+      "Kotaro Ando",
+      "Kifu Kurokawa",
+      "Soonsang Huh",
+      "Zhuo Yang",
+      "Toshihiro Nomura",
+      "Matthew D. Watson",
+      "Timur K. Kim",
+      "Cephise Cacho"
+    ],
+    "primary_category": "cond-mat.supr-con",
+    "categories": [
+      "cond-mat.supr-con",
+      "cond-mat.mtrl-sci",
+      "cond-mat.str-el"
+    ],
+    "abstract": "Fermi arcs observed in underdoped cuprates have sparked debate over whether they represent segments of a large Fermi surface or small Fermi pockets. This ambiguity has long hindered their classification as either the conventional Bardeen-Cooper-Schrieffer (BCS) regime or the strongly coupled Bose-Einstein condensation (BEC) crossover limit. Here, using angle-resolved photoemission spectroscopy and quantum oscillations, we demonstrate the coexistence of a small Fermi pocket and a large superconducting gap in the clean inner CuO2 layers of the four-layer cuprate Ba2Ca3Cu4O8(F,O)2. This coexisten",
+    "pdf_file": "2606.05653v1.pdf",
+    "pdf_size": 6924978,
+    "pdf_sha256": "2e7b91408ee449fdb7e1fcb814493782da276304798d52058692c3d7ef200405",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2605.23654v1",
+    "journal": "Nature Communications",
+    "title": "Probing nuclear interactions à la Rutherford: Insights on $^4$He from $α$ scattering",
+    "journal_ref": "Nature Communications 17, 8003 (2026)",
+    "doi": "10.1038/s41467-026-74761-y",
+    "published": "2026-05-22T14:07:18Z",
+    "authors": [
+      "F. Cappuzzello",
+      "V. Soukeras",
+      "S. Bacca",
+      "D. Carbone",
+      "M. Cavallaro",
+      "L. C. Chamon",
+      "I. Lombardo",
+      "G. Orlandini",
+      "M. Viviani",
+      "C. Agodi",
+      "H. -W. Becker",
+      "G. A. Brischetto"
+    ],
+    "primary_category": "nucl-ex",
+    "categories": [
+      "nucl-ex",
+      "nucl-th"
+    ],
+    "abstract": "Nuclear interactions play a key role for the stability of atomic nuclei and stellar environments. Successful parametrization and models of these interactions, developed in the last decades, accurately reproduce all the proton and neutron scattering data, besides the properties of few-body nuclear systems. However, recent electron scattering results focusing on the first excited resonant state of $^4$He nucleus, reveal a puzzling situation suggesting potential gaps in our understanding of the nuclear phenomenology. Here, we report a new study of such $^4$He resonance by $^4$He + $^4$He scatteri",
+    "pdf_file": "2605.23654v1.pdf",
+    "pdf_size": 2070198,
+    "pdf_sha256": "c1319b166fbc0543e3250a033abcc0b69fbbb375795f0055b5a96fabdbb28470",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2605.30703v1",
+    "journal": "Nature Communications",
+    "title": "Mid-infrared single-pixel imaging at the single-photon level",
+    "journal_ref": "Nature Communications 14, 1073 (2023)",
+    "doi": "10.1038/s41467-023-36815-3",
+    "published": "2026-05-29T00:50:45Z",
+    "authors": [
+      "Yinqi Wang",
+      "Kun Huang",
+      "Jianan Fang",
+      "Ming Yan",
+      "E Wu",
+      "Heping Zeng"
+    ],
+    "primary_category": "physics.optics",
+    "categories": [
+      "physics.optics"
+    ],
+    "abstract": "Single-pixel cameras have recently emerged as promising alternatives to multi-pixel sensors due to reduced costs and superior durability, which are particularly attractive for mid-infrared (MIR) imaging pertinent to applications including industry inspection and biomedical diagnosis. To date, MIR single-pixel photon-sparse imaging has yet been realized, which urgently calls for high-sensitivity optical detectors and high-fidelity spatial modulators. Here, we demonstrate a MIR single-photon computational imaging with a single-element silicon detector. The underlying methodology relies on nonlin",
+    "pdf_file": "2605.30703v1.pdf",
+    "pdf_size": 5673780,
+    "pdf_sha256": "2e8864238985346de40c3c0c1c0c8d4c961b40d507d82952b050c985c9f73090",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2603.29342v1",
+    "journal": "Nature Communications",
+    "title": "Layer-selective hydrogenation and proton transport in twisted bilayer graphene",
+    "journal_ref": "Nature Communications 2026",
+    "doi": "10.1038/s41467-026-71147-y",
+    "published": "2026-03-31T07:09:46Z",
+    "authors": [
+      "J. Tong",
+      "G. Chen",
+      "H. Li",
+      "E. Hoenig",
+      "M. Alhashmi",
+      "X. Zhang",
+      "D. Bahamon",
+      "G. R. Tainton",
+      "S. Sullivan-Allsop",
+      "Y. Mayamei",
+      "D. R. da Costa",
+      "L. F. Vega"
+    ],
+    "primary_category": "cond-mat.mes-hall",
+    "categories": [
+      "cond-mat.mes-hall",
+      "physics.chem-ph"
+    ],
+    "abstract": "Recent work investigated graphene's hydrogenation with independent control of the electric field, E, and charge density, n, in the crystal and showed that the process is controlled by n. Here, we demonstrate layer-selective conductor-insulator transitions in twisted bilayer graphene, driven by hydrogenation at fixed n under strong E. This process is accompanied by proton transport through the bilayer, enabling several parallel and configurable logic gates in the devices. Selectivity arises because the large twist angle decouples the two layers' electronic systems, enabling independent control ",
+    "pdf_file": "2603.29342v1.pdf",
+    "pdf_size": 6736627,
+    "pdf_sha256": "c98535b3c35aec6fd37304d7ce8b4a3438ee8b8370af73d08de70201acac356f",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2601.19403v1",
+    "journal": "Nature Communications",
+    "title": "Learned split-spectrum metalens for obstruction-free broadband imaging in the visible",
+    "journal_ref": "Nature Communications 2026",
+    "doi": "10.1038/s41467-026-76606-0",
+    "published": "2026-01-27T09:38:26Z",
+    "authors": [
+      "Seungwoo Yoon",
+      "Dohyun Kang",
+      "Eunsue Choi",
+      "Sohyun Lee",
+      "Seoyeon Kim",
+      "Minho Choi",
+      "Hyeonsu Heo",
+      "Dong-ha Shin",
+      "Suha Kwak",
+      "Arka Majumdar",
+      "Junsuk Rho",
+      "Seung-Hwan Baek"
+    ],
+    "primary_category": "physics.optics",
+    "categories": [
+      "physics.optics",
+      "cs.AI",
+      "cs.CV",
+      "physics.app-ph"
+    ],
+    "abstract": "Obstructions such as raindrops, fences, or dust degrade captured images, especially when mechanical cleaning is infeasible. Conventional solutions to obstructions rely on a bulky compound optics array or computational inpainting, which compromise compactness or fidelity. Metalenses composed of subwavelength meta-atoms promise compact imaging, but simultaneous achievement of broadband and obstruction-free imaging remains a challenge, since a metalens that images distant scenes across a broadband spectrum cannot properly defocus near-depth occlusions. Here, we introduce a learned split-spectrum ",
+    "pdf_file": "2601.19403v1.pdf",
+    "pdf_size": 6757516,
+    "pdf_sha256": "b1318e35b6cc151b4ed61f5d9267add99ae0e50206ee4fa097983f9d2d39bce5",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2511.13968v1",
+    "journal": "Nature Photonics",
+    "title": "Universal Routing of Light via Optical Thermodynamics",
+    "journal_ref": "Nature Photonics (2025): 1-6",
+    "doi": "10.1038/s41566-025-01756-4",
+    "published": "2025-11-17T22:55:09Z",
+    "authors": [
+      "Hediyeh M. Dinani",
+      "Georgios G. Pyrialakos",
+      "Abraham M. Berman Bradley",
+      "Monika Monika",
+      "Huizhong Ren",
+      "Mahmoud A. Selim",
+      "Ulf Peschel",
+      "Demetrios N. Christodoulides",
+      "Mercedeh Khajavikhan"
+    ],
+    "primary_category": "physics.optics",
+    "categories": [
+      "physics.optics",
+      "nlin.AO"
+    ],
+    "abstract": "Understanding and exploiting the dynamics of complex nonlinear systems is nowadays at the core of a broad range of scientific and technological endeavors. Within the optical domain, light evolution in a nonlinear multimode environment presents a formidable problem, as its chaotic evolution often hinders predictive insights. Recently, an optical thermodynamic framework has been put forward that, in a systematic manner, can not only predict but also harness the intricate behavior of these systems. In this work, by deploying entropic principles, we demonstrate a counterintuitive optical process i",
+    "pdf_file": "2511.13968v1.pdf",
+    "pdf_size": 2987621,
+    "pdf_sha256": "0d4734524b9540c30076e8bb979f4ec9c913233dfb5e81e7ccd75838a45daf0c",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2511.05928v1",
+    "journal": "Nature Photonics",
+    "title": "Efficient integrated quantum memory for light",
+    "journal_ref": "Nature Photonics 20, 437 (2026)",
+    "doi": "10.1038/s41566-026-01845-y",
+    "published": "2025-11-08T08:42:14Z",
+    "authors": [
+      "Ruo-Ran Meng",
+      "Pei-Xi Liu",
+      "Xiao Liu",
+      "Tian-Xiang Zhu",
+      "Peng-Jun Liang",
+      "Chao Zhang",
+      "Zhong-Yang Tang",
+      "Hong-Zhe Zhang",
+      "Jin-Ming Cui",
+      "Ming Jin",
+      "Zong-Quan Zhou",
+      "Chuan-Feng Li"
+    ],
+    "primary_category": "quant-ph",
+    "categories": [
+      "quant-ph"
+    ],
+    "abstract": "Scalable implementation of quantum networks and photonic processors require integrated photonic memories with high efficiency, yet current integrated systems have been limited to storage efficiencies below 27.8%. Here, we demonstrate highly efficient integrated quantum memories based on rare-earth-iondoped crystals coupled with impedance-matched microcavities, realized in two novel architectures: 200-micrometer-thin membranes of Eu3+:Y2SiO5 integrated with fiber-based microcavities, and waveguide-based cavities fabricated using femtosecond lasers. Our approach achieves reliable integrated quan",
+    "pdf_file": "2511.05928v1.pdf",
+    "pdf_size": 5020660,
+    "pdf_sha256": "2fdcfe6f8a38bcd825fa89ef549381184d01ae0b7f35ee7769172121e8348ad9",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2508.17940v2",
+    "journal": "Nature Photonics",
+    "title": "A Metropolitan-scale Multiplexed Quantum Repeater with Bell Nonlocality",
+    "journal_ref": "Nature Photonics 20, 812 (2026)",
+    "doi": "10.1038/s41566-026-01911-5",
+    "published": "2025-08-25T12:08:05Z",
+    "authors": [
+      "Tian-Xiang Zhu",
+      "Chao Zhang",
+      "Zhong-Wen Ou",
+      "Xiao Liu",
+      "Peng-Jun Liang",
+      "Xiao-Min Hu",
+      "Yun-Feng Huang",
+      "Zong-Quan Zhou",
+      "Chuan-Feng Li",
+      "Guang-Can Guo"
+    ],
+    "primary_category": "quant-ph",
+    "categories": [
+      "quant-ph"
+    ],
+    "abstract": "Quantum repeaters can overcome exponential photon loss in optical fibers, enabling heralded entanglement between distant quantum memories. The definitive benchmark for this entanglement is Bell nonlocality; however, recent metropolitan-scale demonstrations based on single-photon interference (SPI) schemes have been limited to generating low-quality entanglement, falling short of Bell nonlocality certification. Here, we introduce a multiplexed quantum repeater protocol based on time measurements (MQR-TM), successfully combining the high heralding rate of SPI schemes with the phase robustness of",
+    "pdf_file": "2508.17940v2.pdf",
+    "pdf_size": 19814445,
+    "pdf_sha256": "5e86b395d6878d76857f14bc81bdc7d62a3ec14c8425a02ffe5f06c86656283c",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2505.09953v1",
+    "journal": "Nature Photonics",
+    "title": "Optical Kerr soliton microcombs for high bandwidth communications",
+    "journal_ref": "Nature Photonics, Volume 19 Issue 5, pp 451-462 (2025)",
+    "doi": "10.1038/s41566-025-01662-9",
+    "published": "2025-05-15T04:25:24Z",
+    "authors": [
+      "Bill Corcoran",
+      "Arnan Mitchell",
+      "Roberto Morandotti",
+      "Leif K. Oxenlowe",
+      "David J. Moss"
+    ],
+    "primary_category": "physics.optics",
+    "categories": [
+      "physics.optics",
+      "physics.app-ph"
+    ],
+    "abstract": "Microcombs, optical frequency combs generated by nonlinear integrated micro-cavity resonators, have the potential to offer the full capability of their benchtop comb based counterparts, but in an integrated footprint. They have enabled breakthroughs in spectroscopy, microwave photonics, frequency synthesis, optical ranging, quantum state generation and manipulation, metrology, optical neuromorphic processing and more. One of their most promising applications has been optical fibre communications where they have formed the basis for massively parallel ultrahigh capacity multiplexed data transmi",
+    "pdf_file": "2505.09953v1.pdf",
+    "pdf_size": 1217475,
+    "pdf_sha256": "c1a4b5bb928eb1aa99fbe713c0fcaa36d7fa42400c82fe7d8abb2c3fde08fa65",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2503.17744v1",
+    "journal": "Nature Photonics",
+    "title": "Free-Space Twin-Field Quantum Key Distribution",
+    "journal_ref": "Nature Photonics 20, 783 (2026)",
+    "doi": "10.1038/s41566-026-01910-6",
+    "published": "2025-03-22T12:05:07Z",
+    "authors": [
+      "Yu-Huai Li",
+      "Ting Zeng",
+      "Min-Yan Wang",
+      "Cong Jiang",
+      "Jin Lin",
+      "Hao-Bin Fu",
+      "Xin-Yang Zheng",
+      "Jiu-Peng Chen",
+      "Zeng-Sen Lin",
+      "Cheng-Lin Li",
+      "Jian-Yu Guan",
+      "Yang Li"
+    ],
+    "primary_category": "quant-ph",
+    "categories": [
+      "quant-ph"
+    ],
+    "abstract": "Twin-field quantum key distribution (TF-QKD) elevates the secure key rate from a linear to a square-root dependence on channel loss while preserving measurement-device-independent security. This protocol is uniquely positioned to enable global-scale quantum networks, even under extreme channel loss. While fiber-based TF-QKD implementations have advanced rapidly since its proposal, free-space realizations have remained elusive due to atmospheric turbulence-induced phase distortions. Here, we report the first experimental demonstration of free-space TF-QKD over 14.2 km urban atmospheric channels",
+    "pdf_file": "2503.17744v1.pdf",
+    "pdf_size": 754271,
+    "pdf_sha256": "10cb935f09510e179ed2e6aa5e593c853c68d48ad5316f8b0ed0e70a88f9eaa2",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  },
+  {
+    "arxiv_id": "2403.00109v3",
+    "journal": "Nature Photonics",
+    "title": "Versatile Optical Frequency Division with Kerr-induced Synchronization at Tunable Microcomb Synthetic Dispersive Waves",
+    "journal_ref": "Nature Photonics volume 19, pages 36-43 (2025)",
+    "doi": "10.1038/s41566-024-01540-w",
+    "published": "2024-02-29T20:27:44Z",
+    "authors": [
+      "Gregory Moille",
+      "Pradyoth Shandilya",
+      "Alioune Niang",
+      "Curtis Menyuk",
+      "Gary Carter",
+      "Kartik Srinivasan"
+    ],
+    "primary_category": "physics.optics",
+    "categories": [
+      "physics.optics",
+      "physics.app-ph"
+    ],
+    "abstract": "Kerr-induced synchronization (KIS) provides a new key tool for the control and stabilization of the repetition rate of a cavity soliton frequency comb. It enables direct external control of a given comb tooth of a dissipative Kerr soliton (DKS) thanks to its capture by an injected reference laser. Efficient KIS requires its coupling energy to be sufficiently large, and hence both the comb tooth and intracavity reference power must be optimized, which can be achieved through higher-order dispersion that enables phase-matched dispersive waves (DWs), where comb teeth are on resonance. However, su",
+    "pdf_file": "2403.00109v3.pdf",
+    "pdf_size": 6253029,
+    "pdf_sha256": "4bbab8b7bab4b871e5751599d507a99b6ac89a69b31a88e490104c6449ace4db",
+    "source": "arxiv",
+    "license_note": "arXiv full text; see arXiv license for the version used."
+  }
+]

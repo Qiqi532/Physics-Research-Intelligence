@@ -59,6 +59,25 @@ describe("local real-data trial boundary", () => {
     expect(corpusReadme).toMatch(/license/i);
   });
 
+  it("tracks a 45-paper journal manifest while excluding local PDFs", async () => {
+    const [gitignore, rawManifest, corpusReadme] = await Promise.all([
+      readFile(".gitignore", "utf8"),
+      readFile("data/journal-corpus/manifest.json", "utf8"),
+      readFile("data/journal-corpus/README.md", "utf8"),
+    ]);
+    const manifest = JSON.parse(rawManifest) as Array<{
+      arxiv_id: string;
+      pdf_file: string;
+    }>;
+
+    expect(gitignore).toContain("data/journal-corpus/pdfs/");
+    expect(manifest).toHaveLength(45);
+    expect(new Set(manifest.map(({ arxiv_id }) => arxiv_id)).size).toBe(45);
+    expect(manifest.every(({ pdf_file }) => pdf_file.endsWith(".pdf"))).toBe(true);
+    expect(corpusReadme).toMatch(/不得.*Git|must not.*Git/is);
+    expect(corpusReadme).toMatch(/元数据.*摘要|metadata.*abstract/is);
+  });
+
   it("binds Web to localhost unless trusted-LAN mode is explicit", async () => {
     const webPackage = JSON.parse(await readFile("apps/web/package.json", "utf8")) as {
       scripts: Record<string, string>;

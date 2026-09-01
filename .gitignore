@@ -18,4 +18,6 @@ Thumbs.db
 
 # Local open-paper review corpus (metadata remains tracked)
 data/review-corpus/pdfs/
+# Journal full-text corpus for AI reading / RAG (metadata remains tracked)
+data/journal-corpus/pdfs/
 backups/
