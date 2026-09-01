@@ -9,7 +9,6 @@ import {
 const environment = {
   DATABASE_URL: "postgresql://localhost/pri",
   REDIS_URL: "redis://localhost:6379",
-  DAILY_AI_BUDGET_USD: "2.5",
 };
 
 afterEach(() => vi.useRealTimers());

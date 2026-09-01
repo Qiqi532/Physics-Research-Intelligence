@@ -28,7 +28,7 @@ const responseSchema = z.object({
     input_tokens: z.number().int().nonnegative(),
     output_tokens: z.number().int().nonnegative(),
     total_tokens: z.number().int().nonnegative(),
-  }).passthrough(),
+  }).passthrough().optional(),
 }).passthrough();
 
 export function createOpenAiProvider(rawOptions: ProviderHttpOptions): AiProvider {
@@ -124,16 +124,19 @@ async function generate<T>(
       durationMs: response.durationMs,
     });
   }
-  const usage = envelope.data.usage;
   return {
     provider: "openai",
     model: options.model,
     output: parseOutput(rawText),
-    usage: {
-      inputTokens: usage.input_tokens,
-      outputTokens: usage.output_tokens,
-      totalTokens: usage.total_tokens,
-    },
+    ...(envelope.data.usage
+      ? {
+          usage: {
+            inputTokens: envelope.data.usage.input_tokens,
+            outputTokens: envelope.data.usage.output_tokens,
+            totalTokens: envelope.data.usage.total_tokens,
+          },
+        }
+      : {}),
     durationMs: response.durationMs,
   };
 }

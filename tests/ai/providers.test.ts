@@ -73,6 +73,26 @@ describe("real AI provider adapters with mock HTTP", () => {
     expect(result.output.overallRelevance).toBe(0.9);
   });
 
+  it("accepts an OpenAI Responses success without token usage", async () => {
+    const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(Response.json({
+      output: [{
+        type: "message",
+        content: [{ type: "output_text", text: JSON.stringify(classification) }],
+      }],
+    }));
+    const provider = createOpenAiProvider({
+      apiKey: "fixture-openai-key",
+      baseUrl: "https://openai.example.test/v1",
+      model: "fixture-openai-model",
+      fetchImpl,
+    });
+
+    const result = await provider.classify(paper);
+
+    expect(result.output).toEqual(classification);
+    expect(result).not.toHaveProperty("usage");
+  });
+
   it.each([
     ["deepseek", createDeepSeekProvider, "https://deepseek.example.test"],
     ["qwen", createQwenProvider, "https://qwen.example.test/compatible-mode/v1"],
@@ -131,6 +151,23 @@ describe("real AI provider adapters with mock HTTP", () => {
     }));
   });
 
+  it("accepts an OpenAI-compatible success without token usage", async () => {
+    const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(Response.json({
+      choices: [{ message: { content: JSON.stringify(classification) } }],
+    }));
+    const provider = createDeepSeekProvider({
+      apiKey: "fixture-deepseek-key",
+      baseUrl: "https://api.deepseek.com/v1",
+      model: "deepseek-chat",
+      fetchImpl,
+    });
+
+    const result = await provider.classify(paper);
+
+    expect(result.output).toEqual(classification);
+    expect(result).not.toHaveProperty("usage");
+  });
+
   it("calls Gemini generateContent with a response schema and header key", async () => {
     const apiKey = "fixture-gemini-key";
     const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(Response.json({
@@ -164,6 +201,23 @@ describe("real AI provider adapters with mock HTTP", () => {
     );
     expect(JSON.stringify(body)).not.toContain(apiKey);
     expect(result.usage).toEqual({ inputTokens: 70, outputTokens: 20, totalTokens: 90 });
+  });
+
+  it("accepts a Gemini success without token usage metadata", async () => {
+    const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(Response.json({
+      candidates: [{ content: { parts: [{ text: JSON.stringify(classification) }] } }],
+    }));
+    const provider = createGeminiProvider({
+      apiKey: "fixture-gemini-key",
+      baseUrl: "https://gemini.example.test/v1beta",
+      model: "gemini-fixture",
+      fetchImpl,
+    });
+
+    const result = await provider.classify(paper);
+
+    expect(result.output).toEqual(classification);
+    expect(result).not.toHaveProperty("usage");
   });
 
   it.each([

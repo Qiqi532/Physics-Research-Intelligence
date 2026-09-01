@@ -1,7 +1,7 @@
 import type { DailyWindow } from "./scheduler";
 
 type ClassificationStatus = "complete" | "duplicate" | "in_progress" | "failed";
-type InterpretationStatus = ClassificationStatus | "skipped";
+type InterpretationStatus = ClassificationStatus;
 
 type DailyPipelineDependencies = {
   window: DailyWindow;
@@ -34,7 +34,6 @@ export type DailyPipelineResult = {
     duplicate: number;
     failed: number;
     inProgress: number;
-    skippedBudget: number;
   };
   recommendations: number;
   cleanup: { status: "ok"; deleted: number } | { status: "failed"; errorCode: string };
@@ -74,15 +73,12 @@ export async function runDailyPipeline(
     duplicate: 0,
     failed: 0,
     inProgress: 0,
-    skippedBudget: 0,
   };
   for (const paperId of interpretationPaperIds) {
     try {
       const status = await dependencies.interpret(paperId);
       if (status === "in_progress") {
         interpretation.inProgress += 1;
-      } else if (status === "skipped") {
-        interpretation.skippedBudget += 1;
       } else {
         interpretation[status] += 1;
       }

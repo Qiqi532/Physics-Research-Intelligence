@@ -72,9 +72,9 @@ Environment-based provider configuration remains a compatibility fallback only w
 
 If multiple named keys are present, set `AI_DEFAULT_PROVIDER` to one of `deepseek`, `openai`, `gemini`, `qwen`, `glm`, `kimi`, or `hunyuan`. Explicit classification and interpretation primary/fallback routes remain available through the `AI_CLASSIFY_*` and `AI_INTERPRET_*` variables.
 
-Other providers can use `compatible` when they implement OpenAI Chat Completions plus JSON mode. Set `AI_PROVIDER_COMPATIBLE_API_KEY`, `AI_PROVIDER_COMPATIBLE_BASE_URL`, and `AI_PROVIDER_COMPATIBLE_MODEL`, then set `AI_DEFAULT_PROVIDER=compatible`. Endpoint/model/pricing overrides use the same provider-prefixed variable pattern shown in `.env.example`.
+Other providers can use `compatible` when they implement OpenAI Chat Completions plus JSON mode. Set `AI_PROVIDER_COMPATIBLE_API_KEY`, `AI_PROVIDER_COMPATIBLE_BASE_URL`, and `AI_PROVIDER_COMPATIBLE_MODEL`, then set `AI_DEFAULT_PROVIDER=compatible`. Endpoint and model overrides use the same provider-prefixed variable pattern shown in `.env.example`.
 
-The built-in fallback prices are deliberately conservative budget reservations, not billing quotes. Enter current provider prices with the `*_INPUT_COST_PER_MILLION_USD` and `*_OUTPUT_COST_PER_MILLION_USD` overrides when accurate cost reporting is required.
+Provider billing and balances are managed in the provider console. The application does not calculate costs or enforce a local monetary budget. Token usage is stored only when the provider explicitly returns it.
 
 ## Daily automation
 
@@ -89,8 +89,8 @@ DAILY_PAPER_TARGET_MIN=10
 DAILY_PAPER_TARGET_MAX=15
 ```
 
-The worker upserts one stable BullMQ scheduler. Each daily run executes public-source ingestion, classification, budgeted interpretation, and Today preparation in order. The schedule has two bounded attempts with exponential backoff. Source cursors, AI idempotency keys, interpretation budget reservations, and the stable scheduler ID make repeated execution in the same window safe.
-Papers published inside the current stable daily window form the deterministic selection pool. Each run picks a diverse 10–15 paper daily set (bounded by `DAILY_PAPER_TARGET_MIN` and `DAILY_PAPER_TARGET_MAX`, with a per-direction cap) and feeds only that set into budgeted interpretation, so a single physics direction cannot consume the whole daily set when alternatives exist. Classification still processes the window candidates needed to establish direction under the existing idempotency keys and provider fallback rules. After Today preparation, papers older than `PAPER_RETENTION_DAYS` that have never been favorited are pruned with their dependent records; a recoverable cleanup failure never makes Today unavailable, and rerunning the same window converges to the same result.
+The worker upserts one stable BullMQ scheduler. Each daily run executes public-source ingestion, classification, interpretation, and Today preparation in order. The schedule has two bounded attempts with exponential backoff. Source cursors, AI idempotency keys, logical run claims, and the stable scheduler ID make repeated execution in the same window safe.
+Papers published inside the current stable daily window form the deterministic selection pool. Each run picks a diverse 10–15 paper daily set (bounded by `DAILY_PAPER_TARGET_MIN` and `DAILY_PAPER_TARGET_MAX`, with a per-direction cap) and feeds only that set into interpretation, so a single physics direction cannot consume the whole daily set when alternatives exist. Classification still processes the window candidates needed to establish direction under the existing idempotency keys and provider fallback rules. After Today preparation, papers older than `PAPER_RETENTION_DAYS` that have never been favorited are pruned with their dependent records; a recoverable cleanup failure never makes Today unavailable, and rerunning the same window converges to the same result.
 Favorited papers appear in the personal library at `http://127.0.0.1:3000/library`, linked from the home site navigation. Favorites survive the 30-day cleanup; removing the favorite makes the paper eligible for normal retention cleanup again without deleting an unexpired record.
 
 ## Production build and processes
@@ -182,11 +182,11 @@ If the master key is lost, existing ciphertext is intentionally unrecoverable. S
 - Verify `SOURCE_CONTACT_EMAIL` for polite Crossref access, optional `CROSSREF_ISSN`, and any OpenAlex allowance key.
 - A single source failure is isolated. `all_sources_failed` stops that daily run before AI work so a partial unsafe window is not presented as complete.
 
-### Provider failures and exhausted budget
+### Provider failures
 
 - Stable error codes distinguish authentication, rate limit, timeout, upstream 5xx, invalid JSON/schema, and configuration failures. Logs omit keys and stacks.
 - Provider fallback is used only for retryable failures and never bypasses the logical task idempotency key.
-- `budget_exceeded` creates an auditable skipped run and continues Today preparation. Raise `DAILY_AI_BUDGET_USD` only after reviewing current provider prices and prior attempt costs.
+- Missing provider token usage is stored as null and never estimated; it does not turn a successful model response into a failure.
 - If a provider rejects JSON mode, choose another named provider/model or configure a compatible model that supports JSON objects; do not weaken output validation.
 
 ### Today or paper detail is degraded

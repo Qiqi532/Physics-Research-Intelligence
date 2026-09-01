@@ -16,13 +16,13 @@ Physics Research Intelligence 是一个面向个人物理学习与研究的论�
 
 - 公开来源采集：Crossref、OpenAlex 与 arXiv，支持游标、超时、有界重试、限流处理和保守去重。
 - 论文事实层：PostgreSQL/Prisma 保存标题、作者、摘要、期刊、DOI、来源、许可证信息和原文链接。
-- AI 流水线：物理方向分类、中文结构化解读、证据等级、来源披露、预算预留、幂等审计和一次主备回退。
+- AI 流水线：物理方向分类、中文结构化解读、证据等级、来源披露、幂等审计和一次主备回退。
 - 多模型适配：OpenAI、DeepSeek、Gemini、Qwen、智谱 GLM、Kimi、混元及通用 OpenAI Chat Completions 兼容端点。
 - 模型管理台：在 localhost 保存多个命名连接，加密 API Key，执行轻量连通测试与合成论文示例，并配置分类/解读主备路由。
 - Today Physics：首页统计、跨方向信号、可解释推荐、阅读队列、论文详情和可恢复错误状态。
 - 个性化：物理方向兴趣权重，以及稍后读、正在阅读、完成和不感兴趣等阅读状态。
 - 个人收藏库：`/library` 页面集中展示收藏论文与阅读进度，收藏与阅读状态正交且不受 30 天普通清理影响。
-- 自动处理：BullMQ 每日采集、分类、预算内解读和 Today 准备，支持时区、启停和同窗口幂等。
+- 自动处理：BullMQ 每日采集、分类、解读和 Today 准备，支持时区、启停和同窗口幂等。
 - 可靠性：存活/就绪检查、稳定错误码、脱敏结构化日志、队列状态与失败恢复。
 - 测试与运维：Vitest、PostgreSQL 集成测试、Playwright 桌面/移动端 E2E，以及启动、迁移、备份恢复和故障排查文档。
 
@@ -114,7 +114,7 @@ pnpm --filter @pri/worker corpus:journal:trial -- 2504.21524v1 2410.10611v2 2408
 - 三篇记录幂等入库并完成物理方向分类；
 - 每篇生成带证据等级和来源引用的中文结构化解读；
 - 页面明确显示“基于摘要解读”；
-- AI 审计记录模型、Prompt 版本、Token、耗时、估算费用和真实失败状态；
+- AI 审计记录模型、Prompt 版本、耗时、供应商实际返回的 Token（如有）和真实失败状态；
 - 人工比较三篇结果，将第一次运行作为质量基线，而不是最终学术结论。
 
 语料来源、校验与许可说明见[顶刊物理论文语料](data/journal-corpus/README.md)。本轮设计见[双语 README 与 Kimi 试运行设计](docs/superpowers/specs/2026-09-01-bilingual-readme-kimi-trial-design.md)。
@@ -126,7 +126,7 @@ pnpm --filter @pri/worker corpus:journal:trial -- 2504.21524v1 2410.10611v2 2408
 - `data/journal-corpus/pdfs/` 与 `data/review-corpus/pdfs/` 都不得提交 Git 或从项目重新分发。
 - arXiv 文件存在不等于拥有任意再分发或外部模型处理许可；全文能力需要独立的许可证和用户授权状态。
 - 当前应用没有登录，只适合 localhost 或受保护的可信私网；不要直接暴露到公共互联网。
-- 模型调用有费用。首次真实试运行固定为三篇，并保留预算、Token 和失败审计。
+- 模型计费与余额以供应商平台为准；本项目不估算费用，也不以本地预算阻断调用。Token 仅在供应商实际返回时记录。
 - 自动化测试全部使用 Mock Provider，不调用真实论文来源或真实模型 API。
 
 ### 验证与测试
@@ -150,7 +150,7 @@ pnpm build
 - 应用是无登录单用户 MVP；公开部署前必须增加应用认证或可靠的外部访问控制。
 - 尚未提供完整的生产 Dockerfile、systemd 单元、自动发布与回滚流程。
 - 模型名称和限额会变化，真实调用前必须核对供应商官方文档。
-- 模型管理台仍要求手填预算估算价；后续将改为版本化供应商价格目录并移除该交互字段。
+- 不同兼容供应商对结构化输出和 Token usage 字段的支持可能不同；未返回 Token 时审计值保持为空，不做推算。
 
 ### 路线图与文档
 
@@ -183,13 +183,13 @@ The project is currently a single-user MVP ready for local trials. Its central r
 
 - Public-source ingestion from Crossref, OpenAlex, and arXiv with cursors, timeouts, bounded retries, rate-limit handling, and conservative deduplication.
 - A PostgreSQL/Prisma fact layer for titles, authors, abstracts, journals, DOIs, provenance, license information, and original links.
-- AI classification and Chinese structured interpretation with evidence levels, source disclosure, budget reservation, idempotent audit records, and one primary/fallback attempt.
+- AI classification and Chinese structured interpretation with evidence levels, source disclosure, idempotent audit records, and one primary/fallback attempt.
 - Provider adapters for OpenAI, DeepSeek, Gemini, Qwen, GLM, Kimi, Hunyuan, and generic OpenAI Chat Completions-compatible endpoints.
 - A localhost model console for encrypted named connections, lightweight health checks, synthetic-paper samples, and independent classification/interpretation routes.
 - Today Physics statistics, cross-disciplinary signals, explainable recommendations, a reading queue, paper details, and recoverable error states.
 - Interest weights and reading states such as saved, reading, complete, and not interested.
 - A personal favorites library at `/library` that lists favorited papers and reading progress; favorites are orthogonal to reading state and exempt from the 30-day ordinary cleanup.
-- BullMQ-based daily ingestion, classification, budgeted interpretation, and Today preparation with timezone-aware idempotent windows.
+- BullMQ-based daily ingestion, classification, interpretation, and Today preparation with timezone-aware idempotent windows.
 - Liveness/readiness checks, stable error codes, redacted structured logs, queue visibility, and recovery behavior.
 - Vitest, PostgreSQL integration tests, Playwright desktop/mobile E2E, and operational guides for startup, migrations, backup, restore, and troubleshooting.
 
@@ -282,7 +282,7 @@ Acceptance criteria:
 - all three records are imported idempotently and classified;
 - each paper receives a Chinese structured interpretation with evidence levels and source references;
 - the page displays the disclosure `基于摘要解读` (interpretation based on abstract);
-- AI audit records contain model, prompt version, tokens, duration, estimated cost, and truthful failures;
+- AI audit records contain model, prompt version, duration, provider-reported tokens when available, and truthful failures;
 - a human compares the three outputs as a first quality baseline, not a final scientific judgment.
 
 See [Journal physics corpus](data/journal-corpus/README.md) for provenance, verification, and license notes, and [Bilingual README and Kimi Trial Design](docs/superpowers/specs/2026-09-01-bilingual-readme-kimi-trial-design.md) for the approved boundary.
@@ -294,7 +294,7 @@ See [Journal physics corpus](data/journal-corpus/README.md) for provenance, veri
 - Files under `data/journal-corpus/pdfs/` and `data/review-corpus/pdfs/` must not be committed to Git or redistributed by this project.
 - An arXiv copy does not automatically grant arbitrary redistribution or external-model processing rights. Full-text features require an explicit license and user-permission state.
 - The current app has no login and is intended for localhost or a protected trusted network. Do not expose it directly to the public internet.
-- Model calls cost money. The first real trial is bounded to three papers and retains budget, token, and failure audits.
+- Provider billing and balances remain authoritative in the provider console. This project neither estimates cost nor blocks calls on a local budget; it stores tokens only when the provider reports them.
 - Automated tests use mock providers and do not call real paper sources or real AI APIs.
 
 ### Verification and tests
@@ -318,7 +318,7 @@ Tests require a dedicated PostgreSQL schema and must never target personal or pr
 - This is an unauthenticated single-user MVP. Public deployment requires application authentication or reliable external access control.
 - The repository does not yet contain complete production Dockerfiles, systemd units, or automated release and rollback workflows.
 - Provider models and limits change; verify them against official documentation before real calls.
-- The model console still asks for manual budget-estimate prices; a versioned provider price catalog should replace and remove those fields.
+- Structured-output and token-usage support varies across compatible providers. Missing token usage remains null and is never estimated.
 
 ### Roadmap and documentation
 

@@ -106,10 +106,9 @@ describe("AI provider contract", () => {
       "permanent_4xx",
       "configuration",
       "insufficient_input",
-      "budget_exceeded",
       "business_validation",
     ];
 
-    expect(codes).toHaveLength(12);
+    expect(codes).toHaveLength(11);
   });
 });

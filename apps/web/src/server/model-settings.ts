@@ -123,10 +123,6 @@ export function createModelSettingsApi(input: ModelSettingsApiInput) {
           model: parsed.model ?? existing.model,
           baseUrl: parsed.baseUrl ?? existing.baseUrl,
           requestTimeoutMs: parsed.requestTimeoutMs ?? existing.requestTimeoutMs,
-          inputCostPerMillionUsd: parsed.inputCostPerMillionUsd
-            ?? existing.inputCostPerMillionUsd,
-          outputCostPerMillionUsd: parsed.outputCostPerMillionUsd
-            ?? existing.outputCostPerMillionUsd,
           ...toStoredSecret(secret),
         });
         return { status: 200, body: { connection: toPublicConnection(updated) } };
@@ -221,10 +217,6 @@ export function createModelSettingsApi(input: ModelSettingsApiInput) {
             apiKey,
             sampleInterpretMaxOutputTokens,
           )),
-          prices: {
-            inputCostPerMillionUsd: connection.inputCostPerMillionUsd,
-            outputCostPerMillionUsd: connection.outputCostPerMillionUsd,
-          },
         });
       });
       if (!gated.accepted) {
@@ -295,8 +287,6 @@ function toPublicConnection(connection: StoredModelConnection): ModelConnectionP
     model: connection.model,
     baseUrl: connection.baseUrl,
     requestTimeoutMs: connection.requestTimeoutMs,
-    inputCostPerMillionUsd: connection.inputCostPerMillionUsd,
-    outputCostPerMillionUsd: connection.outputCostPerMillionUsd,
     hasApiKey: true,
     createdAt: connection.createdAt.toISOString(),
     updatedAt: connection.updatedAt.toISOString(),
@@ -334,8 +324,6 @@ function toStoredWrite(
     model: parsed.model,
     baseUrl: parsed.baseUrl,
     requestTimeoutMs: parsed.requestTimeoutMs,
-    inputCostPerMillionUsd: parsed.inputCostPerMillionUsd,
-    outputCostPerMillionUsd: parsed.outputCostPerMillionUsd,
     ...toStoredSecret(secret),
   };
 }

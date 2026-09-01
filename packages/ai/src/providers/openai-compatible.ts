@@ -35,7 +35,7 @@ const responseSchema = z.object({
     prompt_tokens: z.number().int().nonnegative(),
     completion_tokens: z.number().int().nonnegative(),
     total_tokens: z.number().int().nonnegative(),
-  }).passthrough(),
+  }).passthrough().optional(),
 }).passthrough();
 
 export function createOpenAiCompatibleProvider(
@@ -133,16 +133,19 @@ async function generate<T>(
       durationMs: response.durationMs,
     });
   }
-  const usage = envelope.data.usage;
   return {
     provider,
     model: options.model,
     output: parseOutput(envelope.data.choices[0]!.message.content),
-    usage: {
-      inputTokens: usage.prompt_tokens,
-      outputTokens: usage.completion_tokens,
-      totalTokens: usage.total_tokens,
-    },
+    ...(envelope.data.usage
+      ? {
+          usage: {
+            inputTokens: envelope.data.usage.prompt_tokens,
+            outputTokens: envelope.data.usage.completion_tokens,
+            totalTokens: envelope.data.usage.total_tokens,
+          },
+        }
+      : {}),
     durationMs: response.durationMs,
   };
 }

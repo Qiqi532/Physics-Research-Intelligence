@@ -22,7 +22,7 @@ export type AiProviderResult<T> = {
   provider: string;
   model: string;
   output: T;
-  usage: AiUsage;
+  usage?: AiUsage;
   durationMs: number;
 };
 

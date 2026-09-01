@@ -15,8 +15,6 @@ describe("model settings repository", () => {
     await expect(repository.list("default")).resolves.toEqual([
       expect.objectContaining({
         name: "Kimi 日常",
-        inputCostPerMillionUsd: 0.2,
-        outputCostPerMillionUsd: 0.8,
       }),
     ]);
     expect(findMany).toHaveBeenCalledWith(expect.objectContaining({
@@ -78,8 +76,6 @@ function writeInput() {
     apiKeyAuthTag: Buffer.alloc(16, 2),
     encryptionVersion: 1,
     requestTimeoutMs: 30_000,
-    inputCostPerMillionUsd: 0.2,
-    outputCostPerMillionUsd: 0.8,
   };
 }
 
@@ -88,8 +84,6 @@ function storedRow() {
     id: "11111111-1111-4111-8111-111111111111",
     userId: "default",
     ...writeInput(),
-    inputCostPerMillionUsd: { toNumber: () => 0.2 },
-    outputCostPerMillionUsd: { toNumber: () => 0.8 },
     createdAt: new Date("2026-08-31T00:00:00.000Z"),
     updatedAt: new Date("2026-08-31T00:00:00.000Z"),
   };

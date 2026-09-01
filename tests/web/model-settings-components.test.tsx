@@ -55,8 +55,6 @@ function publicConnection() {
     model: "kimi-k3",
     baseUrl: "https://api.moonshot.cn/v1",
     requestTimeoutMs: 30_000,
-    inputCostPerMillionUsd: 1,
-    outputCostPerMillionUsd: 3,
     hasApiKey: true as const,
     createdAt: "2026-08-31T00:00:00.000Z",
     updatedAt: "2026-08-31T00:00:00.000Z",

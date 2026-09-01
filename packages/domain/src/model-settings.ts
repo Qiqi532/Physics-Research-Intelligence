@@ -13,8 +13,6 @@ const connectionFields = {
     message: "Model connection URL must use HTTPS or loopback HTTP",
   }),
   requestTimeoutMs: z.number().int().min(1_000).max(120_000),
-  inputCostPerMillionUsd: z.number().finite().min(0).max(10_000),
-  outputCostPerMillionUsd: z.number().finite().min(0).max(10_000),
 };
 const apiKeySchema = z.string().trim().min(1).max(8 * 1024);
 
@@ -30,8 +28,6 @@ const modelConnectionUpdateSchema = z.object({
   apiKey: z.string().max(8 * 1024).optional(),
   baseUrl: connectionFields.baseUrl.optional(),
   requestTimeoutMs: connectionFields.requestTimeoutMs.optional(),
-  inputCostPerMillionUsd: connectionFields.inputCostPerMillionUsd.optional(),
-  outputCostPerMillionUsd: connectionFields.outputCostPerMillionUsd.optional(),
 }).strict()
   .refine((value) => Object.keys(value).length > 0, { message: "Update cannot be empty" })
   .transform(({ apiKey, ...value }) => {
@@ -61,8 +57,6 @@ export type ModelConnectionPublic = {
   model: string;
   baseUrl: string;
   requestTimeoutMs: number;
-  inputCostPerMillionUsd: number;
-  outputCostPerMillionUsd: number;
   hasApiKey: true;
   createdAt: string;
   updatedAt: string;

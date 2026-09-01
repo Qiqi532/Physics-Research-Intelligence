@@ -3,7 +3,6 @@ import { z } from "zod";
 export type ServerConfig = {
   DATABASE_URL: string;
   REDIS_URL: string;
-  DAILY_AI_BUDGET_USD: number;
   PAPER_RETENTION_DAYS: number;
   DAILY_PAPER_TARGET_MIN: number;
   DAILY_PAPER_TARGET_MAX: number;
@@ -68,14 +67,10 @@ export const aiProviderPresets: Partial<Record<AiProviderName, AiProviderPreset>
 const defaultRequestTimeoutMs = 45_000;
 const defaultClassifyMaxOutputTokens = 1_000;
 const defaultInterpretMaxOutputTokens = 4_000;
-const conservativeInputCostPerMillionUsd = 10;
-const conservativeOutputCostPerMillionUsd = 50;
 
 export type AiProviderServerConfig = {
   apiKey: string;
   baseUrl: string;
-  inputCostPerMillionUsd: number;
-  outputCostPerMillionUsd: number;
 };
 
 export type AiTaskServerConfig = {
@@ -105,9 +100,6 @@ const optionalSecret = z.preprocess(
 const configSchema = z.object({
   DATABASE_URL: requiredString("DATABASE_URL"),
   REDIS_URL: requiredString("REDIS_URL"),
-  DAILY_AI_BUDGET_USD: z.coerce
-    .number({ error: "DAILY_AI_BUDGET_USD must be a positive number" })
-    .positive("DAILY_AI_BUDGET_USD must be a positive number"),
   DAILY_PIPELINE_ENABLED: z.string().trim().optional(),
   DAILY_PIPELINE_TIME: z.string().trim().optional(),
   DAILY_PIPELINE_TIMEZONE: z.string().trim().optional(),
@@ -353,16 +345,6 @@ function parseAiProviderConfig(
         requiredPresetValue(preset?.baseUrl, `${prefix}_BASE_URL`),
       `${prefix}_BASE_URL`,
     ),
-    inputCostPerMillionUsd: parseOptionalNonNegativeNumber(
-      environment,
-      `${prefix}_INPUT_COST_PER_MILLION_USD`,
-      conservativeInputCostPerMillionUsd,
-    ),
-    outputCostPerMillionUsd: parseOptionalNonNegativeNumber(
-      environment,
-      `${prefix}_OUTPUT_COST_PER_MILLION_USD`,
-      conservativeOutputCostPerMillionUsd,
-    ),
   };
 }
 
@@ -404,17 +386,6 @@ function parsePositiveInteger(environment: NodeJS.ProcessEnv, name: string): num
   return value;
 }
 
-function parseNonNegativeNumber(
-  environment: NodeJS.ProcessEnv,
-  name: string,
-): number {
-  const value = Number(requiredEnvironmentValue(environment, name));
-  if (!Number.isFinite(value) || value < 0) {
-    throw new Error(`${name} must be a nonnegative number`);
-  }
-  return value;
-}
-
 function parseOptionalPositiveInteger(
   environment: NodeJS.ProcessEnv,
   name: string,
@@ -436,16 +407,6 @@ function parseOptionalBoundedPositiveInteger(
     throw new Error(`${name} must be at most ${maximum}`);
   }
   return value;
-}
-
-function parseOptionalNonNegativeNumber(
-  environment: NodeJS.ProcessEnv,
-  name: string,
-  defaultValue: number,
-): number {
-  return optionalEnvironmentValue(environment, name)
-    ? parseNonNegativeNumber(environment, name)
-    : defaultValue;
 }
 
 function requiredEnvironmentValue(

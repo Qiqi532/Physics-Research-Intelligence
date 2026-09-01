@@ -644,7 +644,7 @@ Open the DOI-based paper-detail links exposed by the application and compare:
 
 - [ ] **Step 9: Write the actual trial report**
 
-Create `docs/trials/2026-09-01-kimi-abstract-trial.md` with actual values only. Include the selected IDs/titles, connection profile name but no API key, provider/model, prompt versions, per-task status, tokens, duration, estimated cost, human observations, failures, and the decision for the next prompt iteration. Do not use placeholders and do not copy entire abstracts or model outputs.
+Create `docs/trials/2026-09-01-kimi-abstract-trial.md` with actual values only. Include the selected IDs/titles, connection profile name but no API key, provider/model, prompt versions, per-task status, provider-reported tokens when available, duration, human observations, failures, and the decision for the next prompt iteration. Do not use placeholders and do not copy entire abstracts or model outputs.
 
 - [ ] **Step 10: Verify and commit the trial report**
 

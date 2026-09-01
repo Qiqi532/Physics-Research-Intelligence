@@ -23,8 +23,6 @@ export type StoredModelConnectionWrite = {
   apiKeyAuthTag: Buffer;
   encryptionVersion: number;
   requestTimeoutMs: number;
-  inputCostPerMillionUsd: number;
-  outputCostPerMillionUsd: number;
 };
 
 export type StoredModelConnection = StoredModelConnectionWrite & {
@@ -175,8 +173,6 @@ type ConnectionRow = {
   apiKeyAuthTag: Uint8Array;
   encryptionVersion: number;
   requestTimeoutMs: number;
-  inputCostPerMillionUsd: { toNumber(): number };
-  outputCostPerMillionUsd: { toNumber(): number };
   createdAt: Date;
   updatedAt: Date;
 };
@@ -208,8 +204,6 @@ function mapConnection(row: ConnectionRow): StoredModelConnection {
     apiKeyAuthTag: Buffer.from(row.apiKeyAuthTag),
     encryptionVersion: row.encryptionVersion,
     requestTimeoutMs: row.requestTimeoutMs,
-    inputCostPerMillionUsd: row.inputCostPerMillionUsd.toNumber(),
-    outputCostPerMillionUsd: row.outputCostPerMillionUsd.toNumber(),
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };

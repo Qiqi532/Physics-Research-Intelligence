@@ -228,3 +228,10 @@
 - Stage 9A review found a merge-blocking lost-update risk: `setPaperStateByDoi` reads favorite state and then writes it back during unrelated reading-state updates, so concurrent favorite and reading requests can overwrite one another.
 - Stage 9A configuration calls retention/targets bounded but currently validates only positive integers; extreme values can pass while the selection pool remains capped at 500.
 - The Library page introduces `library-*` and `favorite-button*` classes without adding matching stylesheet rules; it remains functionally usable but does not yet meet the intended visual completeness.
+
+## 2026-09-01 — No-cost runtime implementation findings
+
+- DeepSeek、GLM 与 Qwen 的官方 OpenAI-compatible 文档均支持 `json_object` 路径；Kimi K2.6 保留已验证的专用 `json_schema`、关闭 thinking 和 `max_completion_tokens` 参数。通用兼容层不向其他供应商扩散 Kimi 专用参数。
+- Provider usage 在协议层改为可选：仅持久化上游明确返回的 input/output/total token；缺失 usage 不使成功响应失败，也不做本地估算。
+- 费用字段、价格配置、预算预留、`SKIPPED_BUDGET` 和 `budget_exceeded` 已从运行代码、设置 UI、Schema 与当前运维文档移除；供应商平台是账单与余额的唯一依据。
+- Stage 9A 的并发状态覆盖、配置无上限和缺少 Library 样式三项问题均已修复，并与 Kimi 提交合并到独立分支。

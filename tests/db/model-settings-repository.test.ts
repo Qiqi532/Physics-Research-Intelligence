@@ -126,8 +126,6 @@ function encryptedProfile(
     apiKeyAuthTag: Buffer.alloc(16, 2),
     encryptionVersion: 1,
     requestTimeoutMs: 30_000,
-    inputCostPerMillionUsd: 0.2,
-    outputCostPerMillionUsd: 0.8,
     ...overrides,
   };
 }

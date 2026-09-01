@@ -474,3 +474,11 @@
 - The first dedicated-schema database attempt used an invalid example password and did not apply migrations; the retry loaded the existing root `.env` connection without printing it, applied all six migrations to `pri_stage9a_review`, and passed 27/27 PostgreSQL tests.
 - The first worktree typecheck lacked `DATABASE_URL` during Prisma generation; process-local injection from the root `.env` fixed the prerequisite, after which full typecheck and lint passed.
 - Stage 9A review fixes were committed as `9d33ef9`; Kimi K2.6 compatibility and trial evidence were committed on `main` as `2fae6e0`.
+- `main` was merged into `codex/stage-9-local-library` as `dc8a60b`, preserving both Stage 9A and Kimi history without squashing review evidence.
+- Implemented the approved no-cost boundary across provider contracts, worker jobs, runtime configuration, model settings, Prisma schema/repository, UI, tests, README, operations, and trial documentation.
+- Targeted verification after the implementation passed 136 tests with 12 database-dependent skips; all seven workspace package typechecks passed.
+- Added explicit regression coverage for successful responses without provider usage and nullable aggregate token audit data.
+- Two repository search commands had malformed regular expressions and one large documentation patch missed its context; none changed files, and the checks/edits were split into exact smaller operations.
+- Incremental migration from the six-migration Stage 9A schema to the no-cost schema passed; a fresh schema also applied all seven migrations successfully.
+- Final verification passed: 63 Vitest files / 442 tests, 12 database files / 53 tests, full lint, all workspace typechecks, Web and worker production builds, and 32 desktop/mobile Playwright tests.
+- The first full E2E run exposed two obsolete price-field locators; removing those locators produced 8/8 targeted and 32/32 full E2E passes. An earlier ad-hoc root Playwright binary caused a duplicate-version collection error and executed no tests; the project script was used instead.

@@ -92,7 +92,6 @@ describe("AI router fallback", () => {
     "permanent_4xx",
     "configuration",
     "insufficient_input",
-    "budget_exceeded",
     "business_validation",
   ] as const)("does not fall back for %s", async (errorCode: AiErrorCode) => {
     const primary = createMockAiProvider({ classify: { errorCode } });

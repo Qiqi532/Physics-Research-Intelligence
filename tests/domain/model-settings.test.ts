@@ -18,8 +18,6 @@ describe("model settings domain boundary", () => {
       apiKey: testOnlyValue,
       baseUrl: "https://api.moonshot.cn/v1",
       requestTimeoutMs: 45_000,
-      inputCostPerMillionUsd: 1,
-      outputCostPerMillionUsd: 3,
     });
     expect(MAX_MODEL_SETTINGS_REQUEST_BYTES).toBe(16 * 1024);
     expect(MAX_MODEL_CONNECTIONS).toBe(50);
@@ -38,8 +36,8 @@ describe("model settings domain boundary", () => {
     { baseUrl: "ftp://127.0.0.1/v1" },
     { requestTimeoutMs: 999 },
     { requestTimeoutMs: 120_001 },
-    { inputCostPerMillionUsd: -1 },
-    { outputCostPerMillionUsd: 10_001 },
+    { inputCostPerMillionUsd: 1 },
+    { outputCostPerMillionUsd: 3 },
   ])("rejects an unsafe create payload %#", (override) => {
     expect(() => parseModelConnectionCreate(validConnection(override))).toThrow();
   });
@@ -90,8 +88,6 @@ function validConnection(overrides: Record<string, unknown> = {}) {
     apiKey: testOnlyValue,
     baseUrl: "https://api.moonshot.cn/v1",
     requestTimeoutMs: 45_000,
-    inputCostPerMillionUsd: 1,
-    outputCostPerMillionUsd: 3,
     ...overrides,
   };
 }

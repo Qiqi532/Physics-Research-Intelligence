@@ -153,5 +153,6 @@
 - [x] Inspect the main Stage 9A implementation areas and map all budget/price coupling.
 - [x] Agree on the compatibility boundary for removing local budget enforcement.
 - [x] Review and approve an integration design covering Kimi, other OpenAI-compatible providers, Stage 9A, migrations, and tests.
-- [ ] Implement the approved small diffs and integrate the reviewed Stage 9A commits.
-- [ ] Run fresh independent verification, commit the result, and guide the first automated deployment run through dialogue.
+- [x] Implement the approved small diffs and integrate the reviewed Stage 9A commits.
+- [x] Run fresh independent verification across migrations, unit/integration tests, lint, typecheck, builds, and desktop/mobile E2E.
+- [ ] Commit and integrate the verified branch, then guide the first automated deployment run through dialogue.

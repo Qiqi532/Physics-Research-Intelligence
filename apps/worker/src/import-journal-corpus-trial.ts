@@ -12,7 +12,6 @@ import {
 import { parseConfig, toLogSafeData } from "@pri/domain/config";
 import { z } from "zod";
 import {
-  createTaskPrices,
   createTaskProviders,
 } from "./configured-daily-processor";
 import { importJournalCorpus } from "./journal-corpus/importer";
@@ -58,8 +57,6 @@ async function main(): Promise<void> {
       snapshot.interpret,
       createConnectionProvider,
     );
-    const classificationPrices = createTaskPrices(snapshot.classify);
-    const interpretationPrices = createTaskPrices(snapshot.interpret);
     const aiRepository = createAiRepository(client);
 
     await syncPhysicsTags(client);
@@ -79,16 +76,12 @@ async function main(): Promise<void> {
         repository: aiRepository,
         primary: classificationProviders.primary,
         fallback: classificationProviders.fallback,
-        prices: classificationPrices,
       }),
       interpret: (paperId) => interpretPaper({
         paperId,
         repository: aiRepository,
         primary: interpretationProviders.primary,
         fallback: interpretationProviders.fallback,
-        prices: interpretationPrices,
-        dailyBudgetUsd: config.DAILY_AI_BUDGET_USD,
-        maxOutputTokens: snapshot.interpret.maxOutputTokens,
       }),
     });
     const failed = imported.summary.failed > 0

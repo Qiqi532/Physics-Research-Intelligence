@@ -10,7 +10,6 @@ import {
   createInputHash,
   toAttemptInputs,
   toPaperAiInput,
-  type ProviderPrices,
 } from "./ai-job";
 
 export type ClassifyPaperRepository = Pick<
@@ -29,7 +28,6 @@ type ClassifyPaperInput = {
   repository: ClassifyPaperRepository;
   primary: AiProvider;
   fallback?: AiProvider;
-  prices: ProviderPrices;
   now?: () => Date;
 };
 
@@ -65,7 +63,6 @@ export async function classifyPaper(
     model: input.primary.model,
     promptVersion: CLASSIFY_PROMPT_VERSION,
     inputHash: createInputHash(paperInput),
-    reservedCostUsd: 0,
   });
   if (claim.status === "complete") {
     return { status: "duplicate", runId: claim.run.id };
@@ -83,7 +80,7 @@ export async function classifyPaper(
   const completedAt = now();
   await input.repository.appendAttempts(
     claim.run.id,
-    toAttemptInputs(outcome.attempts, input.prices, completedAt),
+    toAttemptInputs(outcome.attempts, completedAt),
   );
 
   if (!outcome.ok) {

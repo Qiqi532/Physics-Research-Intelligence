@@ -82,7 +82,5 @@ function providerConfig(name: string) {
   return {
     apiKey: `fixture-key-${name}`,
     baseUrl: `https://${name}.example.test`,
-    inputCostPerMillionUsd: 1,
-    outputCostPerMillionUsd: 2,
   };
 }

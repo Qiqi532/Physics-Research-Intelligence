@@ -25,7 +25,7 @@ const responseSchema = z.object({
     promptTokenCount: z.number().int().nonnegative(),
     candidatesTokenCount: z.number().int().nonnegative(),
     totalTokenCount: z.number().int().nonnegative(),
-  }).passthrough(),
+  }).passthrough().optional(),
 }).passthrough();
 
 export function createGeminiProvider(rawOptions: ProviderHttpOptions): AiProvider {
@@ -100,16 +100,19 @@ async function generate<T>(
   const rawText = envelope.data.candidates[0]!.content.parts
     .map(({ text }) => text)
     .join("");
-  const usage = envelope.data.usageMetadata;
   return {
     provider: "gemini",
     model: options.model,
     output: parseOutput(rawText),
-    usage: {
-      inputTokens: usage.promptTokenCount,
-      outputTokens: usage.candidatesTokenCount,
-      totalTokens: usage.totalTokenCount,
-    },
+    ...(envelope.data.usageMetadata
+      ? {
+          usage: {
+            inputTokens: envelope.data.usageMetadata.promptTokenCount,
+            outputTokens: envelope.data.usageMetadata.candidatesTokenCount,
+            totalTokens: envelope.data.usageMetadata.totalTokenCount,
+          },
+        }
+      : {}),
     durationMs: response.durationMs,
   };
 }

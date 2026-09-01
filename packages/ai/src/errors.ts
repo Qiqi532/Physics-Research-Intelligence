@@ -9,7 +9,6 @@ export type AiErrorCode =
   | "permanent_4xx"
   | "configuration"
   | "insufficient_input"
-  | "budget_exceeded"
   | "business_validation";
 
 const fallbackCodes = new Set<AiErrorCode>([

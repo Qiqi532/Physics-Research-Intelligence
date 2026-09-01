@@ -83,8 +83,8 @@ describe("configured daily processor runtime routing", () => {
     expect(firstBatchFirstProvider).toBe(firstBatchSecondProvider);
     expect(firstBatchFirstProvider.model).toBe("model-a-classify");
     expect(mocks.classifyPaper.mock.calls[2]![0].primary.model).toBe("model-b-classify");
-    expect(mocks.classifyPaper.mock.calls[0]![0].prices.kimi.inputCostPerMillionUsd).toBe(1);
-    expect(mocks.interpretPaper.mock.calls[0]![0].prices.kimi.inputCostPerMillionUsd).toBe(7);
+    expect(mocks.classifyPaper.mock.calls[0]![0]).not.toHaveProperty("prices");
+    expect(mocks.interpretPaper.mock.calls[0]![0]).not.toHaveProperty("prices");
   });
 
   it("wires a retention-based pruneExpired step into the daily pipeline", async () => {
@@ -133,7 +133,6 @@ function snapshot(model: string): RuntimeAiSnapshot {
 }
 
 function connection(model: string) {
-  const inputCostPerMillionUsd = model.endsWith("interpret") ? 7 : 1;
   return {
     profileId: "11111111-1111-4111-8111-111111111111",
     name: model,
@@ -142,8 +141,6 @@ function connection(model: string) {
     apiKey: ["batch", "test", "value"].join("-"),
     baseUrl: "https://kimi.example.test/v1",
     requestTimeoutMs: 30_000,
-    inputCostPerMillionUsd,
-    outputCostPerMillionUsd: 3,
   };
 }
 
@@ -151,7 +148,9 @@ function config(): ServerConfig {
   return {
     DATABASE_URL: "postgresql://fixture.invalid/pri",
     REDIS_URL: "redis://fixture.invalid/0",
-    DAILY_AI_BUDGET_USD: 2.5,
+    PAPER_RETENTION_DAYS: 30,
+    DAILY_PAPER_TARGET_MIN: 10,
+    DAILY_PAPER_TARGET_MAX: 15,
     DAILY_PIPELINE: { enabled: true, time: "06:00", timezone: "Asia/Shanghai" },
   };
 }

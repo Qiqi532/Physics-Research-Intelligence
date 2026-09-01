@@ -61,7 +61,6 @@ describe("daily pipeline", () => {
         duplicate: 0,
         failed: 0,
         inProgress: 0,
-        skippedBudget: 0,
       },
       recommendations: 2,
       cleanup: { status: "ok", deleted: 2 },
@@ -116,7 +115,7 @@ describe("daily pipeline", () => {
     expect(pruneExpired).toHaveBeenCalledOnce();
   });
 
-  it("isolates interpretation failures and records budget exhaustion before Today", async () => {
+  it("isolates interpretation failures before Today", async () => {
     const prepareToday = vi.fn().mockResolvedValue({ recommendations: 1 });
     const pruneExpired = vi.fn().mockResolvedValue({ status: "ok", deleted: 0 });
     const result = await runDailyPipeline({
@@ -127,11 +126,9 @@ describe("daily pipeline", () => {
       listInterpretationPaperIds: vi.fn().mockResolvedValue([
         "paper-1",
         "paper-2",
-        "paper-3",
       ]),
       interpret: vi.fn()
         .mockResolvedValueOnce("complete")
-        .mockResolvedValueOnce("skipped")
         .mockRejectedValueOnce(new Error("provider unavailable")),
       prepareToday,
       pruneExpired,
@@ -142,7 +139,6 @@ describe("daily pipeline", () => {
       duplicate: 0,
       failed: 1,
       inProgress: 0,
-      skippedBudget: 1,
     });
     expect(prepareToday).toHaveBeenCalledOnce();
   });

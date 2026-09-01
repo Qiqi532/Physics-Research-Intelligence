@@ -40,7 +40,7 @@ The selection spans precision measurement, quantum gases, and nuclear physics. I
 3. Valid records are mapped to the existing `PaperSourceInput` boundary and written through the existing paper repository. The import is idempotent through the arXiv source-record identity.
 4. Existing classification and interpretation jobs receive the stored public title, abstract, journal, and publication date.
 5. The existing runtime routing resolves the user-created Kimi connection. Prompts require strict JSON, evidence levels, evidence references, and the disclosure `基于摘要解读`.
-6. Structured outputs and AI run attempts are persisted with provider, model, prompt version, token counts, duration, estimated cost, status, and stable error codes.
+6. Structured outputs and AI run attempts are persisted with provider, model, prompt version, provider-reported token counts when available, duration, status, and stable error codes.
 7. The paper detail and Today interfaces display the results for human comparison.
 
 PostgreSQL remains the source of truth. Redis and BullMQ remain replaceable operational state. Local PDFs remain in `data/journal-corpus/pdfs/` and are not read by the importer or sent to Kimi during this trial.
@@ -61,7 +61,7 @@ The importer owns mapping and isolated per-record repository writes. The command
 
 ### Existing AI pipeline
 
-The existing provider abstraction, Kimi OpenAI-compatible adapter, connection console, routing, versioned prompts, budget reservation, idempotency, fallback, and audit records are reused. Automated tests use mock providers only.
+The existing provider abstraction, Kimi OpenAI-compatible adapter, connection console, routing, versioned prompts, idempotency, fallback, and audit records are reused. Automated tests use mock providers only.
 
 ### Human-guided local run
 
@@ -73,7 +73,7 @@ The user enters the Kimi API key only in the localhost model settings page. The 
 - A malformed manifest fails closed with a validation error.
 - One repository failure is isolated and reported with a stable safe code; successful records remain usable.
 - Re-running the import converges on the same paper/source records.
-- Provider timeout, invalid JSON, schema mismatch, budget exhaustion, or persistence failure produces a truthful failed or skipped AI run. No interpretation is fabricated.
+- Provider timeout, invalid JSON, schema mismatch, or persistence failure produces a truthful failed AI run. No interpretation is fabricated.
 - Logs contain IDs, counts, statuses, durations, and stable error codes only. They exclude abstracts, API keys, ciphertext, database URLs, internal stacks, and PDF paths.
 - The real Kimi API is never called by automated tests. A paid real call occurs only after the user saves the connection locally and confirms the connection checks.
 - The API key remains in the application form and encrypted local storage. It is never pasted into chat, source files, commands, or Git.
@@ -85,10 +85,10 @@ Implementation will follow the repository's existing testing patterns:
 - parser tests for valid entries, malformed fields, unknown IDs, duplicate IDs, and safe failures;
 - importer tests for exact selection, mapping, idempotent repository usage, isolated failures, and log-safe results;
 - command-level behavior tests where practical without a real provider;
-- existing AI and worker tests to protect strict schemas, abstract-only prompts, budgets, routing, and audit behavior;
+- existing AI and worker tests to protect strict schemas, abstract-only prompts, routing, and audit behavior;
 - targeted tests first, followed by type checking, the full Vitest suite, relevant Playwright coverage, build checks, and `git diff --check` in proportion to the final change.
 
-The manual trial records the outcome for each paper, provider and model, prompt version, token usage, duration, estimated cost, failure code if any, and a short human quality assessment.
+The manual trial records the outcome for each paper, provider and model, prompt version, provider-reported token usage when available, duration, failure code if any, and a short human quality assessment.
 
 ## Acceptance criteria
 
@@ -98,7 +98,7 @@ The trial is complete when:
 2. all three selected public metadata and abstract records are present in PostgreSQL;
 3. each paper has a classification and a Chinese structured interpretation while retaining its original English title and abstract;
 4. the UI displays research question, innovations, methods and evidence, limitations, reading advice, evidence levels, and the abstract-only source disclosure;
-5. AI run audit data exposes model, prompt version, duration, tokens, estimated cost, and truthful failures without exposing secrets;
+5. AI run audit data exposes model, prompt version, duration, provider-reported tokens when available, and truthful failures without exposing secrets;
 6. the three results receive a human comparison, with the expectation that the first run establishes a baseline rather than final academic quality.
 
 ## Execution order

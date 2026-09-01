@@ -293,7 +293,6 @@ describeDatabase("PostgreSQL paper repository", () => {
             totalTokens: 20,
             durationMs: 5,
             status: "COMPLETE",
-            estimatedCostUsd: 0,
             completedAt: new Date("2026-07-01T00:00:00.000Z"),
           },
         },

@@ -157,8 +157,6 @@ function stored(
     apiKeyAuthTag: Buffer.alloc(16, 2),
     encryptionVersion: 1,
     requestTimeoutMs: 30_000,
-    inputCostPerMillionUsd: 1,
-    outputCostPerMillionUsd: 3,
     createdAt: new Date(0),
     updatedAt: new Date(0),
   };
@@ -180,14 +178,10 @@ function environmentConfig(): AiServerConfig {
       kimi: {
         apiKey: `${environmentTestValue}-kimi`,
         baseUrl: "https://kimi.example.test/v1",
-        inputCostPerMillionUsd: 1,
-        outputCostPerMillionUsd: 3,
       },
       glm: {
         apiKey: `${environmentTestValue}-glm`,
         baseUrl: "https://glm.example.test/v1",
-        inputCostPerMillionUsd: 1,
-        outputCostPerMillionUsd: 3,
       },
     },
   };

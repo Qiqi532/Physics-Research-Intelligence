@@ -26,8 +26,6 @@ export type ResolvedAiConnection = {
   apiKey: string;
   baseUrl: string;
   requestTimeoutMs: number;
-  inputCostPerMillionUsd: number;
-  outputCostPerMillionUsd: number;
 };
 
 export type RuntimeAiTaskRoute = {
@@ -154,8 +152,6 @@ function environmentConnection(
     apiKey: provider.apiKey,
     baseUrl: provider.baseUrl,
     requestTimeoutMs: config.requestTimeoutMs,
-    inputCostPerMillionUsd: provider.inputCostPerMillionUsd,
-    outputCostPerMillionUsd: provider.outputCostPerMillionUsd,
   };
 }
 
@@ -179,8 +175,6 @@ async function resolveStoredConnection(
     apiKey,
     baseUrl: profile.baseUrl,
     requestTimeoutMs: profile.requestTimeoutMs,
-    inputCostPerMillionUsd: profile.inputCostPerMillionUsd,
-    outputCostPerMillionUsd: profile.outputCostPerMillionUsd,
   };
 }
 

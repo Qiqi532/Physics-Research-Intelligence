@@ -1,4 +1,3 @@
-import { estimateCost, type AiPrices, type CostEstimate } from "./cost";
 import { AiProviderError, type AiErrorCode } from "./errors";
 import type {
   AiProvider,
@@ -37,8 +36,7 @@ export type ConnectionSampleSuccess<T> = {
   provider: string;
   model: string;
   durationMs: number;
-  usage: AiUsage;
-  cost: CostEstimate;
+  usage?: AiUsage;
   output: T;
 };
 
@@ -72,7 +70,6 @@ export async function runConnectionHealth(
 export async function runConnectionSample(input: {
   classificationProvider: AiProvider;
   interpretationProvider: AiProvider;
-  prices: AiPrices;
 }): Promise<ConnectionSampleResult> {
   const [classification] = await Promise.allSettled([
     input.classificationProvider.classify(connectionSamplePaper),
@@ -85,12 +82,10 @@ export async function runConnectionSample(input: {
     classification: settledSample(
       classification,
       input.classificationProvider,
-      input.prices,
     ),
     interpretation: settledSample(
       interpretation,
       input.interpretationProvider,
-      input.prices,
     ),
   };
 }
@@ -98,7 +93,6 @@ export async function runConnectionSample(input: {
 function settledSample<T>(
   result: PromiseSettledResult<AiProviderResult<T>>,
   provider: AiProvider,
-  prices: AiPrices,
 ): ConnectionSampleSuccess<T> | ConnectionTestFailure {
   if (result.status === "rejected") {
     return failure(provider, result.reason);
@@ -108,8 +102,7 @@ function settledSample<T>(
     provider: result.value.provider,
     model: result.value.model,
     durationMs: result.value.durationMs,
-    usage: result.value.usage,
-    cost: estimateCost({ usage: result.value.usage, prices }),
+    ...(result.value.usage ? { usage: result.value.usage } : {}),
     output: result.value.output,
   };
 }

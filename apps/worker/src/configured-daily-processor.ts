@@ -26,7 +26,6 @@ import { runDailyPipeline } from "./daily-pipeline";
 import { classifyPaper } from "./jobs/classify-paper";
 import { ingestSources } from "./jobs/ingest-source";
 import { interpretPaper } from "./jobs/interpret-paper";
-import type { ProviderPrices } from "./jobs/ai-job";
 import { dailyWindowAt } from "./scheduler";
 import {
   createRuntimeAiConfigResolver,
@@ -142,8 +141,6 @@ export function createConfiguredDailyProcessor(
         snapshot.interpret,
         createProvider,
       );
-      const classificationPrices = createTaskPrices(snapshot.classify);
-      const interpretationPrices = createTaskPrices(snapshot.interpret);
       const window = dailyWindowAt(
         new Date(),
         config.DAILY_PIPELINE.timezone,
@@ -181,7 +178,6 @@ export function createConfiguredDailyProcessor(
             repository: aiRepository,
             primary: classificationProviders.primary,
             fallback: classificationProviders.fallback,
-            prices: classificationPrices,
           });
           return outcome.status;
         },
@@ -206,9 +202,6 @@ export function createConfiguredDailyProcessor(
             repository: aiRepository,
             primary: interpretationProviders.primary,
             fallback: interpretationProviders.fallback,
-            prices: interpretationPrices,
-            dailyBudgetUsd: config.DAILY_AI_BUDGET_USD,
-            maxOutputTokens: snapshot.interpret.maxOutputTokens,
           });
           return outcome.status;
         },
@@ -260,18 +253,4 @@ function providerInput(
     requestTimeoutMs: connection.requestTimeoutMs,
     maxOutputTokens,
   };
-}
-
-export function createTaskPrices(route: RuntimeAiTaskRoute): ProviderPrices {
-  return Object.fromEntries(
-    [route.primary, route.fallback]
-      .filter((connection): connection is ResolvedAiConnection => connection !== undefined)
-      .map((connection) => [
-        connection.provider,
-        {
-          inputCostPerMillionUsd: connection.inputCostPerMillionUsd,
-          outputCostPerMillionUsd: connection.outputCostPerMillionUsd,
-        },
-      ]),
-  );
 }

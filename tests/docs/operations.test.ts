@@ -14,7 +14,6 @@ describe("stage 5 operations documentation", () => {
       "## Troubleshooting",
       "standalone/apps/web/.next/static",
       "queue_backlog",
-      "budget_exceeded",
     ]) {
       expect(guide).toContain(section);
     }

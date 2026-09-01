@@ -4,7 +4,6 @@ import { parseConfig, toLogSafeData } from "../../packages/domain/src/config";
 const validEnvironment = {
   DATABASE_URL: "postgresql://pri:pri@localhost:5432/pri",
   REDIS_URL: "redis://localhost:6379",
-  DAILY_AI_BUDGET_USD: "2.50",
 };
 
 describe("server configuration", () => {
@@ -20,10 +19,6 @@ describe("server configuration", () => {
     expect(() => parseConfig(environmentWithoutDatabase)).toThrow(
       "Missing required environment variable: DATABASE_URL",
     );
-  });
-
-  it("parses a valid positive daily budget", () => {
-    expect(parseConfig(validEnvironment).DAILY_AI_BUDGET_USD).toBe(2.5);
   });
 
   it("accepts optional public-source configuration without requiring credentials", () => {
@@ -80,7 +75,7 @@ describe("server configuration", () => {
     try {
       parseConfig({
         ...validEnvironment,
-        DAILY_AI_BUDGET_USD: "invalid",
+        DAILY_PIPELINE_ENABLED: "invalid",
         AI_PROVIDER_OPENAI_API_KEY: secret,
       });
       throw new Error("Expected parseConfig to fail");

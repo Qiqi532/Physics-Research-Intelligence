@@ -4,7 +4,6 @@ import { parseConfig, toLogSafeData } from "../../packages/domain/src/config";
 const serviceEnvironment = {
   DATABASE_URL: "postgresql://pri:pri@localhost:5432/pri",
   REDIS_URL: "redis://localhost:6379",
-  DAILY_AI_BUDGET_USD: "2.50",
 };
 
 const aiEnvironment = {
@@ -21,20 +20,12 @@ const aiEnvironment = {
   AI_INTERPRET_MAX_OUTPUT_TOKENS: "4000",
   AI_PROVIDER_OPENAI_API_KEY: "fixture-openai-key",
   AI_PROVIDER_OPENAI_BASE_URL: "https://openai.example.test/v1",
-  AI_PROVIDER_OPENAI_INPUT_COST_PER_MILLION_USD: "1.25",
-  AI_PROVIDER_OPENAI_OUTPUT_COST_PER_MILLION_USD: "5",
   AI_PROVIDER_DEEPSEEK_API_KEY: "fixture-deepseek-key",
   AI_PROVIDER_DEEPSEEK_BASE_URL: "https://deepseek.example.test",
-  AI_PROVIDER_DEEPSEEK_INPUT_COST_PER_MILLION_USD: "0.25",
-  AI_PROVIDER_DEEPSEEK_OUTPUT_COST_PER_MILLION_USD: "1",
   AI_PROVIDER_GEMINI_API_KEY: "fixture-gemini-key",
   AI_PROVIDER_GEMINI_BASE_URL: "https://gemini.example.test/v1beta",
-  AI_PROVIDER_GEMINI_INPUT_COST_PER_MILLION_USD: "0.5",
-  AI_PROVIDER_GEMINI_OUTPUT_COST_PER_MILLION_USD: "2",
   AI_PROVIDER_QWEN_API_KEY: "fixture-qwen-key",
   AI_PROVIDER_QWEN_BASE_URL: "https://qwen.example.test/compatible-mode/v1",
-  AI_PROVIDER_QWEN_INPUT_COST_PER_MILLION_USD: "0.4",
-  AI_PROVIDER_QWEN_OUTPUT_COST_PER_MILLION_USD: "1.6",
 };
 
 describe("AI server configuration", () => {
@@ -59,7 +50,6 @@ describe("AI server configuration", () => {
       },
     }));
     expect(config.AI?.providers.qwen.baseUrl).toContain("qwen.example.test");
-    expect(config.AI?.providers.openai.inputCostPerMillionUsd).toBe(1.25);
   });
 
   it("rejects the same primary and fallback provider", () => {
@@ -84,7 +74,6 @@ describe("AI server configuration", () => {
   it.each([
     ["AI_REQUEST_TIMEOUT_MS", "0"],
     ["AI_CLASSIFY_MAX_OUTPUT_TOKENS", "1.5"],
-    ["AI_PROVIDER_OPENAI_INPUT_COST_PER_MILLION_USD", "-1"],
   ] as const)("rejects invalid numeric setting %s", (name, value) => {
     expect(() => parseConfig({
       ...serviceEnvironment,
@@ -149,11 +138,7 @@ describe("AI server configuration", () => {
     }));
     expect(config.AI?.providers[provider]).toEqual(expect.objectContaining({
       baseUrl,
-      inputCostPerMillionUsd: expect.any(Number),
-      outputCostPerMillionUsd: expect.any(Number),
     }));
-    expect(config.AI?.providers[provider]?.inputCostPerMillionUsd).toBeGreaterThan(0);
-    expect(config.AI?.providers[provider]?.outputCostPerMillionUsd).toBeGreaterThan(0);
   });
 
   it("requires an explicit default when more than one provider key is configured", () => {

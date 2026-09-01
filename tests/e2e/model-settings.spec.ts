@@ -100,8 +100,6 @@ async function fillConnection(page: Page, name: string, provider: string, key: s
   await page.getByLabel("供应商").selectOption(provider);
   await page.getByLabel("API Key").fill(key);
   await page.getByLabel("接口地址").fill("http://127.0.0.1:3211/v1");
-  await page.getByLabel("输入价（美元/百万 token）").fill("1");
-  await page.getByLabel("输出价（美元/百万 token）").fill("3");
 }
 
 async function selectNamedConnection(page: Page, label: string, name: string) {

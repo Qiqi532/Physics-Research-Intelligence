@@ -1,13 +1,6 @@
 import { createHash } from "node:crypto";
-import {
-  estimateCost,
-  type AiPrices,
-  type AiRouteAttempt,
-  type PaperAiInput,
-} from "@pri/ai";
+import type { AiRouteAttempt, PaperAiInput } from "@pri/ai";
 import type { AiAttemptInput, SafePaperFacts } from "@pri/db";
-
-export type ProviderPrices = Record<string, AiPrices>;
 
 export function toPaperAiInput(paper: SafePaperFacts): PaperAiInput {
   return {
@@ -38,28 +31,17 @@ export function createIdempotencyKey(input: {
 
 export function toAttemptInputs(
   attempts: readonly AiRouteAttempt[],
-  prices: ProviderPrices,
   completedAt: Date,
 ): AiAttemptInput[] {
-  return attempts.map((attempt) => {
-    const providerPrices = prices[attempt.provider];
-    if (!providerPrices) {
-      throw new Error(`Missing cost configuration for provider ${attempt.provider}`);
-    }
-    const cost = attempt.usage
-      ? estimateCost({ usage: attempt.usage, prices: providerPrices }).usd
-      : 0;
-    return {
-      provider: attempt.provider,
-      model: attempt.model,
-      status: attempt.status === "complete" ? "COMPLETE" : "FAILED",
-      inputTokens: attempt.usage?.inputTokens ?? null,
-      outputTokens: attempt.usage?.outputTokens ?? null,
-      totalTokens: attempt.usage?.totalTokens ?? null,
-      durationMs: attempt.durationMs,
-      errorCode: attempt.errorCode ?? null,
-      estimatedCostUsd: cost,
-      completedAt,
-    };
-  });
+  return attempts.map((attempt) => ({
+    provider: attempt.provider,
+    model: attempt.model,
+    status: attempt.status === "complete" ? "COMPLETE" : "FAILED",
+    inputTokens: attempt.usage?.inputTokens ?? null,
+    outputTokens: attempt.usage?.outputTokens ?? null,
+    totalTokens: attempt.usage?.totalTokens ?? null,
+    durationMs: attempt.durationMs,
+    errorCode: attempt.errorCode ?? null,
+    completedAt,
+  }));
 }

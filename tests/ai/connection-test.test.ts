@@ -70,7 +70,7 @@ describe("model connection test runner", () => {
     });
   });
 
-  it("runs classification and interpretation and estimates each physical cost", async () => {
+  it("runs classification and interpretation and returns provider usage", async () => {
     const provider = createMockAiProvider({
       name: "kimi",
       model: "kimi-k3",
@@ -82,21 +82,47 @@ describe("model connection test runner", () => {
     const sample = await runConnectionSample({
       classificationProvider: provider,
       interpretationProvider: provider,
-      prices: { inputCostPerMillionUsd: 1, outputCostPerMillionUsd: 3 },
     });
 
     expect(sample.classification).toEqual(expect.objectContaining({
       status: "complete",
       usage: { inputTokens: 100, outputTokens: 40, totalTokens: 140 },
-      cost: { microUsd: 220, usd: 0.00022 },
       output: classification,
     }));
     expect(sample.interpretation).toEqual(expect.objectContaining({
       status: "complete",
-      cost: { microUsd: 360, usd: 0.00036 },
       output: interpretation,
     }));
     expect(JSON.stringify(sample)).not.toContain(testOnlyValue);
+  });
+
+  it("keeps successful sample results when the provider omits usage", async () => {
+    const provider = createMockAiProvider({
+      name: "compatible",
+      model: "usage-optional-fixture",
+      classify: { output: classification, inputTokens: 10, outputTokens: 5, durationMs: 2 },
+      interpret: { output: interpretation, inputTokens: 10, outputTokens: 5, durationMs: 3 },
+    });
+    const classify = provider.classify.bind(provider);
+    const interpret = provider.interpret.bind(provider);
+    vi.spyOn(provider, "classify").mockImplementation(async (input) => {
+      const { usage: _usage, ...result } = await classify(input);
+      return result;
+    });
+    vi.spyOn(provider, "interpret").mockImplementation(async (input) => {
+      const { usage: _usage, ...result } = await interpret(input);
+      return result;
+    });
+
+    const sample = await runConnectionSample({
+      classificationProvider: provider,
+      interpretationProvider: provider,
+    });
+
+    expect(sample.classification).toEqual(expect.objectContaining({ status: "complete" }));
+    expect(sample.interpretation).toEqual(expect.objectContaining({ status: "complete" }));
+    expect(sample.classification).not.toHaveProperty("usage");
+    expect(sample.interpretation).not.toHaveProperty("usage");
   });
 
   it("waits for classification before starting interpretation", async () => {
@@ -124,7 +150,6 @@ describe("model connection test runner", () => {
     const pendingSample = runConnectionSample({
       classificationProvider: provider,
       interpretationProvider: provider,
-      prices: { inputCostPerMillionUsd: 0, outputCostPerMillionUsd: 0 },
     });
 
     await Promise.resolve();
@@ -144,7 +169,6 @@ describe("model connection test runner", () => {
     const sample = await runConnectionSample({
       classificationProvider: provider,
       interpretationProvider: provider,
-      prices: { inputCostPerMillionUsd: 0, outputCostPerMillionUsd: 0 },
     });
 
     expect(sample.classification).toEqual(expect.objectContaining({

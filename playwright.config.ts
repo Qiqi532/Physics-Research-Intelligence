@@ -6,7 +6,6 @@ const testDatabaseUrl = requireDedicatedTestDatabase();
 const baseEnvironment = {
   DATABASE_URL: testDatabaseUrl,
   REDIS_URL: "redis://127.0.0.1:6379/15",
-  DAILY_AI_BUDGET_USD: "1",
   DAILY_PIPELINE_ENABLED: "false",
   AI_SETTINGS_MASTER_KEY_FILE: join(tmpdir(), "pri-stage8-e2e-model-settings.key"),
   PRI_LAN_MODE: "false",

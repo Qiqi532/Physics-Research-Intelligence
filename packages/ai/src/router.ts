@@ -111,7 +111,7 @@ async function attempt<T>(
         provider: result.provider,
         model: result.model,
         status: "complete",
-        usage: result.usage,
+        ...(result.usage ? { usage: result.usage } : {}),
         durationMs: result.durationMs,
       },
     };

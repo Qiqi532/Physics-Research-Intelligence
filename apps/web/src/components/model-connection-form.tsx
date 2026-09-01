@@ -13,8 +13,6 @@ export type ConnectionDraft = {
   apiKey: string;
   baseUrl: string;
   requestTimeoutMs: string;
-  inputCostPerMillionUsd: string;
-  outputCostPerMillionUsd: string;
 };
 
 export const providerLabels: Record<AiProviderName, string> = {
@@ -41,8 +39,6 @@ export function connectionDraft(
       apiKey: "",
       baseUrl: preset.baseUrl,
       requestTimeoutMs: "45000",
-      inputCostPerMillionUsd: "10",
-      outputCostPerMillionUsd: "50",
     };
   }
   return {
@@ -52,8 +48,6 @@ export function connectionDraft(
     apiKey: "",
     baseUrl: connection.baseUrl,
     requestTimeoutMs: String(connection.requestTimeoutMs),
-    inputCostPerMillionUsd: String(connection.inputCostPerMillionUsd),
-    outputCostPerMillionUsd: String(connection.outputCostPerMillionUsd),
   };
 }
 
@@ -76,8 +70,6 @@ export function connectionPayload(draft: ConnectionDraft, mode: ConnectionMode) 
     model: draft.model.trim(),
     baseUrl: draft.baseUrl.trim(),
     requestTimeoutMs: Number(draft.requestTimeoutMs),
-    inputCostPerMillionUsd: Number(draft.inputCostPerMillionUsd),
-    outputCostPerMillionUsd: Number(draft.outputCostPerMillionUsd),
     ...(mode === "create" || draft.apiKey.trim() ? { apiKey: draft.apiKey.trim() } : {}),
   };
   return payload;
@@ -149,7 +141,7 @@ export function ModelConnectionForm(props: Props) {
 
   async function runTest(kind: "health" | "sample") {
     if (!props.connection || props.disabled || pending) return;
-    if (kind === "sample" && !window.confirm("示例测试会调用模型并产生少量费用，是否继续？")) return;
+    if (kind === "sample" && !window.confirm("示例测试会调用模型并使用 Token 额度，是否继续？")) return;
     setTestState({ kind: "pending", label: kind === "health" ? "正在测试连接…" : "正在运行合成论文示例…" });
     try {
       const response = await fetch(`/api/model-connections/${props.connection.id}/${kind}`, { method: "POST" });
@@ -176,11 +168,9 @@ export function ModelConnectionForm(props: Props) {
           <label>API Key<input required={props.mode === "create"} type="password" autoComplete="new-password" value={draft.apiKey} placeholder={props.mode === "edit" ? "留空则保留现有密钥" : "仅在保存时发送"} onChange={(event) => field("apiKey", event.target.value)} /></label>
           <label className="model-field-wide">接口地址<input required type="url" value={draft.baseUrl} onChange={(event) => field("baseUrl", event.target.value)} /></label>
           <label>超时（毫秒）<input required type="number" min="1000" max="120000" step="1000" value={draft.requestTimeoutMs} onChange={(event) => field("requestTimeoutMs", event.target.value)} /></label>
-          <label>输入价（美元/百万 token）<input required type="number" min="0" step="0.0001" value={draft.inputCostPerMillionUsd} onChange={(event) => field("inputCostPerMillionUsd", event.target.value)} /></label>
-          <label>输出价（美元/百万 token）<input required type="number" min="0" step="0.0001" value={draft.outputCostPerMillionUsd} onChange={(event) => field("outputCostPerMillionUsd", event.target.value)} /></label>
         </div>
       </fieldset>
-      <p className="model-secret-note">API Key 加密保存，页面不会再次显示明文。价格用于预算估算，请按供应商账单填写。</p>
+      <p className="model-secret-note">API Key 加密保存，页面不会再次显示明文。Token 用量仅在供应商明确返回时记录。</p>
       <div className="model-form-actions">
         <button className="button-link" type="submit">{pending ? "保存中…" : "保存配置"}</button>
         <button className="text-button" type="button" onClick={props.onCancel}>取消更改</button>

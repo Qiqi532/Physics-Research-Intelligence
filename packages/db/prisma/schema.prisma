@@ -45,7 +45,6 @@ enum AiRunStatus {
   RUNNING
   COMPLETE
   FAILED
-  SKIPPED_BUDGET
 }
 
 enum AiAttemptStatus {
@@ -188,9 +187,6 @@ model AiRun {
   durationMs       Int?
   status           AiRunStatus @default(PENDING)
   errorCode        String?
-  estimatedCostUsd Decimal?    @db.Decimal(12, 6)
-  reservedCostUsd  Decimal?    @db.Decimal(12, 6)
-  reservedAt       DateTime?   @db.Timestamptz(6)
   completedAt      DateTime?   @db.Timestamptz(6)
   createdAt        DateTime    @default(now()) @db.Timestamptz(6)
   updatedAt        DateTime    @updatedAt @db.Timestamptz(6)
@@ -200,7 +196,6 @@ model AiRun {
 
   @@index([paperId, createdAt])
   @@index([status, createdAt])
-  @@index([status, reservedAt])
 }
 
 model AiRunAttempt {
@@ -215,7 +210,6 @@ model AiRunAttempt {
   durationMs       Int
   status           AiAttemptStatus
   errorCode        String?
-  estimatedCostUsd Decimal?        @db.Decimal(12, 6)
   completedAt      DateTime        @db.Timestamptz(6)
   createdAt        DateTime        @default(now()) @db.Timestamptz(6)
 
@@ -251,8 +245,6 @@ model AiConnectionProfile {
   apiKeyAuthTag           Bytes
   encryptionVersion       Int      @default(1)
   requestTimeoutMs        Int
-  inputCostPerMillionUsd  Decimal  @db.Decimal(12, 6)
-  outputCostPerMillionUsd Decimal  @db.Decimal(12, 6)
   createdAt               DateTime @default(now()) @db.Timestamptz(6)
   updatedAt               DateTime @updatedAt @db.Timestamptz(6)
 

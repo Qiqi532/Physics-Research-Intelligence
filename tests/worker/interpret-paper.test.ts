@@ -36,7 +36,7 @@ const interpretation = {
 };
 
 describe("interpret-paper job", () => {
-  it("checks successful idempotency before budget reservation", async () => {
+  it("checks successful idempotency before claiming a run", async () => {
     const repository = repositoryStub();
     repository.findSuccessfulRun.mockResolvedValue({ id: "existing-run" });
     const primary = successfulProvider();
@@ -46,29 +46,8 @@ describe("interpret-paper job", () => {
       status: "duplicate",
       runId: "existing-run",
     });
-    expect(repository.reserveInterpretationRun).not.toHaveBeenCalled();
+    expect(repository.claimRun).not.toHaveBeenCalled();
     expect(call).not.toHaveBeenCalled();
-  });
-
-  it("returns a structured budget skip without calling either provider", async () => {
-    const repository = repositoryStub();
-    repository.reserveInterpretationRun.mockResolvedValue({
-      status: "budget_exceeded",
-      run: { id: "run-1" },
-    });
-    const primary = successfulProvider();
-    const fallback = successfulProvider("fallback", "fallback-model");
-    const primaryCall = vi.spyOn(primary, "interpret");
-    const fallbackCall = vi.spyOn(fallback, "interpret");
-
-    await expect(run(repository, primary, fallback)).resolves.toEqual({
-      status: "skipped",
-      errorCode: "budget_exceeded",
-      runId: "run-1",
-    });
-    expect(primaryCall).not.toHaveBeenCalled();
-    expect(fallbackCall).not.toHaveBeenCalled();
-    expect(repository.appendAttempts).not.toHaveBeenCalled();
   });
 
   it("interprets only safe public facts and persists abstract-only content", async () => {
@@ -151,7 +130,7 @@ function repositoryStub() {
   return {
     findPaperForAi: vi.fn(async () => paper),
     findSuccessfulRun: vi.fn(async () => null),
-    reserveInterpretationRun: vi.fn(async () => ({
+    claimRun: vi.fn(async () => ({
       status: "claimed" as const,
       run: { id: "run-1" },
     })),
@@ -172,13 +151,6 @@ function run(
     repository,
     primary,
     fallback,
-    dailyBudgetUsd: 1,
-    maxOutputTokens: 1_000,
-    prices: {
-      openai: { inputCostPerMillionUsd: 1, outputCostPerMillionUsd: 1 },
-      primary: { inputCostPerMillionUsd: 1, outputCostPerMillionUsd: 1 },
-      fallback: { inputCostPerMillionUsd: 1, outputCostPerMillionUsd: 1 },
-    },
     now: () => new Date("2026-08-29T12:00:00.000Z"),
   });
 }

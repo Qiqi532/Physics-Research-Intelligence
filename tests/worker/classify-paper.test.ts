@@ -40,9 +40,6 @@ describe("classify-paper job", () => {
       paperId: paper.id,
       repository,
       primary,
-      prices: {
-        openai: { inputCostPerMillionUsd: 1, outputCostPerMillionUsd: 2 },
-      },
       now: () => new Date("2026-08-29T01:00:00.000Z"),
     });
 
@@ -58,7 +55,6 @@ describe("classify-paper job", () => {
       runType: "CLASSIFY",
       idempotencyKey: expect.stringContaining("CLASSIFY:fixture-classifier:classify-v1"),
       inputHash: expect.stringMatching(/^[a-f0-9]{64}$/u),
-      reservedCostUsd: 0,
     }));
     expect(repository.replaceClassifications).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -73,7 +69,7 @@ describe("classify-paper job", () => {
       expect.objectContaining({
         provider: "openai",
         status: "COMPLETE",
-        estimatedCostUsd: 0.00014,
+        totalTokens: 120,
       }),
     ]);
   });
@@ -90,7 +86,6 @@ describe("classify-paper job", () => {
       paperId: paper.id,
       repository,
       primary,
-      prices: { mock: { inputCostPerMillionUsd: 0, outputCostPerMillionUsd: 0 } },
     })).resolves.toEqual({ status: "duplicate", runId: "existing-run" });
     expect(repository.claimRun).not.toHaveBeenCalled();
     expect(classifyCall).not.toHaveBeenCalled();
@@ -114,10 +109,6 @@ describe("classify-paper job", () => {
       repository,
       primary,
       fallback,
-      prices: {
-        openai: { inputCostPerMillionUsd: 1, outputCostPerMillionUsd: 1 },
-        deepseek: { inputCostPerMillionUsd: 1, outputCostPerMillionUsd: 1 },
-      },
     });
 
     expect(outcome.status).toBe("complete");
@@ -140,7 +131,6 @@ describe("classify-paper job", () => {
       repository,
       primary,
       fallback,
-      prices: { mock: { inputCostPerMillionUsd: 0, outputCostPerMillionUsd: 0 } },
     })).resolves.toEqual(expect.objectContaining({
       status: "failed",
       errorCode: "schema_invalid",
@@ -162,7 +152,6 @@ describe("classify-paper job", () => {
       paperId: paper.id,
       repository,
       primary,
-      prices: { mock: { inputCostPerMillionUsd: 0, outputCostPerMillionUsd: 0 } },
     })).resolves.toEqual({
       status: "failed",
       runId: "run-1",
