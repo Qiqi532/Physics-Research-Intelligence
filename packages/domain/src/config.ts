@@ -172,7 +172,7 @@ function parseDailyPipelineConfig(environment: NodeJS.ProcessEnv): DailyPipeline
   if (enabledValue !== "true" && enabledValue !== "false") {
     throw new Error("DAILY_PIPELINE_ENABLED must be true or false");
   }
-  const time = optionalEnvironmentValue(environment, "DAILY_PIPELINE_TIME") ?? "06:00";
+  const time = optionalEnvironmentValue(environment, "DAILY_PIPELINE_TIME") ?? "00:00";
   if (!/^(?:[01]\d|2[0-3]):[0-5]\d$/u.test(time)) {
     throw new Error("DAILY_PIPELINE_TIME must use 24-hour HH:mm format");
   }
