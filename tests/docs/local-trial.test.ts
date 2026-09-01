@@ -27,6 +27,8 @@ describe("local real-data trial boundary", () => {
 
     expect(workerPackage.scripts["corpus:download"]).toBe("tsx src/download-review-corpus.ts");
     expect(workerPackage.scripts["corpus:import"]).toBe("tsx src/import-review-corpus.ts");
+    expect(workerPackage.scripts["corpus:journal:trial"])
+      .toBe("tsx src/import-journal-corpus-trial.ts");
   });
 
   it("tracks one official arXiv record for each existing physics tag", async () => {

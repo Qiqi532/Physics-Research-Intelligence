@@ -45,6 +45,7 @@ const journalCorpusManifestSchema = z.array(journalCorpusEntrySchema)
 
 const requestedIdsSchema = z.array(z.string().regex(arxivIdPattern))
   .min(1, { message: "Select at least one arXiv id" })
+  .max(3, { message: "Select at most three arXiv ids" })
   .superRefine((ids, context) => {
     reportDuplicate(ids, "duplicate requested arXiv id", context);
   });

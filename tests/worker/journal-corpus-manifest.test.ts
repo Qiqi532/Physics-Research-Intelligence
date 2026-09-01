@@ -33,6 +33,12 @@ describe("journal corpus manifest", () => {
       "2504.21524v1",
       "2504.21524v1",
     ])).toThrow(/duplicate/i);
+    expect(() => selectJournalCorpusEntries(manifest, [
+      "2504.21524v1",
+      "2410.10611v2",
+      "2408.15441v2",
+      "2508.08368v2",
+    ])).toThrow(/at most three/i);
     expect(() => selectJournalCorpusEntries(manifest, ["2410.10611v2"]))
       .toThrow(/unknown/i);
   });

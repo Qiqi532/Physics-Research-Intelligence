@@ -65,16 +65,16 @@ export function createConfiguredDailyProcessor(
   return {
     async process() {
       const snapshot = await resolver.resolve();
-      const classificationProviders = taskProviders(
+      const classificationProviders = createTaskProviders(
         snapshot.classify,
         createProvider,
       );
-      const interpretationProviders = taskProviders(
+      const interpretationProviders = createTaskProviders(
         snapshot.interpret,
         createProvider,
       );
-      const classificationPrices = taskPrices(snapshot.classify);
-      const interpretationPrices = taskPrices(snapshot.interpret);
+      const classificationPrices = createTaskPrices(snapshot.classify);
+      const interpretationPrices = createTaskPrices(snapshot.interpret);
       const window = dailyWindowAt(
         new Date(),
         config.DAILY_PIPELINE.timezone,
@@ -148,7 +148,7 @@ export function createConfiguredDailyProcessor(
   };
 }
 
-function taskProviders(
+export function createTaskProviders(
   route: RuntimeAiTaskRoute,
   createProvider: typeof createConnectionProvider,
 ) {
@@ -174,7 +174,7 @@ function providerInput(
   };
 }
 
-function taskPrices(route: RuntimeAiTaskRoute): ProviderPrices {
+export function createTaskPrices(route: RuntimeAiTaskRoute): ProviderPrices {
   return Object.fromEntries(
     [route.primary, route.fallback]
       .filter((connection): connection is ResolvedAiConnection => connection !== undefined)

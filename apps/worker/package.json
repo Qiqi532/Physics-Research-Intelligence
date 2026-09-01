@@ -8,6 +8,7 @@
     "ingest": "tsx src/ingest.ts",
     "corpus:download": "tsx src/download-review-corpus.ts",
     "corpus:import": "tsx src/import-review-corpus.ts",
+    "corpus:journal:trial": "tsx src/import-journal-corpus-trial.ts",
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit"

@@ -97,6 +97,14 @@ API Key 使用 AES-256-GCM 加密后保存到本地数据库，主密钥独立�
 
 本轮只导入并发送公开元数据与摘要，包括标题、摘要、期刊和发表日期。导入器不读取本地 PDF 字节，模型调用不上传 PDF 全文，也不会声称已经阅读全文。
 
+在本地页面完成 Kimi 连接测试并设置分类/解读路由后，运行：
+
+```powershell
+pnpm --filter @pri/worker corpus:journal:trial -- 2504.21524v1 2410.10611v2 2408.15441v2
+```
+
+该命令会产生真实的付费模型请求。不要把 API Key 放入命令行；CLI 只读取模型管理台已经加密保存的连接。
+
 试运行成功标准：
 
 - Kimi 轻量连通测试和合成论文示例通过；
@@ -253,6 +261,14 @@ The key is encrypted with AES-256-GCM before database storage, while the master 
 | Nuclear physics | `2408.15441v2` | *Tracking the baryon number with nuclear collisions* |
 
 This trial imports and sends public metadata and abstracts only: title, abstract, journal, and publication date. The importer does not read local PDF bytes, the model request does not upload PDF full text, and the application must not claim that the full paper was read.
+
+After the local Kimi connection checks pass and both task routes are assigned, run:
+
+```powershell
+pnpm --filter @pri/worker corpus:journal:trial -- 2504.21524v1 2410.10611v2 2408.15441v2
+```
+
+This command makes real paid model requests. Never place an API key on the command line; the CLI resolves only the connection encrypted by the local model console.
 
 Acceptance criteria:
 
