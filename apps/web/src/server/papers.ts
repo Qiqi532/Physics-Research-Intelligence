@@ -1,6 +1,7 @@
 import {
   createPaperRepository,
   createPrismaClient,
+  type FavoritePaper,
   type PaperDetails,
   type PaperRepository,
   type PaperSummary,
@@ -18,6 +19,25 @@ export type ApiResult = {
 type PaperApiOptions = {
   logError?: (error: unknown) => void;
 };
+
+export type FavoritePaperDto = {
+  id: string;
+  doi: string | null;
+  title: string;
+  journal: string | null;
+  publishedAt: string | null;
+  originalUrl: string | null;
+  accessStatus: "UNKNOWN" | "OPEN" | "RESTRICTED";
+  readingStatus: "UNREAD" | "SAVED" | "READING" | "COMPLETE" | "SKIPPED";
+  feedback: "NONE" | "LIKE" | "DISLIKE";
+  favoritedAt: string;
+  updatedAt: string;
+  tags: Array<{ slug: string; labelZh: string }>;
+};
+
+export type LibraryLoadState =
+  | { kind: "ready"; data: FavoritePaperDto[] }
+  | { kind: "error" };
 
 export function createPaperApi(
   repository: PaperRepository,
@@ -172,6 +192,43 @@ export async function loadPaperDetailState(rawDoi: string): Promise<PaperDetailL
   return result.status === 200
     ? { kind: "ready", data: result.body as PaperDetailDto }
     : { kind: "error" };
+}
+
+export async function loadLibraryPageState(): Promise<LibraryLoadState> {
+  let client: ReturnType<typeof createPrismaClient> | undefined;
+
+  try {
+    const config = parseConfig(process.env);
+    client = createPrismaClient(config.DATABASE_URL);
+    const repository = createPaperRepository(client);
+    const favorites = await repository.listFavorites("default");
+    return { kind: "ready", data: favorites.map(toFavoriteDto) };
+  } catch (error) {
+    console.error(
+      "Library repository request failed",
+      toLogSafeData({ DATABASE_URL: process.env.DATABASE_URL, error }),
+    );
+    return { kind: "error" };
+  } finally {
+    await client?.$disconnect();
+  }
+}
+
+function toFavoriteDto(paper: FavoritePaper): FavoritePaperDto {
+  return {
+    id: paper.id,
+    doi: paper.doi,
+    title: paper.title,
+    journal: paper.journal,
+    publishedAt: paper.publishedAt?.toISOString() ?? null,
+    originalUrl: paper.originalUrl,
+    accessStatus: paper.accessStatus,
+    readingStatus: paper.readingStatus,
+    feedback: paper.feedback,
+    favoritedAt: paper.favoritedAt.toISOString(),
+    updatedAt: paper.updatedAt.toISOString(),
+    tags: paper.tags.map((tag) => ({ slug: tag.slug, labelZh: tag.labelZh })),
+  };
 }
 
 function toInterpretationDto(interpretation: PaperDetails["interpretation"]) {

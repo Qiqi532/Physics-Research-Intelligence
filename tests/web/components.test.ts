@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { LibraryPaperList } from "../../apps/web/src/components/library-paper-list";
 import { PaperInterpretation } from "../../apps/web/src/components/paper-interpretation";
 import { PaperPublicAbstract } from "../../apps/web/src/components/paper-public-abstract";
 import {
@@ -10,6 +11,7 @@ import { RecommendationCard } from "../../apps/web/src/components/recommendation
 import { TodayOverview } from "../../apps/web/src/components/today-overview";
 import { presentPaperDetail } from "../../apps/web/src/presentation/paper";
 import type { TodayRecommendationDto } from "../../apps/web/src/presentation/today";
+import type { FavoritePaperDto } from "../../apps/web/src/server/papers";
 
 describe("Today Physics server components", () => {
   it("renders all four Today statistics", () => {
@@ -120,6 +122,42 @@ describe("paper favorite control", () => {
   });
 });
 
+describe("library paper list", () => {
+  it("renders favorite papers with facts, favorite date and detail links", () => {
+    const tree = LibraryPaperList({
+      papers: [favorite("10.1103/favorite-a", "Favorite paper A")],
+    });
+    const output = textContent(tree);
+    const hrefs = collectProps(tree, "href");
+
+    expect(output).toContain("Favorite paper A");
+    expect(output).toContain("Test Physics");
+    expect(output).toContain("2026年8月30日");
+    expect(output).toContain("原子、分子与光学");
+    expect(output).toContain("收藏于 2026年8月28日");
+    expect(output).toContain("开放获取");
+    expect(hrefs).toContain("/papers/10.1103%2Ffavorite-a");
+  });
+
+  it("renders an explicit empty state with retention guidance", () => {
+    const output = textContent(LibraryPaperList({ papers: [] }));
+
+    expect(output).toContain("还没有收藏的论文");
+    expect(output).toContain("收藏的论文不会被 30 天清理");
+  });
+
+  it("keeps detail links keyboard-navigable and wires the favorite control", () => {
+    const tree = LibraryPaperList({
+      papers: [favorite("10.1103/favorite-b", "Favorite paper B")],
+    });
+    const hrefs = collectProps(tree, "href");
+    const favoriteProps = collectProps(tree, "currentFavorite");
+
+    expect(hrefs).toContain("/papers/10.1103%2Ffavorite-b");
+    expect(favoriteProps).toContain(true);
+  });
+});
+
 function recommendation(): TodayRecommendationDto {
   return {
     id: "paper-1",
@@ -186,6 +224,28 @@ function paperDetail() {
       createdAt: "2026-08-30T00:00:00.000Z",
     },
     userState: null,
+  };
+}
+
+function favorite(doi: string, title: string): FavoritePaperDto {
+  return {
+    id: `paper-${doi}`,
+    doi,
+    title,
+    journal: "Test Physics",
+    publishedAt: "2026-08-30T01:00:00.000Z",
+    originalUrl: "https://example.test/paper",
+    accessStatus: "OPEN",
+    readingStatus: "READING",
+    feedback: "NONE",
+    favoritedAt: "2026-08-28T00:00:00.000Z",
+    updatedAt: "2026-08-28T00:00:00.000Z",
+    tags: [
+      {
+        slug: "amo-optics",
+        labelZh: "原子、分子与光学",
+      },
+    ],
   };
 }
 

@@ -370,6 +370,66 @@ describeDatabase("PostgreSQL paper repository", () => {
     expect(await client.paper.findUnique({ where: { id: favorite.id } })).not.toBeNull();
   });
 
+  it("lists favorite papers ordered by most recently favorited first", async () => {
+    await syncPhysicsTags(client);
+    const older = await repository.upsertFromSource(
+      sourceInput({ doi: "10.1103/fav-older", sourceRecordId: "fav-older" }),
+    );
+    const newer = await repository.upsertFromSource(
+      sourceInput({ doi: "10.1103/fav-newer", sourceRecordId: "fav-newer" }),
+    );
+    const plain = await repository.upsertFromSource(
+      sourceInput({ doi: "10.1103/fav-plain", sourceRecordId: "fav-plain" }),
+    );
+    await client.userPaperState.create({
+      data: {
+        userId: "default",
+        paperId: older.paper.id,
+        status: "READING",
+        feedback: "LIKE",
+        isFavorite: true,
+        favoritedAt: new Date("2026-08-28T00:00:00.000Z"),
+      },
+    });
+    await client.userPaperState.create({
+      data: {
+        userId: "default",
+        paperId: newer.paper.id,
+        status: "COMPLETE",
+        feedback: "NONE",
+        isFavorite: true,
+        favoritedAt: new Date("2026-08-30T00:00:00.000Z"),
+      },
+    });
+    await client.paperClassification.create({
+      data: {
+        paperId: newer.paper.id,
+        tagSlug: "amo-optics",
+        relevance: 0.9,
+        reason: "Favorite list test",
+        model: "fixture-model",
+        promptVersion: "classify-v1",
+      },
+    });
+
+    const favorites = await repository.listFavorites("default");
+
+    expect(favorites.map(({ id }) => id)).toEqual([newer.paper.id, older.paper.id]);
+    expect(favorites.map(({ id }) => id)).not.toContain(plain.paper.id);
+    expect(favorites[0]).toEqual(expect.objectContaining({
+      readingStatus: "COMPLETE",
+      feedback: "NONE",
+    }));
+    expect(favorites[0]?.favoritedAt.toISOString()).toBe("2026-08-30T00:00:00.000Z");
+    expect(favorites[0]?.tags.map(({ slug }) => slug)).toEqual(["amo-optics"]);
+  });
+
+  it("returns an empty favorite list when nothing is favorited", async () => {
+    await repository.upsertFromSource(sourceInput({ doi: "10.1103/no-favorites" }));
+
+    expect(await repository.listFavorites("default")).toEqual([]);
+  });
+
 });
 
 function sourceInput(

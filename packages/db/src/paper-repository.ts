@@ -62,6 +62,14 @@ export type PaperDetails = PaperSummary & {
   } | null;
 };
 
+export type FavoritePaper = PaperSummary & {
+  readingStatus: "UNREAD" | "SAVED" | "READING" | "COMPLETE" | "SKIPPED";
+  feedback: "NONE" | "LIKE" | "DISLIKE";
+  favoritedAt: Date;
+  updatedAt: Date;
+  tags: PaperTagRecord[];
+};
+
 export type PaperPage = {
   items: PaperSummary[];
   nextCursor: string | null;
@@ -74,6 +82,7 @@ export interface PaperRepository {
   }>;
   list(input: { limit: number; cursor?: string }): Promise<PaperPage>;
   findByDoi(doi: string, userId?: string): Promise<PaperDetails | null>;
+  listFavorites(userId?: string): Promise<FavoritePaper[]>;
   pruneExpiredPapers(input: { cutoff: Date }): Promise<{ deleted: number }>;
 }
 
@@ -209,6 +218,48 @@ export function createPaperRepository(client: DatabaseClient): PaperRepository {
         interpretation: paper.interpretations[0] ?? null,
         userState: paper.userStates[0] ?? null,
       };
+    },
+
+    async listFavorites(userId = "default") {
+      const rows = await client.paper.findMany({
+        where: { userStates: { some: { userId, isFavorite: true } } },
+        include: {
+          classifications: {
+            orderBy: [{ relevance: "desc" }, { tagSlug: "asc" }],
+            include: { tag: true },
+          },
+          userStates: {
+            where: { userId, isFavorite: true },
+            take: 1,
+          },
+        },
+      });
+      return rows
+        .flatMap((row) => {
+          const state = row.userStates[0];
+          if (!state?.favoritedAt) {
+            return [];
+          }
+          return [{
+            ...toPaperSummary(row),
+            readingStatus: state.status,
+            feedback: state.feedback,
+            favoritedAt: state.favoritedAt,
+            updatedAt: state.updatedAt,
+            tags: deduplicatePaperTags(row.classifications).map((classification) => ({
+              slug: classification.tag.slug,
+              labelEn: classification.tag.labelEn,
+              labelZh: classification.tag.labelZh,
+              relevance: classification.relevance,
+              reason: classification.reason,
+            })),
+          }];
+        })
+        .sort(
+          (a, b) =>
+            b.favoritedAt.getTime() - a.favoritedAt.getTime() ||
+            b.id.localeCompare(a.id),
+        );
     },
 
     async pruneExpiredPapers({ cutoff }) {

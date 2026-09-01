@@ -28,6 +28,7 @@ export default async function HomePage() {
         <nav className="site-nav" aria-label="主要导航">
           <Link className="header-link" href="/settings/interests">兴趣设置</Link>
           <Link className="header-link" href="/settings/models">模型管理台</Link>
+          <Link className="header-link" href="/library">我的收藏</Link>
         </nav>
       </header>
       <main className="today-shell" id="main-content">

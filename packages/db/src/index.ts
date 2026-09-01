@@ -20,6 +20,7 @@ export {
 export {
   createPaperRepository,
   syncPhysicsTags,
+  type FavoritePaper,
   type PaperDetails,
   type PaperPage,
   type PaperRepository,

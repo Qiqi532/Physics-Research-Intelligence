@@ -55,3 +55,56 @@ test("Today shows statistics, cross-field signal, reasons and reading queue", as
   await expect(queue.getByRole("heading", { name: "阅读队列" })).toBeVisible();
   await expect(queue.getByText("AMO precision fixture")).toBeVisible();
 });
+
+test.describe("personal collection", () => {
+  test("library starts empty and links from the site navigation", async ({ page }) => {
+    await page.goto("/");
+    await page.getByRole("link", { name: "我的收藏" }).click();
+    await expect(page).toHaveURL(/\/library/);
+    await expect(page.getByRole("heading", { name: "我的收藏" })).toBeVisible();
+    await expect(page.getByText("还没有收藏的论文")).toBeVisible();
+  });
+
+  test("favoriting a paper adds it to the library and persists after refresh", async ({ page }) => {
+    await page.goto("/papers/10.5555%2Famo-fixture");
+    await page.getByRole("button", { name: "收藏", exact: true }).click();
+    await expect(page.locator(".state-message")).toContainText("已加入收藏");
+
+    await page.goto("/library");
+    await expect(page.getByRole("heading", { name: "AMO precision fixture" })).toBeVisible();
+    await expect(page.getByText(/收藏于/)).toBeVisible();
+
+    await page.reload();
+    await expect(page.getByRole("heading", { name: "AMO precision fixture" })).toBeVisible();
+  });
+
+  test("reading status changes on the library page persist after refresh", async ({ page }) => {
+    await page.goto("/papers/10.5555%2Famo-fixture");
+    await page.getByRole("button", { name: "收藏", exact: true }).click();
+    await expect(page.locator(".state-message")).toContainText("已加入收藏");
+
+    await page.goto("/library");
+    const reading = page.getByRole("button", { name: "正在阅读" });
+    await reading.click();
+    await expect(page.locator(".state-message").first()).toContainText("阅读状态已更新");
+    await expect(reading).toHaveAttribute("aria-pressed", "true");
+
+    await page.reload();
+    await expect(page.getByRole("button", { name: "正在阅读" }))
+      .toHaveAttribute("aria-pressed", "true");
+  });
+
+  test("removing a favorite leaves the collection but keeps the paper", async ({ page }) => {
+    await page.goto("/papers/10.5555%2Famo-fixture");
+    await page.getByRole("button", { name: "收藏", exact: true }).click();
+    await expect(page.locator(".state-message")).toContainText("已加入收藏");
+
+    await page.goto("/library");
+    await page.getByRole("button", { name: "已收藏", exact: true }).click();
+    await expect(page.getByText("还没有收藏的论文")).toBeVisible();
+
+    await page.goto("/papers/10.5555%2Famo-fixture");
+    await expect(page.getByRole("heading", { name: "AMO precision fixture" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "收藏", exact: true })).toBeVisible();
+  });
+});
