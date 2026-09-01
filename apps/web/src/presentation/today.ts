@@ -22,6 +22,7 @@ export type TodayRecommendationDto = {
   }>;
   readingStatus: "UNREAD" | "SAVED" | "READING" | "COMPLETE" | "SKIPPED";
   feedback: "NONE" | "LIKE" | "DISLIKE";
+  isFavorite: boolean;
   hasInterpretation: boolean;
   score: number;
   scoreBreakdown: {

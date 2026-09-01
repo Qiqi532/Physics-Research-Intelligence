@@ -96,6 +96,7 @@ export default async function PaperDetailPage({ params }: PageProps) {
                 doi={view.data.doi}
                 currentStatus={view.data.userState?.status ?? "UNREAD"}
                 currentFeedback={view.data.userState?.feedback ?? "NONE"}
+                currentFavorite={view.data.userState?.isFavorite ?? false}
               />
             ) : null}
 

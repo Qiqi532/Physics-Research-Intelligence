@@ -29,6 +29,7 @@ export type TodayRecommendation = {
   tags: TodayTag[];
   readingStatus: ReadingStatus;
   feedback: UserFeedback;
+  isFavorite: boolean;
   hasInterpretation: boolean;
   score: number;
   scoreBreakdown: RecommendationBreakdown;
@@ -59,12 +60,15 @@ export type PaperStateInput = {
   status: ReadingStatus;
   feedback: UserFeedback;
   note: string | null;
+  isFavorite?: boolean;
 };
 
 export type StoredPaperState = {
   status: ReadingStatus;
   feedback: UserFeedback;
   note: string | null;
+  isFavorite: boolean;
+  favoritedAt: Date | null;
   updatedAt: Date;
 };
 
@@ -143,6 +147,7 @@ export function createTodayRepository(client: DatabaseClient): TodayRepository {
                 status: true,
                 feedback: true,
                 note: true,
+                isFavorite: true,
                 updatedAt: true,
               },
             },
@@ -172,6 +177,7 @@ export function createTodayRepository(client: DatabaseClient): TodayRepository {
           })),
           readingStatus: state?.status ?? "UNREAD",
           feedback: state?.feedback ?? "NONE",
+          isFavorite: state?.isFavorite ?? false,
           hasInterpretation: paper.interpretations.length > 0,
           stateUpdatedAt: state?.updatedAt ?? null,
         };
@@ -249,6 +255,26 @@ export function createTodayRepository(client: DatabaseClient): TodayRepository {
         return { status: "not_found" as const };
       }
 
+      const existing = await client.userPaperState.findUnique({
+        where: {
+          userId_paperId: { userId: input.userId, paperId: paper.id },
+        },
+        select: { isFavorite: true, favoritedAt: true },
+      });
+
+      let isFavorite: boolean;
+      let favoritedAt: Date | null;
+      if (input.isFavorite === undefined) {
+        isFavorite = existing?.isFavorite ?? false;
+        favoritedAt = existing?.favoritedAt ?? null;
+      } else if (input.isFavorite) {
+        isFavorite = true;
+        favoritedAt = existing?.isFavorite ? existing.favoritedAt : new Date();
+      } else {
+        isFavorite = false;
+        favoritedAt = null;
+      }
+
       const state = await client.userPaperState.upsert({
         where: {
           userId_paperId: { userId: input.userId, paperId: paper.id },
@@ -259,16 +285,22 @@ export function createTodayRepository(client: DatabaseClient): TodayRepository {
           status: input.status,
           feedback: input.feedback,
           note: input.note,
+          isFavorite,
+          favoritedAt,
         },
         update: {
           status: input.status,
           feedback: input.feedback,
           note: input.note,
+          isFavorite,
+          favoritedAt,
         },
         select: {
           status: true,
           feedback: true,
           note: true,
+          isFavorite: true,
+          favoritedAt: true,
           updatedAt: true,
         },
       });

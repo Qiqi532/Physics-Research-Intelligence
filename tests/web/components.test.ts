@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { PaperInterpretation } from "../../apps/web/src/components/paper-interpretation";
 import { PaperPublicAbstract } from "../../apps/web/src/components/paper-public-abstract";
-import { readingStatePayloadForAction } from "../../apps/web/src/components/paper-state-controls";
+import {
+  favoritePayloadForToggle,
+  readingStatePayloadForAction,
+} from "../../apps/web/src/components/paper-state-controls";
 import { ReadingQueue } from "../../apps/web/src/components/reading-queue";
 import { RecommendationCard } from "../../apps/web/src/components/recommendation-card";
 import { TodayOverview } from "../../apps/web/src/components/today-overview";
@@ -97,6 +100,26 @@ describe("paper state controls", () => {
   });
 });
 
+describe("paper favorite control", () => {
+  it("toggles an explicit favorite boolean while preserving reading state and feedback", () => {
+    expect(favoritePayloadForToggle("READING", "LIKE", false)).toEqual({
+      status: "READING",
+      feedback: "LIKE",
+      isFavorite: true,
+    });
+    expect(favoritePayloadForToggle("SAVED", "NONE", true)).toEqual({
+      status: "SAVED",
+      feedback: "NONE",
+      isFavorite: false,
+    });
+    expect(favoritePayloadForToggle("COMPLETE", "DISLIKE", false)).toEqual({
+      status: "COMPLETE",
+      feedback: "DISLIKE",
+      isFavorite: true,
+    });
+  });
+});
+
 function recommendation(): TodayRecommendationDto {
   return {
     id: "paper-1",
@@ -117,6 +140,7 @@ function recommendation(): TodayRecommendationDto {
     ],
     readingStatus: "UNREAD",
     feedback: "NONE",
+    isFavorite: false,
     hasInterpretation: true,
     score: 72,
     scoreBreakdown: {

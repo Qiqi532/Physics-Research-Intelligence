@@ -148,8 +148,8 @@ model UserInterest {
   userId    String @default("default")
   tagSlug   String
   weight    Float  @default(1)
-  createdAt DateTime @default(now()) @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+  createdAt   DateTime      @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime      @updatedAt @db.Timestamptz(6)
 
   tag PhysicsTag @relation(fields: [tagSlug], references: [slug], onDelete: Cascade)
 
@@ -161,9 +161,11 @@ model UserPaperState {
   paperId   String        @db.Uuid
   status    ReadingStatus @default(UNREAD)
   feedback  UserFeedback  @default(NONE)
-  note      String?
-  createdAt DateTime @default(now()) @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+  note        String?
+  isFavorite  Boolean       @default(false)
+  favoritedAt DateTime?     @db.Timestamptz(6)
+  createdAt   DateTime      @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime      @updatedAt @db.Timestamptz(6)
 
   paper Paper @relation(fields: [paperId], references: [id], onDelete: Cascade)
 

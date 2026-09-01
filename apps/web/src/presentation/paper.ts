@@ -60,6 +60,8 @@ export type PaperDetailDto = {
     status: "UNREAD" | "SAVED" | "READING" | "COMPLETE" | "SKIPPED";
     feedback: "NONE" | "LIKE" | "DISLIKE";
     note: string | null;
+    isFavorite: boolean;
+    favoritedAt: string | null;
     updatedAt: string;
   } | null;
 };

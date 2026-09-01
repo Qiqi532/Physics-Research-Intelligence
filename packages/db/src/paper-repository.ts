@@ -56,6 +56,8 @@ export type PaperDetails = PaperSummary & {
     status: "UNREAD" | "SAVED" | "READING" | "COMPLETE" | "SKIPPED";
     feedback: "NONE" | "LIKE" | "DISLIKE";
     note: string | null;
+    isFavorite: boolean;
+    favoritedAt: Date | null;
     updatedAt: Date;
   } | null;
 };
@@ -174,6 +176,8 @@ export function createPaperRepository(client: DatabaseClient): PaperRepository {
               status: true,
               feedback: true,
               note: true,
+              isFavorite: true,
+              favoritedAt: true,
               updatedAt: true,
             },
           },

@@ -79,6 +79,85 @@ describeDatabase("PostgreSQL Today repository", () => {
     ).toEqual(expect.objectContaining({ status: "READING", feedback: "LIKE" }));
   });
 
+  it("lets a favorite coexist with every reading status and exposes it on Today", async () => {
+    const paper = await createPaper("10.1103/favorite-status", "Favorite status paper");
+
+    for (const status of ["SAVED", "READING", "COMPLETE", "SKIPPED", "UNREAD"] as const) {
+      await repository.setPaperStateByDoi({
+        userId: "default",
+        doi: paper.doi!,
+        status,
+        feedback: "NONE",
+        note: null,
+        isFavorite: true,
+      });
+      const detail = await repository.getToday({
+        userId: "default",
+        now,
+        candidateLimit: 20,
+      });
+      const recommendation = detail.recommendations.find(({ id }) => id === paper.id);
+      expect(recommendation?.isFavorite).toBe(true);
+      expect(recommendation?.readingStatus).toBe(status);
+    }
+  });
+
+  it("preserves an existing favorite when the favorite field is omitted", async () => {
+    const paper = await createPaper("10.1103/favorite-omit", "Favorite omit paper");
+    await repository.setPaperStateByDoi({
+      userId: "default",
+      doi: paper.doi!,
+      status: "SAVED",
+      feedback: "NONE",
+      note: null,
+      isFavorite: true,
+    });
+
+    const updated = await repository.setPaperStateByDoi({
+      userId: "default",
+      doi: paper.doi!,
+      status: "READING",
+      feedback: "LIKE",
+      note: "Read methods",
+    });
+
+    expect(updated.state.isFavorite).toBe(true);
+    expect(updated.state.favoritedAt).not.toBeNull();
+  });
+
+  it("keeps favoritedAt stable on repeated favorite updates and clears it on unfavorite", async () => {
+    const paper = await createPaper("10.1103/favorite-idempotent", "Favorite idempotent paper");
+    const first = await repository.setPaperStateByDoi({
+      userId: "default",
+      doi: paper.doi!,
+      status: "UNREAD",
+      feedback: "NONE",
+      note: null,
+      isFavorite: true,
+    });
+    const second = await repository.setPaperStateByDoi({
+      userId: "default",
+      doi: paper.doi!,
+      status: "READING",
+      feedback: "NONE",
+      note: null,
+      isFavorite: true,
+    });
+    expect(first.state.favoritedAt).toBeTruthy();
+    expect(second.state.favoritedAt?.getTime()).toBe(first.state.favoritedAt?.getTime());
+
+    const cleared = await repository.setPaperStateByDoi({
+      userId: "default",
+      doi: paper.doi!,
+      status: "READING",
+      feedback: "NONE",
+      note: null,
+      isFavorite: false,
+    });
+    expect(cleared.state.isFavorite).toBe(false);
+    expect(cleared.state.favoritedAt).toBeNull();
+  });
+
   async function createPaper(doi: string, title: string) {
     return client.paper.create({
       data: {

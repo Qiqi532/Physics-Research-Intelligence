@@ -157,6 +157,7 @@ function toPaperDetailsDto(paper: PaperDetails) {
     userState: paper.userState
       ? {
           ...paper.userState,
+          favoritedAt: paper.userState.favoritedAt?.toISOString() ?? null,
           updatedAt: paper.userState.updatedAt.toISOString(),
         }
       : null,

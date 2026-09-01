@@ -142,6 +142,27 @@ describeDatabase("PostgreSQL paper repository", () => {
     expect(secondPage.items.map(({ id }) => id)).not.toContain(firstPage.items[0]?.id);
     expect(secondPage.nextCursor).toBeNull();
   });
+
+  it("exposes favorite state on paper details", async () => {
+    const created = await repository.upsertFromSource(
+      sourceInput({ doi: "10.1103/favorite-detail" }),
+    );
+    await client.userPaperState.create({
+      data: {
+        userId: "default",
+        paperId: created.paper.id,
+        status: "READING",
+        isFavorite: true,
+        favoritedAt: new Date("2026-08-29T00:00:00.000Z"),
+      },
+    });
+
+    const detail = await repository.findByDoi("10.1103/favorite-detail");
+    expect(detail?.userState?.isFavorite).toBe(true);
+    expect(detail?.userState?.favoritedAt?.toISOString()).toBe(
+      "2026-08-29T00:00:00.000Z",
+    );
+  });
 });
 
 function sourceInput(

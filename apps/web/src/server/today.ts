@@ -18,7 +18,7 @@ const READING_STATUSES = new Set([
   "SKIPPED",
 ]);
 const FEEDBACK_VALUES = new Set(["NONE", "LIKE", "DISLIKE"]);
-const STATE_KEYS = new Set(["status", "feedback", "note"]);
+const STATE_KEYS = new Set(["status", "feedback", "note", "isFavorite"]);
 
 type TodayApiOptions = {
   logError?: (error: unknown) => void;
@@ -73,6 +73,7 @@ export function createTodayApi(
           body: {
             state: {
               ...result.state,
+              favoritedAt: result.state.favoritedAt?.toISOString() ?? null,
               updatedAt: result.state.updatedAt.toISOString(),
             },
           },
@@ -125,6 +126,7 @@ function parseStateInput(body: unknown): {
   status: "UNREAD" | "SAVED" | "READING" | "COMPLETE" | "SKIPPED";
   feedback: "NONE" | "LIKE" | "DISLIKE";
   note: string | null;
+  isFavorite?: boolean;
 } | null {
   if (!isRecord(body) || Object.keys(body).some((key) => !STATE_KEYS.has(key))) {
     return null;
@@ -140,10 +142,14 @@ function parseStateInput(body: unknown): {
   if (note !== null && (typeof note !== "string" || note.length > 4_000)) {
     return null;
   }
+  if (body.isFavorite !== undefined && typeof body.isFavorite !== "boolean") {
+    return null;
+  }
   return {
     status: body.status as "UNREAD" | "SAVED" | "READING" | "COMPLETE" | "SKIPPED",
     feedback: feedback as "NONE" | "LIKE" | "DISLIKE",
     note,
+    ...(body.isFavorite === undefined ? {} : { isFavorite: body.isFavorite }),
   };
 }
 
@@ -170,6 +176,7 @@ function toRecommendationDto(paper: TodayRecommendation) {
     tags: paper.tags,
     readingStatus: paper.readingStatus,
     feedback: paper.feedback,
+    isFavorite: paper.isFavorite,
     hasInterpretation: paper.hasInterpretation,
     score: paper.score,
     scoreBreakdown: paper.scoreBreakdown,

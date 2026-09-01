@@ -116,9 +116,10 @@ describe("Today repository aggregation", () => {
     const upsert = vi.fn().mockResolvedValue(
       stateRow({ status: "READING", feedback: "LIKE", note: "Read methods" }),
     );
+    const findExistingState = vi.fn().mockResolvedValue(null);
     const repository = createTodayRepository({
       paper: { findUnique },
-      userPaperState: { upsert },
+      userPaperState: { findUnique: findExistingState, upsert },
     } as unknown as DatabaseClient);
 
     await expect(
@@ -140,6 +141,11 @@ describe("Today repository aggregation", () => {
     expect(upsert).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { userId_paperId: { userId: "default", paperId: "paper-1" } },
+      }),
+    );
+    expect(upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        create: expect.objectContaining({ isFavorite: false, favoritedAt: null }),
       }),
     );
 

@@ -78,6 +78,8 @@ describe("Today API service", () => {
         status: "READING",
         feedback: "LIKE",
         note: "Read methods",
+        isFavorite: false,
+        favoritedAt: null,
         updatedAt: now,
       },
     });
@@ -102,10 +104,68 @@ describe("Today API service", () => {
           status: "READING",
           feedback: "LIKE",
           note: "Read methods",
+          isFavorite: false,
+          favoritedAt: null,
           updatedAt: "2026-08-30T04:00:00.000Z",
         },
       },
     });
+  });
+
+  it("accepts an explicit favorite boolean and serializes favoritedAt", async () => {
+    const setPaperStateByDoi = vi.fn().mockResolvedValue({
+      status: "updated",
+      state: {
+        status: "SAVED",
+        feedback: "NONE",
+        note: null,
+        isFavorite: true,
+        favoritedAt: now,
+        updatedAt: now,
+      },
+    });
+    const repository = fakeRepository({ setPaperStateByDoi });
+
+    const result = await createTodayApi(repository).updateState("10.1103%2Ffavorite", {
+      status: "SAVED",
+      isFavorite: true,
+    });
+
+    expect(setPaperStateByDoi).toHaveBeenCalledWith({
+      userId: "default",
+      doi: "10.1103/favorite",
+      status: "SAVED",
+      feedback: "NONE",
+      note: null,
+      isFavorite: true,
+    });
+    expect(result).toEqual({
+      status: 200,
+      body: {
+        state: {
+          status: "SAVED",
+          feedback: "NONE",
+          note: null,
+          isFavorite: true,
+          favoritedAt: "2026-08-30T04:00:00.000Z",
+          updatedAt: "2026-08-30T04:00:00.000Z",
+        },
+      },
+    });
+  });
+
+  it.each([
+    ["10.1103%2Fexample", { status: "SAVED", isFavorite: "yes" }],
+    ["10.1103%2Fexample", { status: "SAVED", isFavorite: 1 }],
+    ["10.1103%2Fexample", { status: "SAVED", isFavorite: null }],
+    ["10.1103%2Fexample", { status: "SAVED", favoritedAt: now }],
+  ])("rejects unknown or non-boolean favorite fields", async (doi, body) => {
+    const repository = fakeRepository();
+
+    const result = await createTodayApi(repository).updateState(doi, body);
+
+    expect(result.status).toBe(400);
+    expect(repository.setPaperStateByDoi).not.toHaveBeenCalled();
   });
 
   it.each([
@@ -177,6 +237,7 @@ function recommendation(overrides: Record<string, unknown> = {}) {
     ],
     readingStatus: "UNREAD",
     feedback: "NONE",
+    isFavorite: false,
     hasInterpretation: false,
     score: 62,
     scoreBreakdown: {
