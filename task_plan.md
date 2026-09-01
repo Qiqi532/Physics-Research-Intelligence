@@ -92,13 +92,21 @@
 - [x] 确认仅在许可证明确允许时自动保存 PDF，合法个人 PDF 可手动导入
 - [x] 将每日 00:00、10–15 篇、收藏库、阅读助手和 RAG 拆成独立交付阶段
 - [x] 写入主路线图与下一次对话接续步骤
-- [ ] 9A：每日选择、独立收藏状态、30 天清理与个人收藏页
+- [x] 9A：每日选择、独立收藏状态、30 天清理与个人收藏页
 - [ ] 9B：开放许可 PDF 自动保存和本地 CLI 手动导入
 - [ ] 10：有来源披露的单篇论文阅读助手
 - [ ] 11：基于收藏论文的可重建 RAG 索引与跨论文问答
 - [ ] 使用真实模型连接执行首批分类/解读试运行
 - [ ] 完成至少 30 篇跨方向人工质量评审
-- **状态：** planned（下一次对话从 9A 规格复核和收藏状态红灯测试开始；9B、10、11 不与 9A 混成一个差异）
+- **状态：** in_progress（9A 已完成并逐任务提交 `320588b`/`eb8e7e7`/`b2bc809`/`c186924`/`bdc2f3b`/`157ef02`；9B、10、11 分别审查设计后再启动）
+
+#### 阶段 9A：每日选择、收藏与 30 天清理（2026-09-01 完成）
+- [x] Task 1 收藏正交：`UserPaperState.isFavorite/favoritedAt` 与第 6 条迁移 `20260901092205_add_user_paper_favorite`，收藏按钮与详情/Today 暴露（commit `320588b`）
+- [x] Task 2 配置：`PAPER_RETENTION_DAYS=30`、`DAILY_PAPER_TARGET_MIN=10`、`DAILY_PAPER_TARGET_MAX=15` 严格整数解析与 min<=max 不变式（commit `eb8e7e7`）
+- [x] Task 3 确定性多样化选择：`selectDailyPapers`/`buildDailySelection`，10–15 篇、冷启动、兴趣命中、跨方向、确定性并列、窗口重跑稳定（commit `b2bc809`）
+- [x] Task 4 安全清理：`pruneExpiredPapers` 只删过期非收藏、级联清理、Today 后执行且失败可恢复（commit `c186924`）
+- [x] Task 5 个人收藏页：`/library` 页 + `LibraryPaperList` + `listFavorites` + 首页导航 + 组件/仓库/e2e 测试（commit `bdc2f3b`）
+- [x] Task 6 运维验证与文档：全量 Vitest/typecheck/lint/Playwright/生产构建/Prisma 门禁、E2E schema 零业务数据、六份文档更新、日程默认改上海午夜（commit `157ef02`）
 
 ## 已做决策
 | 决策 | 理由 |

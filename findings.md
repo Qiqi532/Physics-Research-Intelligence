@@ -1,5 +1,17 @@
 # 发现与决策
 
+## 阶段 9A 实现发现（2026-09-01）
+- `vi.mock("@pri/db")` 在本仓库 vitest 环境下不能把 workspace 包的传递 mock 注入 `apps/worker` 的 processor（解析后路径同样不生效）；改用“抽纯函数 + 断言传入 deps 为函数”的可测结构，避免依赖模块 mock。
+- 收藏移除后 `router.refresh()` 会把卡片连同 `state-message` 一起卸载，e2e 断言瞬态“已取消收藏”消息会竞态失败；正确断言是直接等待“还没有收藏的论文”空态出现。阅读状态变更因论文仍在列表，消息可稳定断言。
+- `PaperStateControls` 是 "use client"，组件测试直接函数调用不会渲染其内部按钮；用 `collectProps(tree, "currentFavorite")` 断言 props 接线，而不是查 DOM 按钮文本。
+- `@pri/db` 的 `FavoritePaper` 类型必须同步加入 `packages/db/src/index.ts` 导出，否则 `apps/web` 的 typecheck 报 TS2305。
+- Prisma 7 生成客户端是 TypeScript 源码（`packages/db/src/generated/prisma/client.ts`），不是编译后的 `.js`；直接 `node` 运行 .mjs 导入会 `ERR_MODULE_NOT_FOUND`，需经 tsx 运行。
+- worktree 的 `.git` 是指向主仓库 gitdir 的指针文件，不是目录；不能在 `.git/` 下写临时文件。
+- PowerShell `Set-Content -Encoding utf8` 会写入 BOM；用于 `git commit -F` 会让提交信息首字符带 BOM，改用 Python 无 BOM 写文件后 amend。
+- `next dev`（e2e webServer）会把 `apps/web/next-env.d.ts` 从构建路径改写为 `.next/dev/...`；这是自动生成的噪音，提交前需 `git checkout` 还原。
+- E2E teardown 后 `pri_stage5_e2e` 业务表全部 0 行，但 `PhysicsTag` 保留 9 个标签种子（字典参考数据，非业务 fixture）；`_prisma_migrations` 保留 6/6 迁移历史。
+- 计划 Task 2 的“个人日程改为 DAILY_PIPELINE_TIME=00:00”当时未落地（config/文档仍为 06:00）；Task 6 补齐为 config 默认 00:00 + .env.example + operations.md，无测试断言旧默认值。
+
 ## 阶段 9 本地论文库与 AI 阅读路线（2026-09-01）
 - 用户批准的留存边界：普通论文从 `Paper.createdAt` 所代表的本地采集时间起保留 30 天；明确收藏的论文长期保留，取消收藏后才重新进入普通清理规则。
 - 现有 `UserPaperState.status` 表示阅读进度，`SAVED` 不能兼任永久收藏；收藏必须作为正交状态，使收藏论文仍可处于稍后读、阅读中或完成。

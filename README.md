@@ -21,6 +21,7 @@ Physics Research Intelligence 是一个面向个人物理学习与研究的论�
 - 模型管理台：在 localhost 保存多个命名连接，加密 API Key，执行轻量连通测试与合成论文示例，并配置分类/解读主备路由。
 - Today Physics：首页统计、跨方向信号、可解释推荐、阅读队列、论文详情和可恢复错误状态。
 - 个性化：物理方向兴趣权重，以及稍后读、正在阅读、完成和不感兴趣等阅读状态。
+- 个人收藏库：`/library` 页面集中展示收藏论文与阅读进度，收藏与阅读状态正交且不受 30 天普通清理影响。
 - 自动处理：BullMQ 每日采集、分类、预算内解读和 Today 准备，支持时区、启停和同窗口幂等。
 - 可靠性：存活/就绪检查、稳定错误码、脱敏结构化日志、队列状态与失败恢复。
 - 测试与运维：Vitest、PostgreSQL 集成测试、Playwright 桌面/移动端 E2E，以及启动、迁移、备份恢复和故障排查文档。
@@ -154,7 +155,7 @@ pnpm build
 近期顺序：
 
 1. 完成 Kimi 三论文摘要试运行并校准分类/解读 Prompt；
-2. 实现每日 10–15 篇选择、独立收藏状态和 30 天普通论文保留；
+2. ~~实现每日 10–15 篇选择、独立收藏状态和 30 天普通论文保留~~（9A 已完成：确定性多样化每日选择、正交收藏、30 天清理与个人收藏页）；
 3. 设计合法本地 PDF 资产边界；
 4. 实现带证据定位的单篇阅读助手；
 5. 在收藏论文上构建可重建、可评估的 RAG。
@@ -185,6 +186,7 @@ The project is currently a single-user MVP ready for local trials. Its central r
 - A localhost model console for encrypted named connections, lightweight health checks, synthetic-paper samples, and independent classification/interpretation routes.
 - Today Physics statistics, cross-disciplinary signals, explainable recommendations, a reading queue, paper details, and recoverable error states.
 - Interest weights and reading states such as saved, reading, complete, and not interested.
+- A personal favorites library at `/library` that lists favorited papers and reading progress; favorites are orthogonal to reading state and exempt from the 30-day ordinary cleanup.
 - BullMQ-based daily ingestion, classification, budgeted interpretation, and Today preparation with timezone-aware idempotent windows.
 - Liveness/readiness checks, stable error codes, redacted structured logs, queue visibility, and recovery behavior.
 - Vitest, PostgreSQL integration tests, Playwright desktop/mobile E2E, and operational guides for startup, migrations, backup, restore, and troubleshooting.
@@ -319,7 +321,7 @@ Tests require a dedicated PostgreSQL schema and must never target personal or pr
 Near-term order:
 
 1. complete the Kimi three-paper abstract trial and calibrate the classification/interpretation prompts;
-2. add a daily 10–15 paper selection, independent favorites, and 30-day retention for ordinary papers;
+2. ~~add a daily 10–15 paper selection, independent favorites, and 30-day retention for ordinary papers~~ (Phase 9A completed: deterministic diverse daily selection, orthogonal favorites, 30-day retention, and the favorites library page);
 3. design a lawful local PDF asset boundary;
 4. implement a one-paper reading assistant with evidence locators;
 5. build a reproducible and evaluated RAG layer over favorite papers.

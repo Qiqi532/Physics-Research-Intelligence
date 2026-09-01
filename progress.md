@@ -1,5 +1,19 @@
 # 进度日志
 
+## 会话：2026-09-01（阶段 9A 实施）
+
+### 9A：每日选择、独立收藏、30 天清理与个人收藏页
+- **状态：** complete（6 个任务全部逐任务提交；9B/10/11 未启动）。
+- 隔离 worktree：`D:\Physics Research Intelligence\.worktrees\stage-9-local-library`，分支 `codex/stage-9-local-library`，基线 `origin/main@9f846f4`；主工作区（尤其 `packages/ai` 的 Kimi K2.6 用户改动）全程未触碰。
+- Task 1（`320588b`）：`UserPaperState.isFavorite/favoritedAt` + 第 6 条迁移 `20260901092205_add_user_paper_favorite`；收藏与阅读状态正交，旧值保留、未知字段拒绝、并发幂等。
+- Task 2（`eb8e7e7`）：`PAPER_RETENTION_DAYS=30`、`DAILY_PAPER_TARGET_MIN=10`、`DAILY_PAPER_TARGET_MAX=15` 严格整数与 min<=max 不变式。
+- Task 3（`b2bc809`）：确定性多样化 10–15 篇选择（`selectDailyPapers`/`buildDailySelection`），冷启动、兴趣命中、跨方向、确定性并列、窗口重跑稳定。
+- Task 4（`c186924`）：`pruneExpiredPapers` 只删过期非收藏、级联清理、Today 后执行且清理失败可恢复；`retentionCutoffAt` 纯函数 + 接线断言绕过 workspace mock 限制。
+- Task 5（`bdc2f3b`）：`/library` 个人收藏页（force-dynamic Server Component）、`LibraryPaperList`、`listFavorites`、首页“我的收藏”导航、`FavoritePaper` 导出补入 `@pri/db` index；组件/仓库 14+10 测试 + 4 条 e2e。
+- Task 6（`157ef02`）：全量 Vitest **448 项 / 65 文件**、全量 typecheck 0、lint 0、Playwright 桌面+移动 **32/32**、Web/worker 生产构建 0、Prisma generate/validate/status 通过且 `migration_lock.toml` 无 diff；E2E schema 业务表 0 行、`_prisma_migrations` 6/6 保留；补齐计划遗漏的日程默认 `DAILY_PIPELINE_TIME=00:00`（Asia/Shanghai）。
+- 文档：`task_plan.md`/`findings.md`/`progress.md`/`.env.example`/`README.md`/`docs/operations.md` 已更新。
+- 未决：worktree 合回 `origin/main` 的方式（merge/PR）待用户确认；真实 Provider 首轮试运行与 30 篇人工评审仍为人工任务。
+
 ## 会话：2026-09-01（模型管理发布与阶段 9 交接）
 
 ### 模型管理发布恢复
