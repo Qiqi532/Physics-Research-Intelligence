@@ -155,4 +155,5 @@
 - [x] Review and approve an integration design covering Kimi, other OpenAI-compatible providers, Stage 9A, migrations, and tests.
 - [x] Implement the approved small diffs and integrate the reviewed Stage 9A commits.
 - [x] Run fresh independent verification across migrations, unit/integration tests, lint, typecheck, builds, and desktop/mobile E2E.
-- [ ] Commit and integrate the verified branch, then guide the first automated deployment run through dialogue.
+- [x] Commit and fast-forward the verified branch into local `main`; back up and migrate the primary local database; verify the live Web pages.
+- [ ] Guide the first automated deployment run through dialogue.

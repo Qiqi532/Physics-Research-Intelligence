@@ -482,3 +482,6 @@
 - Incremental migration from the six-migration Stage 9A schema to the no-cost schema passed; a fresh schema also applied all seven migrations successfully.
 - Final verification passed: 63 Vitest files / 442 tests, 12 database files / 53 tests, full lint, all workspace typechecks, Web and worker production builds, and 32 desktop/mobile Playwright tests.
 - The first full E2E run exposed two obsolete price-field locators; removing those locators produced 8/8 targeted and 32/32 full E2E passes. An earlier ad-hoc root Playwright binary caused a duplicate-version collection error and executed no tests; the project script was used instead.
+- The verified branch was fast-forwarded into local `main` at `7338bb6`; unrelated untracked corpus and workspace files remained untouched.
+- Before migrating `public`, a Git-ignored custom-format backup was created and validated with 1102 TOC entries. The Stage 9A favorite migration and no-cost migration then applied successfully; the primary database reports all seven migrations current, zero obsolete cost columns, and one `isFavorite` column.
+- Post-migration runtime verification returned HTTP 200 for liveness and readiness. The browser loaded Today, the model console, the empty favorites library, and a real Kimi-interpreted paper; the model console retained Kimi K2.6 routing and exposed no price or budget controls.
