@@ -12,6 +12,14 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
+test("opens the model console from the Today settings navigation", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: "模型管理台" }).click();
+
+  await expect(page).toHaveURL(/\/settings\/models$/);
+  await expect(page.getByRole("heading", { name: "模型管理台" })).toBeVisible();
+});
+
 test("manages named connections, tests a provider and switches routing", async ({ page }) => {
   await page.goto("/settings/models");
   await expect(page.getByText("还没有模型连接")).toBeVisible();
