@@ -13,6 +13,10 @@ import {
 } from "@pri/db";
 import type { ServerConfig } from "@pri/domain/config";
 import {
+  rankRecommendations,
+  selectDailyPapers,
+} from "@pri/recommendation/score";
+import {
   createArxivConnector,
   createCrossrefConnector,
   createOpenAlexConnector,
@@ -30,6 +34,67 @@ import {
   type RuntimeAiConfigResolver,
   type RuntimeAiTaskRoute,
 } from "./runtime-ai-config";
+
+export type DailySelectionPool = {
+  interests: Record<string, number>;
+  candidates: Array<{
+    id: string;
+    publishedAt: Date | null;
+    classifications: Array<{
+      tagSlug: string;
+      relevance: number;
+      isCrossDisciplinary: boolean;
+    }>;
+  }>;
+};
+
+export function buildDailySelection(input: {
+  pool: DailySelectionPool;
+  now: Date;
+  minCount: number;
+  maxCount: number;
+  perDirectionCap: number;
+}): { paperIds: string[]; candidateCount: number } {
+  const rankedById = new Map(
+    rankRecommendations(
+      input.pool.candidates.map((candidate) => ({
+        paperId: candidate.id,
+        publishedAt: candidate.publishedAt,
+        classifications: candidate.classifications.map((classification) => ({
+          tagSlug: classification.tagSlug,
+          tagLabel: classification.tagSlug,
+          relevance: classification.relevance,
+          isCrossDisciplinary: classification.isCrossDisciplinary,
+        })),
+        interests: input.pool.interests,
+        readingStatus: "UNREAD" as const,
+        feedback: "NONE" as const,
+        hasInterpretation: false,
+      })),
+      input.now,
+    ).map((ranked) => [ranked.paperId, ranked]),
+  );
+  const scoredCandidates = input.pool.candidates.map((candidate) => ({
+    paperId: candidate.id,
+    publishedAt: candidate.publishedAt,
+    score: rankedById.get(candidate.id)?.total ?? 0,
+    tags: candidate.classifications.map((classification) => ({
+      tagSlug: classification.tagSlug,
+      relevance: classification.relevance,
+    })),
+  }));
+  const paperIds = selectDailyPapers({
+    candidates: scoredCandidates,
+    minCount: input.minCount,
+    maxCount: input.maxCount,
+    perDirectionCap: input.perDirectionCap,
+  });
+  return { paperIds, candidateCount: scoredCandidates.length };
+}
+
+export function perDirectionCapFor(maxCount: number): number {
+  return Math.max(1, Math.ceil(maxCount / 3));
+}
 
 export function createConfiguredDailyProcessor(
   config: ServerConfig,
@@ -116,12 +181,21 @@ export function createConfiguredDailyProcessor(
           });
           return outcome.status;
         },
-        listInterpretationPaperIds: (input) =>
-          aiRepository.listPaperIdsForInterpretation({
+        async listInterpretationPaperIds(input) {
+          const pool = await aiRepository.listDailySelectionCandidates({
             from: input.from,
             until: input.until,
             limit: 500,
-          }),
+          });
+          const selection = buildDailySelection({
+            pool,
+            now: input.until,
+            minCount: config.DAILY_PAPER_TARGET_MIN,
+            maxCount: config.DAILY_PAPER_TARGET_MAX,
+            perDirectionCap: perDirectionCapFor(config.DAILY_PAPER_TARGET_MAX),
+          });
+          return selection.paperIds;
+        },
         async interpret(paperId) {
           const outcome = await interpretPaper({
             paperId,

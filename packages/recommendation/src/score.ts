@@ -104,6 +104,75 @@ export function rankRecommendations(
     );
 }
 
+export type DailySelectionCandidate = {
+  paperId: string;
+  publishedAt: Date | null;
+  score: number;
+  tags: Array<{ tagSlug: string; relevance: number }>;
+};
+
+export function selectDailyPapers(input: {
+  candidates: DailySelectionCandidate[];
+  minCount: number;
+  maxCount: number;
+  perDirectionCap: number;
+}): string[] {
+  const { candidates, minCount, maxCount, perDirectionCap } = input;
+  const selected: string[] = [];
+  const selectedSet = new Set<string>();
+  const countByDirection = new Map<string, number>();
+
+  const sorted = [...candidates].sort(compareDailyCandidates);
+  const add = (candidate: DailySelectionCandidate) => {
+    const direction = primaryDirection(candidate);
+    selected.push(candidate.paperId);
+    selectedSet.add(candidate.paperId);
+    countByDirection.set(direction, (countByDirection.get(direction) ?? 0) + 1);
+  };
+
+  for (const candidate of sorted) {
+    if (selected.length >= maxCount) {
+      break;
+    }
+    const direction = primaryDirection(candidate);
+    if ((countByDirection.get(direction) ?? 0) < perDirectionCap) {
+      add(candidate);
+    }
+  }
+
+  if (selected.length < minCount) {
+    for (const candidate of sorted) {
+      if (selected.length >= minCount) {
+        break;
+      }
+      if (!selectedSet.has(candidate.paperId)) {
+        add(candidate);
+      }
+    }
+  }
+
+  return selected;
+}
+
+function compareDailyCandidates(
+  left: DailySelectionCandidate,
+  right: DailySelectionCandidate,
+): number {
+  return (
+    right.score - left.score ||
+    dateValue(right.publishedAt) - dateValue(left.publishedAt) ||
+    left.paperId.localeCompare(right.paperId)
+  );
+}
+
+function primaryDirection(candidate: DailySelectionCandidate): string {
+  const best = [...candidate.tags].sort(
+    (left, right) =>
+      right.relevance - left.relevance || left.tagSlug.localeCompare(right.tagSlug),
+  )[0];
+  return best?.tagSlug ?? "unclassified";
+}
+
 function recencyScore(publishedAt: Date | null, now: Date): number {
   if (!publishedAt) {
     return 0;

@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   rankRecommendations,
   scoreRecommendation,
+  selectDailyPapers,
+  type DailySelectionCandidate,
   type RecommendationInput,
 } from "../../packages/recommendation/src/score";
 
@@ -154,6 +156,93 @@ describe("deterministic recommendation scoring", () => {
   });
 });
 
+describe("deterministic daily selection", () => {
+  it("selects fewer than the minimum when the pool is small", () => {
+    expect(
+      selectDailyPapers({
+        candidates: [dailyCandidate("p-1", 80), dailyCandidate("p-2", 70)],
+        minCount: 10,
+        maxCount: 15,
+        perDirectionCap: 5,
+      }),
+    ).toEqual(["p-1", "p-2"]);
+  });
+
+  it("caps the selection at the maximum count", () => {
+    const directions = ["amo-optics", "astrophysics", "condensed-matter"];
+    const candidates = Array.from({ length: 30 }, (_, index) =>
+      dailyCandidate(`p-${index}`, 100 - index, directions[index % 3]),
+    );
+    const result = selectDailyPapers({
+      candidates,
+      minCount: 10,
+      maxCount: 15,
+      perDirectionCap: 5,
+    });
+    expect(result).toHaveLength(15);
+  });
+
+  it("keeps a single direction from consuming the daily set when alternatives exist", () => {
+    const candidates = [
+      ...Array.from({ length: 8 }, (_, index) =>
+        dailyCandidate(`amo-${index}`, 90 - index, "amo-optics"),
+      ),
+      ...Array.from({ length: 8 }, (_, index) =>
+        dailyCandidate(`astro-${index}`, 50 - index, "astrophysics"),
+      ),
+    ];
+    const result = selectDailyPapers({
+      candidates,
+      minCount: 10,
+      maxCount: 15,
+      perDirectionCap: 5,
+    });
+    const amoCount = result.filter((id) => id.startsWith("amo-")).length;
+    const astroCount = result.filter((id) => id.startsWith("astro-")).length;
+
+    expect(amoCount).toBe(5);
+    expect(astroCount).toBe(5);
+    expect(result).toHaveLength(10);
+  });
+
+  it("overflows the cap only when no alternatives exist", () => {
+    const candidates = Array.from({ length: 12 }, (_, index) =>
+      dailyCandidate(`amo-${index}`, 90 - index, "amo-optics"),
+    );
+    const result = selectDailyPapers({
+      candidates,
+      minCount: 10,
+      maxCount: 15,
+      perDirectionCap: 5,
+    });
+
+    expect(result).toHaveLength(10);
+    expect(result.every((id) => id.startsWith("amo-"))).toBe(true);
+  });
+
+  it("is stable across repeated calls with the same input", () => {
+    const candidates = [
+      dailyCandidate("p-c", 80),
+      dailyCandidate("p-a", 80, "astrophysics"),
+      dailyCandidate("p-b", 80),
+    ];
+    const first = selectDailyPapers({
+      candidates,
+      minCount: 10,
+      maxCount: 15,
+      perDirectionCap: 5,
+    });
+    const second = selectDailyPapers({
+      candidates,
+      minCount: 10,
+      maxCount: 15,
+      perDirectionCap: 5,
+    });
+
+    expect(first).toEqual(second);
+  });
+});
+
 function candidate(overrides: Partial<RecommendationInput> = {}): RecommendationInput {
   return {
     paperId: "paper-1",
@@ -176,5 +265,18 @@ function classification(
     relevance: 0.7,
     isCrossDisciplinary: false,
     ...overrides,
+  };
+}
+
+function dailyCandidate(
+  paperId: string,
+  score: number,
+  tagSlug = "amo-optics",
+): DailySelectionCandidate {
+  return {
+    paperId,
+    publishedAt: new Date("2026-08-21T00:00:00.000Z"),
+    score,
+    tags: [{ tagSlug, relevance: 0.9 }],
   };
 }

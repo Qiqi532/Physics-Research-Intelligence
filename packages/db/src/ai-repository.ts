@@ -46,6 +46,22 @@ export interface AiRepository {
     until: Date;
     limit: number;
   }): Promise<string[]>;
+  listDailySelectionCandidates(input: {
+    from: Date;
+    until: Date;
+    limit: number;
+  }): Promise<{
+    interests: Record<string, number>;
+    candidates: Array<{
+      id: string;
+      publishedAt: Date | null;
+      classifications: Array<{
+        tagSlug: string;
+        relevance: number;
+        isCrossDisciplinary: boolean;
+      }>;
+    }>;
+  }>;
   findPaperForAi(paperId: string): Promise<SafePaperFacts | null>;
   findSuccessfulRun(idempotencyKey: string): Promise<{ id: string } | null>;
   claimRun(input: ClaimAiRunInput): Promise<
@@ -121,6 +137,52 @@ export function createAiRepository(client: DatabaseClient): AiRepository {
         select: { id: true },
       });
       return papers.map(({ id }) => id);
+    },
+
+    async listDailySelectionCandidates(input) {
+      const [interestRows, paperRows] = await Promise.all([
+        client.userInterest.findMany({
+          where: { userId: "default" },
+          select: { tagSlug: true, weight: true },
+        }),
+        client.paper.findMany({
+          where: {
+            publishedAt: { gte: input.from, lte: input.until },
+            classifications: { some: {} },
+          },
+          orderBy: [{ publishedAt: "asc" }, { id: "asc" }],
+          take: input.limit,
+          select: {
+            id: true,
+            publishedAt: true,
+            classifications: {
+              orderBy: [{ relevance: "desc" }, { tagSlug: "asc" }],
+              select: {
+                tagSlug: true,
+                relevance: true,
+                tag: { select: { isCrossDisciplinary: true } },
+              },
+            },
+          },
+        }),
+      ]);
+      const interests = Object.fromEntries(
+        interestRows.map(({ tagSlug, weight }) => [tagSlug, weight]),
+      );
+      return {
+        interests,
+        candidates: paperRows.map((paper) => ({
+          id: paper.id,
+          publishedAt: paper.publishedAt,
+          classifications: paper.classifications.map(
+            ({ tagSlug, relevance, tag }) => ({
+              tagSlug,
+              relevance,
+              isCrossDisciplinary: tag.isCrossDisciplinary,
+            }),
+          ),
+        })),
+      };
     },
 
     async findPaperForAi(paperId) {

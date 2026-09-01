@@ -81,6 +81,9 @@ importers:
       '@pri/domain':
         specifier: workspace:*
         version: link:../../packages/domain
+      '@pri/recommendation':
+        specifier: workspace:*
+        version: link:../../packages/recommendation
       '@pri/sources':
         specifier: workspace:*
         version: link:../../packages/sources

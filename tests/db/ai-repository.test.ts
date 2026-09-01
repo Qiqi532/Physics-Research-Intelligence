@@ -23,6 +23,7 @@ describeDatabase("PostgreSQL AI repository", () => {
   beforeEach(async () => {
     await client.aiRun.deleteMany();
     await client.paper.deleteMany();
+    await client.userInterest.deleteMany();
     await syncPhysicsTags(client);
     const paper = await client.paper.create({
       data: {
@@ -40,6 +41,7 @@ describeDatabase("PostgreSQL AI repository", () => {
   afterAll(async () => {
     await client.aiRun.deleteMany();
     await client.paper.deleteMany();
+    await client.userInterest.deleteMany();
     await client.$disconnect();
   });
 
@@ -205,6 +207,71 @@ describeDatabase("PostgreSQL AI repository", () => {
       from: new Date("2026-08-30T00:00:00.000Z"),
       until: new Date("2026-08-31T00:00:00.000Z"),
     })).resolves.toBe(0);
+  });
+
+  it("lists daily selection candidates with tags and interests", async () => {
+    await repository.replaceClassifications({
+      paperId,
+      model: "fixture-model",
+      promptVersion: "classify-v1",
+      classifications: [{ tagSlug: "amo-optics", relevance: 0.9, reason: "Optics." }],
+    });
+    await client.userInterest.create({
+      data: { userId: "default", tagSlug: "amo-optics", weight: 2 },
+    });
+    await client.paper.create({
+      data: {
+        title: "Unclassified fictional paper",
+        normalizedTitle: "unclassified fictional paper",
+        publishedAt: new Date("2026-08-28T00:00:00.000Z"),
+      },
+    });
+
+    const result = await repository.listDailySelectionCandidates({
+      from: new Date("2026-08-01T00:00:00.000Z"),
+      until: new Date("2026-09-01T00:00:00.000Z"),
+      limit: 50,
+    });
+
+    expect(result.interests).toEqual({ "amo-optics": 2 });
+    expect(result.candidates).toHaveLength(1);
+    expect(result.candidates[0]).toEqual({
+      id: paperId,
+      publishedAt: new Date("2026-08-29T00:00:00.000Z"),
+      classifications: [
+        { tagSlug: "amo-optics", relevance: 0.9, isCrossDisciplinary: false },
+      ],
+    });
+  });
+
+  it("excludes unclassified papers and papers outside the window", async () => {
+    await repository.replaceClassifications({
+      paperId,
+      model: "fixture-model",
+      promptVersion: "classify-v1",
+      classifications: [{ tagSlug: "plasma", relevance: 0.8, reason: "Plasma." }],
+    });
+    const outside = await client.paper.create({
+      data: {
+        title: "Outside window paper",
+        normalizedTitle: "outside window paper",
+        publishedAt: new Date("2026-06-01T00:00:00.000Z"),
+      },
+    });
+    await repository.replaceClassifications({
+      paperId: outside.id,
+      model: "fixture-model",
+      promptVersion: "classify-v1",
+      classifications: [{ tagSlug: "plasma", relevance: 0.5, reason: "Plasma." }],
+    });
+
+    const result = await repository.listDailySelectionCandidates({
+      from: new Date("2026-08-01T00:00:00.000Z"),
+      until: new Date("2026-09-01T00:00:00.000Z"),
+      limit: 50,
+    });
+
+    expect(result.candidates.map((candidate) => candidate.id)).toEqual([paperId]);
   });
 
   it("serializes concurrent interpretation reservations within one UTC day", async () => {
