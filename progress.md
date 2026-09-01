@@ -1,5 +1,15 @@
 # 进度日志
 
+## 会话：2026-09-01（阶段 9 数据准备：顶刊语料下载）
+
+### 顶刊语料准备（为 9B/10/11 的数据输入）
+- **状态：** complete。
+- 交付 `data/journal-corpus/`：45 篇顶刊物理论文全文语料（Science 9、PRL 12、Nature 8、Nature Communications 10、Nature Photonics 6），PDF 合计约 284 MB。
+- 渠道：arXiv 官方 API 按 `jr:` 检索各期刊 + Crossref/OpenAlex 交叉核对的 Science 标题匹配；PDF 从 arXiv 官方端点下载，全部 45/45 通过 `%PDF` 签名、字节数与 SHA-256 独立复核。
+- 合规边界：nature.com 有反爬且付费墙全文不入库（遵循项目既有决策），语料保存的是这些期刊论文可合法存储的 arXiv 全文；`pdfs/` 已加入 `.gitignore`，`manifest.json` 记录 DOI/期刊/标题/作者/摘要/SHA-256 作为权威事实层。
+- 清理了检索/匹配的临时脚本与中间文件，保留 `query_arxiv.py`/`build_corpus.py`/`verify_corpus.py` 供复现。
+- 未修改任何应用代码；本语料是阶段 9B（PDF 资产）、10（阅读助手）、11（RAG）的数据准备输入。
+
 ## 会话：2026-09-01（模型管理发布与阶段 9 交接）
 
 ### 模型管理发布恢复
@@ -419,3 +429,34 @@
 | 目标是什么？ | 个人物理科研情报平台 MVP |
 | 我学到了什么？ | 见 `findings.md` |
 | 我做了什么？ | 见本文件与设计/计划文档 |
+
+## 会话：2026-09-01（双语 README 与 Kimi 摘要试运行）
+
+- **状态：** in_progress
+- 已批准设计与实施计划，选择在当前对话内执行。
+- 已为双语 README 增加文档契约测试。
+- 首次定向测试在业务断言前失败：根 `pretest` 加载 Prisma 配置时缺少进程级 `DATABASE_URL`。根因是生成步骤的环境前置条件，文档测试本身不访问数据库；下一次执行将只注入虚构的本地 PostgreSQL URL用于 Prisma 客户端生成，不读取 `.env` 或连接数据库。
+- 第二次定向测试已通过 Prisma 生成，但 Vitest/Vite 加载配置时在 Windows 路径解析子进程处返回 `spawn EPERM`；根因是沙箱子进程权限边界，尚未进入 README 断言。下一次以同一精确命令请求受限环境外执行。
+- 首次语料 README 安全措辞补丁因预期上下文少了原文中的“个人研读”而未应用；读取精确段落后改用更小上下文补丁，未重复失败操作。
+- 双语 README 文档测试 11/11 通过并提交；45 条 journal manifest 与 PDF Git 忽略边界测试 7/7 通过并提交。
+- journal-corpus 严格解析器、幂等导入器和最多三篇的 Kimi 摘要试运行 CLI 已完成 TDD；最终定向组 8 个文件、32 项通过，worker 类型检查通过。本地安全审查修复了“未限制最大付费批量”的 Warning，复审无剩余 Critical/Warning。
+- 发布前全量门禁检查发现 Docker Desktop 引擎未运行，5432/6379 均未监听，`com.docker.service` 为 Stopped；因此 PostgreSQL 集成测试尚未执行，需用户启动 Docker Desktop 后继续。未读取 `.env` 或连接个人数据库。
+- 用户启动 Docker Desktop 后，PostgreSQL 17 与 Redis 7 均为 healthy 且只监听 loopback；Docker Server 版本为 29.7.2。
+- 在全新 `pri_kimi_trial_test_20260901` schema 部署 5 条现有迁移；完整 Vitest 为 64 个文件、396 项全部通过。测试后 Paper/PaperSource/AiRun/AiRunAttempt/AiConnectionProfile/AiRuntimeRouting 均为 0，PhysicsTag 为 9，迁移历史为 5。
+- 全仓 lint、全仓 typecheck、Web Next.js 16.3.3 与 worker 生产构建退出码均为 0；构建期间设置 `NEXT_TELEMETRY_DISABLED=1`，未连接真实模型或论文来源。
+## 2026-09-01 — LLM compatibility and Stage 9A continuation
+
+- Located the completed Stage 9A worktree and confirmed its branch/commit lineage relative to `main`.
+- Reviewed the Stage 9A summary plus key configuration, selection, cleanup, favorite-state, repository, UI, and test diffs without modifying product code.
+- Mapped the existing budget/price gate across runtime, database, settings UI, tests, and documentation.
+- Next: agree on the exact removal boundary, write the integration design, then review/fix/verify Stage 9A and finish the Kimi changes as reviewable commits.
+- User approved removing cost data and calculations entirely, while retaining only provider-reported token usage.
+- Local Stage 9A review identified concurrent state overwrite and missing bounded configuration validation as issues requiring fixes before merge.
+- The first targeted Vitest command did not start because the isolated worktree has no dependency links; no test result was inferred from that environment failure.
+- A first attempt to append these notes used an invalid patch hunk; it made no changes, and the corrected patch succeeded.
+- A guessed `packages/ai/src/contracts.ts` path did not exist; repository search located the actual contract in `packages/ai/src/provider.ts` before planning further changes.
+- The approved design and two implementation plans were recorded; inline execution is used because the user asked to start and did not request sub-agent delegation.
+- Stage 9A targeted logic tests passed 82/82 before fixes and 45/45 after the review fixes.
+- The first dedicated-schema database attempt used an invalid example password and did not apply migrations; the retry loaded the existing root `.env` connection without printing it, applied all six migrations to `pri_stage9a_review`, and passed 27/27 PostgreSQL tests.
+- The first worktree typecheck lacked `DATABASE_URL` during Prisma generation; process-local injection from the root `.env` fixed the prerequisite, after which full typecheck and lint passed.
+- Stage 9A review fixes were committed as `9d33ef9`; Kimi K2.6 compatibility and trial evidence were committed on `main` as `2fae6e0`.

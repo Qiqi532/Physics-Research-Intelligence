@@ -1,5 +1,19 @@
 # 发现与决策
 
+## 双语 README 与 Kimi 摘要试运行（2026-09-01）
+- `data/journal-corpus/manifest.json` 的 45 条真实记录可由 strict Zod Schema 完整解析；首次试运行明确选择 `2504.21524v1`、`2410.10611v2`、`2408.15441v2` 三个跨方向样本。
+- 现有 `classifyPaper`、`interpretPaper`、持久化模型路由、预算和审计边界可以直接复用；缺口仅是“显式选择本地 metadata → 幂等导入 → 受限 AI 批次”的 CLI 编排层。
+- 本地安全审查发现初版 CLI 选择器没有最大数量限制，可能意外放大付费调用；已用红灯测试将边界收紧为最多三篇，复审无剩余 Critical/Warning。
+- 本轮自动化仅使用 Mock Provider；真实 Kimi Key 只允许用户在 localhost 模型管理台输入，CLI 不接受命令行 Key，也不读取或发送 PDF 字节。
+- Docker Desktop 29.7.2 下 PostgreSQL 17 与 Redis 7 健康并仅绑定 `127.0.0.1`；专用 `pri_kimi_trial_test_20260901` schema 的 5 条迁移、396 项全量测试和测试后零业务记录已核验。
+
+## 阶段 9 数据准备：顶刊语料（2026-09-01）
+- 为阶段 9B/10/11 准备了 `data/journal-corpus/` 共 45 篇顶刊物理论文语料（Science 9 / PRL 12 / Nature 8 / Nature Communications 10 / Nature Photonics 6），PDF 全部来自 arXiv 官方端点并 45/45 通过签名+大小+SHA-256 独立复核。
+- Nature.com 对程序化抓取有反爬（返回 HTML 而非 PDF），且付费墙内全文批量入库违反项目既定「订阅全文不入库」边界；因此语料统一保存这些期刊论文的 arXiv 预印本全文（科学内容与正式发表一致），可合法本地存储与后续模型处理。
+- Science 论文在 arXiv 的 `journal_ref` 很少规范填写，无法直接 `jr:` 检索；改用 Crossref/OpenAlex 拿到 DOI+标题+作者，再按完整标题短语 `ti:` 匹配 arXiv（精确短语可命中，碎词短语会漏），以标题相似度+作者重合交叉确认；最终 9 篇 Science 均取得 DOI。
+- arXiv 元数据 DOI 字段偶有指向旧年份的异常（如 2606.03206 的 DOI 实为 2022 年 NC 论文、arXiv 2026 回传），已用 Crossref 核实并替换为同主题近期论文；选目时按 arXiv `journal_ref` 的卷期年份交叉核对出版年份，保持语料聚焦近期研究。
+- `manifest.json` 是语料权威事实层（arxiv_id、期刊、DOI、标题、作者、摘要、SHA-256、大小）；pdfs/ 已加入 .gitignore，与 review-corpus 生命周期分离。此语料是数据准备输入，不属于任何代码阶段。
+
 ## 阶段 9 本地论文库与 AI 阅读路线（2026-09-01）
 - 用户批准的留存边界：普通论文从 `Paper.createdAt` 所代表的本地采集时间起保留 30 天；明确收藏的论文长期保留，取消收藏后才重新进入普通清理规则。
 - 现有 `UserPaperState.status` 表示阅读进度，`SAVED` 不能兼任永久收藏；收藏必须作为正交状态，使收藏论文仍可处于稍后读、阅读中或完成。
@@ -191,3 +205,14 @@
 - Today Physics 首屏应包含：今日统计、跨方向信号、个性推荐和阅读队列。
 - 推荐卡需要直接显示“为什么推荐”，而非只显示不透明分数。
 - 论文页需要将事实提取与审慎推断分栏，避免模型结论被误认为论文结论。
+## 2026-09-01 — LLM runtime and Stage 9A integration audit
+
+- Stage 9A is implemented on the clean, unmerged branch `codex/stage-9-local-library` at `5acbe87`; its merge base with `main` is `9f846f4`, so it can be reviewed and integrated without guessing its origin.
+- The branch contains seven focused commits covering orthogonal favorites, 30-day retention, deterministic 10–15 paper selection, post-Today cleanup, a library page, midnight Shanghai defaults, and verification notes.
+- Initial code inspection confirms the main Stage 9A paths exist, but independent verification and edge-case review are still required before accepting the branch.
+- Budget blocking is cross-cutting: `DAILY_AI_BUDGET_USD`, interpretation reservation/`SKIPPED_BUDGET`, model-setting price fields, repository methods, worker result counters, tests, README, and operations docs all participate.
+- Recommended compatibility direction pending user approval: never block provider calls on local cost estimates; retain token/duration audit data and legacy database fields for backward compatibility; remove manual price inputs from the user workflow.
+- User selected the stricter boundary: remove cost storage/calculation entirely; retain only provider-reported token usage when it is available, never estimated token counts.
+- Stage 9A review found a merge-blocking lost-update risk: `setPaperStateByDoi` reads favorite state and then writes it back during unrelated reading-state updates, so concurrent favorite and reading requests can overwrite one another.
+- Stage 9A configuration calls retention/targets bounded but currently validates only positive integers; extreme values can pass while the selection pool remains capped at 500.
+- The Library page introduces `library-*` and `favorite-button*` classes without adding matching stylesheet rules; it remains functionally usable but does not yet meet the intended visual completeness.
