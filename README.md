@@ -78,10 +78,10 @@ pnpm dev
 
 1. 启动 Web 与 worker 后打开 `http://127.0.0.1:3000/settings/models`。
 2. 新建一个命名连接并选择 Kimi。
-3. 根据 Moonshot AI 当前官方文档核对 Base URL、可用模型和价格。仓库默认值只是起点，不是长期价格保证。
+3. 根据 Moonshot AI 当前官方文档核对 Base URL 与可用模型。首轮真实摘要试运行已验证 `kimi-k2.6`；仓库默认值只是起点。
 4. 只在本地页面粘贴 API Key；不要把 Key 写入 README、命令、聊天记录或 Git。
-5. 先执行“轻量连通测试”，再执行可能产生少量费用的“合成论文示例”。
-6. 测试通过后，将该连接设置为分类与解读的主路由。
+5. 先执行“轻量连通测试”。“合成论文示例”只检查 Prompt 与 JSON 契约，可选且不能替代真实论文验收。
+6. 连通后，将该连接设置为分类与解读的主路由，再运行小批量真实摘要试验。
 
 API Key 使用 AES-256-GCM 加密后保存到本地数据库，主密钥独立存放在仓库外。数据库备份与主密钥需要分别保护；丢失主密钥后，已有密文无法恢复。
 
@@ -105,9 +105,11 @@ pnpm --filter @pri/worker corpus:journal:trial -- 2504.21524v1 2410.10611v2 2408
 
 该命令会产生真实的付费模型请求。不要把 API Key 放入命令行；CLI 只读取模型管理台已经加密保存的连接。
 
-试运行成功标准：
+2026-09-01 首轮真实试运行已经通过：三篇论文均完成幂等导入、分类和中文结构化解读，页面均显示“基于摘要解读”，审计记录使用 `kimi / kimi-k2.6`、`classify-v1` 和 `interpret-v1`。实际结果与问题修复见 [Kimi 三论文摘要试运行报告](docs/trials/2026-09-01-kimi-abstract-trial.md)。
 
-- Kimi 轻量连通测试和合成论文示例通过；
+试运行验收标准：
+
+- Kimi 轻量连通测试通过；合成示例仅作为可选契约检查；
 - 三篇记录幂等入库并完成物理方向分类；
 - 每篇生成带证据等级和来源引用的中文结构化解读；
 - 页面明确显示“基于摘要解读”；
@@ -143,17 +145,17 @@ pnpm build
 ### 已知限制
 
 - 尚未完成浏览器 PDF 上传、全文解析、段落定位、单篇对话或跨论文 RAG。
-- 尚未用真实 Kimi Key 完成首批三论文基线，本次会话将执行该试运行。
-- 30 篇跨方向人工内容质量评审仍未完成。
+- 首批三论文 Kimi K2.6 摘要基线已完成；30 篇跨方向人工内容质量评审仍未完成。
 - 应用是无登录单用户 MVP；公开部署前必须增加应用认证或可靠的外部访问控制。
 - 尚未提供完整的生产 Dockerfile、systemd 单元、自动发布与回滚流程。
-- 模型名称、限额和价格会变化，真实调用前必须核对供应商官方文档。
+- 模型名称和限额会变化，真实调用前必须核对供应商官方文档。
+- 模型管理台仍要求手填预算估算价；后续将改为版本化供应商价格目录并移除该交互字段。
 
 ### 路线图与文档
 
 近期顺序：
 
-1. 完成 Kimi 三论文摘要试运行并校准分类/解读 Prompt；
+1. 扩展到 30 篇跨方向人工评审，并继续校准分类/解读 Prompt；
 2. 实现每日 10–15 篇选择、独立收藏状态和 30 天普通论文保留；
 3. 设计合法本地 PDF 资产边界；
 4. 实现带证据定位的单篇阅读助手；
@@ -243,10 +245,10 @@ Stop Web and worker with `Ctrl+C`. Stop rather than remove the Compose volume wh
 
 1. Start Web and worker, then open `http://127.0.0.1:3000/settings/models`.
 2. Create a named connection and choose Kimi.
-3. Check Moonshot AI's current official documentation for the base URL, available model, and current prices. Repository defaults are starting values, not permanent billing claims.
+3. Check Moonshot AI's current official documentation for the base URL and available models. The first real abstract trial verified `kimi-k2.6`; repository defaults remain starting values.
 4. Paste the API key only into the local form. Never place it in README, commands, chat, or Git.
-5. Run the lightweight connection test, followed by the synthetic-paper sample that may incur a small charge.
-6. After both pass, assign the connection as the classification and interpretation primary route.
+5. Run the lightweight connection test. The synthetic-paper sample is an optional Prompt/JSON contract check and does not replace validation with real papers.
+6. After connectivity passes, assign the connection as both primary routes and run a small real-abstract batch.
 
 The key is encrypted with AES-256-GCM before database storage, while the master key lives outside the repository. Protect database and master-key backups separately. Existing ciphertext cannot be recovered if the master key is lost.
 
@@ -270,9 +272,11 @@ pnpm --filter @pri/worker corpus:journal:trial -- 2504.21524v1 2410.10611v2 2408
 
 This command makes real paid model requests. Never place an API key on the command line; the CLI resolves only the connection encrypted by the local model console.
 
+The first real run passed on 2026-09-01: all three papers were imported idempotently, classified, and interpreted in Chinese; every page disclosed `基于摘要解读`; and audit records used `kimi / kimi-k2.6`, `classify-v1`, and `interpret-v1`. See the [Kimi three-paper abstract trial report](docs/trials/2026-09-01-kimi-abstract-trial.md) for actual results and fixes.
+
 Acceptance criteria:
 
-- Kimi's lightweight check and synthetic-paper sample pass;
+- Kimi's lightweight connection check passes; the synthetic sample is an optional contract check;
 - all three records are imported idempotently and classified;
 - each paper receives a Chinese structured interpretation with evidence levels and source references;
 - the page displays the disclosure `基于摘要解读` (interpretation based on abstract);
@@ -308,17 +312,17 @@ Tests require a dedicated PostgreSQL schema and must never target personal or pr
 ### Known limitations
 
 - Browser PDF upload, full-text extraction, section locators, one-paper chat, and cross-paper RAG are not implemented.
-- The first three-paper baseline has not yet been run with a real Kimi key; this guided session will perform it.
-- The 30-paper cross-disciplinary human quality evaluation is incomplete.
+- The first three-paper Kimi K2.6 abstract baseline is complete; the cross-disciplinary 30-paper human evaluation is not.
 - This is an unauthenticated single-user MVP. Public deployment requires application authentication or reliable external access control.
 - The repository does not yet contain complete production Dockerfiles, systemd units, or automated release and rollback workflows.
-- Provider models, limits, and prices change; verify them against official documentation before real calls.
+- Provider models and limits change; verify them against official documentation before real calls.
+- The model console still asks for manual budget-estimate prices; a versioned provider price catalog should replace and remove those fields.
 
 ### Roadmap and documentation
 
 Near-term order:
 
-1. complete the Kimi three-paper abstract trial and calibrate the classification/interpretation prompts;
+1. expand to a 30-paper cross-disciplinary human evaluation and continue Prompt calibration;
 2. add a daily 10–15 paper selection, independent favorites, and 30-day retention for ordinary papers;
 3. design a lawful local PDF asset boundary;
 4. implement a one-paper reading assistant with evidence locators;
