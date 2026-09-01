@@ -4,7 +4,7 @@
 为个人物理学习与研究建立一个可持续的 Today Physics 网站：合规聚合论文元数据、提供可核验的 AI 解读，并按个人兴趣推荐阅读内容。
 
 ## 当前阶段
-阶段 9：本地论文生命周期、阅读助手与收藏库 RAG（路线图已批准，待新对话从 9A 开始）
+阶段 9：本地论文生命周期、阅读助手与收藏库 RAG（Kimi 摘要试运行已完成；9A 已实现并完成审查修复，待集成验收）
 
 ## 各阶段
 
@@ -92,13 +92,16 @@
 - [x] 确认仅在许可证明确允许时自动保存 PDF，合法个人 PDF 可手动导入
 - [x] 将每日 00:00、10–15 篇、收藏库、阅读助手和 RAG 拆成独立交付阶段
 - [x] 写入主路线图与下一次对话接续步骤
-- [x] 9A：每日选择、独立收藏状态、30 天清理与个人收藏页
+- [x] 发布完整中英文 README，并更新 45 篇 journal-corpus 的公开 metadata/摘要安全边界
+- [x] 实现最多三篇、幂等、可审计的 Kimi 摘要试运行 CLI
+- [x] 完成 396 项 Vitest、全仓 lint/typecheck、Web/worker 生产构建与本地安全审查
+- [x] 9A：每日选择、独立收藏状态、30 天清理与个人收藏页（独立分支已实现并完成审查修复）
 - [ ] 9B：开放许可 PDF 自动保存和本地 CLI 手动导入
 - [ ] 10：有来源披露的单篇论文阅读助手
 - [ ] 11：基于收藏论文的可重建 RAG 索引与跨论文问答
-- [ ] 使用真实模型连接执行首批分类/解读试运行
+- [x] 使用 Kimi K2.6 完成三篇真实摘要的分类/解读试运行
 - [ ] 完成至少 30 篇跨方向人工质量评审
-- **状态：** in_progress（9A 已完成并逐任务提交 `320588b`/`eb8e7e7`/`b2bc809`/`c186924`/`bdc2f3b`/`157ef02`；9B、10、11 分别审查设计后再启动）
+- **状态：** in_progress（9A 已完成并逐任务提交，审查修复为 `9d33ef9`；正在移除本地成本/预算门槛并集成验收；9B、10、11 分别审查设计后再启动）
 
 #### 阶段 9A：每日选择、收藏与 30 天清理（2026-09-01 完成）
 - [x] Task 1 收藏正交：`UserPaperState.isFavorite/favoritedAt` 与第 6 条迁移 `20260901092205_add_user_paper_favorite`，收藏按钮与详情/Today 暴露（commit `320588b`）
@@ -144,3 +147,11 @@
 | 可选来源配置测试要求缺失字段仍以 `undefined` 存在 | 1 | Zod 会省略未提供的可选键；改为断言属性不存在，并保留提供值的正向测试 |
 | 手工派生测试 schema URL 时 Prisma schema engine 无法解析 | 1 | 脱敏诊断确认 `.env` URL 有效；根因是手工读取保留了 dotenv 本会移除的外层引号，派生前显式去除 |
 | 在不读取现有值的前提下向忽略的 worker `.env` 追加可选键 | 3 | 补丁无法安全匹配且环境层隐藏原文；停止修改，保留现有值，改由 `.env.example` 记录两个可选键 |
+## Active continuation — LLM runtime without budget blocking + Stage 9A integration
+
+- [x] Locate the Stage 9A branch/worktree and confirm its relationship to `main`.
+- [x] Inspect the main Stage 9A implementation areas and map all budget/price coupling.
+- [x] Agree on the compatibility boundary for removing local budget enforcement.
+- [x] Review and approve an integration design covering Kimi, other OpenAI-compatible providers, Stage 9A, migrations, and tests.
+- [ ] Implement the approved small diffs and integrate the reviewed Stage 9A commits.
+- [ ] Run fresh independent verification, commit the result, and guide the first automated deployment run through dialogue.

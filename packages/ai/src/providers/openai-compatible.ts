@@ -13,6 +13,8 @@ import type {
 import { buildClassificationPrompt, type AiPrompt } from "../prompts/classify";
 import { buildInterpretationPrompt } from "../prompts/interpret";
 import {
+  classificationOutputSchema,
+  interpretationOutputSchema,
   parseClassificationOutput,
   parseInterpretationOutput,
 } from "../schemas";
@@ -50,6 +52,8 @@ export function createOpenAiCompatibleProvider(
         name,
         options,
         buildClassificationPrompt(input),
+        "classification_output",
+        z.toJSONSchema(classificationOutputSchema),
         parseClassificationOutput,
       );
     },
@@ -58,6 +62,8 @@ export function createOpenAiCompatibleProvider(
         name,
         options,
         buildInterpretationPrompt(input),
+        "interpretation_output",
+        z.toJSONSchema(interpretationOutputSchema),
         parseInterpretationOutput,
       );
     },
@@ -80,8 +86,14 @@ async function generate<T>(
   provider: OpenAiCompatibleProviderName,
   options: ReturnType<typeof validateProviderOptions>,
   prompt: AiPrompt,
+  schemaName: string,
+  jsonSchema: unknown,
   parseOutput: (rawText: string) => T,
 ): Promise<AiProviderResult<T>> {
+  const kimiStructuredOutput = provider === "kimi" && options.model === "kimi-k2.6";
+  const systemContent = kimiStructuredOutput
+    ? `${prompt.system} Follow this JSON Schema exactly: ${JSON.stringify(jsonSchema)}`
+    : prompt.system;
   const response = await requestJson({
     provider,
     url: `${options.baseUrl}/chat/completions`,
@@ -90,11 +102,25 @@ async function generate<T>(
     body: {
       model: options.model,
       messages: [
-        { role: "system", content: prompt.system },
+        { role: "system", content: systemContent },
         { role: "user", content: prompt.user },
       ],
-      response_format: { type: "json_object" },
-      max_tokens: options.maxOutputTokens,
+      response_format: kimiStructuredOutput
+        ? {
+            type: "json_schema",
+            json_schema: {
+              name: schemaName,
+              strict: true,
+              schema: jsonSchema,
+            },
+          }
+        : { type: "json_object" },
+      ...(kimiStructuredOutput
+        ? {
+            thinking: { type: "disabled" },
+            max_completion_tokens: options.maxOutputTokens,
+          }
+        : { max_tokens: options.maxOutputTokens }),
     },
     timeoutMs: options.timeoutMs,
     fetchImpl: options.fetchImpl,

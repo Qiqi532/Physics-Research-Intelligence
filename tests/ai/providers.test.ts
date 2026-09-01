@@ -103,6 +103,34 @@ describe("real AI provider adapters with mock HTTP", () => {
     expect(result.usage.totalTokens).toBe(110);
   });
 
+  it("uses Kimi K2.6 non-thinking structured output parameters", async () => {
+    const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(chatResponse());
+    const provider = createKimiProvider({
+      apiKey: "fixture-kimi-key",
+      baseUrl: "https://api.moonshot.cn/v1",
+      model: "kimi-k2.6",
+      maxOutputTokens: 1_234,
+      fetchImpl,
+    });
+
+    await provider.classify(paper);
+    const body = JSON.parse(String(fetchImpl.mock.calls[0]?.[1]?.body));
+
+    expect(body.thinking).toEqual({ type: "disabled" });
+    expect(body.max_completion_tokens).toBe(1_234);
+    expect(body.max_tokens).toBeUndefined();
+    expect(body.messages[0].content).toContain('"required"');
+    expect(body.messages[0].content).toContain('"additionalProperties":false');
+    expect(body.response_format).toEqual(expect.objectContaining({
+      type: "json_schema",
+      json_schema: expect.objectContaining({
+        name: "classification_output",
+        strict: true,
+        schema: expect.objectContaining({ type: "object" }),
+      }),
+    }));
+  });
+
   it("calls Gemini generateContent with a response schema and header key", async () => {
     const apiKey = "fixture-gemini-key";
     const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(Response.json({

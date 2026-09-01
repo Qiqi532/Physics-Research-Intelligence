@@ -74,8 +74,10 @@ export async function runConnectionSample(input: {
   interpretationProvider: AiProvider;
   prices: AiPrices;
 }): Promise<ConnectionSampleResult> {
-  const [classification, interpretation] = await Promise.allSettled([
+  const [classification] = await Promise.allSettled([
     input.classificationProvider.classify(connectionSamplePaper),
+  ]);
+  const [interpretation] = await Promise.allSettled([
     input.interpretationProvider.interpret(connectionSamplePaper),
   ]);
 

@@ -99,6 +99,42 @@ describe("model connection test runner", () => {
     expect(JSON.stringify(sample)).not.toContain(testOnlyValue);
   });
 
+  it("waits for classification before starting interpretation", async () => {
+    const provider = createMockAiProvider({
+      classify: { output: classification, inputTokens: 10, outputTokens: 5, durationMs: 1 },
+      interpret: { output: interpretation, inputTokens: 10, outputTokens: 5, durationMs: 1 },
+    });
+    const classify = provider.classify.bind(provider);
+    const interpret = provider.interpret.bind(provider);
+    let releaseClassification: (() => void) | undefined;
+    const classificationGate = new Promise<void>((resolve) => {
+      releaseClassification = resolve;
+    });
+    let interpretationStarted = false;
+
+    vi.spyOn(provider, "classify").mockImplementation(async (input) => {
+      await classificationGate;
+      return classify(input);
+    });
+    vi.spyOn(provider, "interpret").mockImplementation(async (input) => {
+      interpretationStarted = true;
+      return interpret(input);
+    });
+
+    const pendingSample = runConnectionSample({
+      classificationProvider: provider,
+      interpretationProvider: provider,
+      prices: { inputCostPerMillionUsd: 0, outputCostPerMillionUsd: 0 },
+    });
+
+    await Promise.resolve();
+    expect(interpretationStarted).toBe(false);
+
+    releaseClassification?.();
+    await pendingSample;
+    expect(interpretationStarted).toBe(true);
+  });
+
   it("returns the other sample result when one provider call fails", async () => {
     const provider = createMockAiProvider({
       classify: { errorCode: "rate_limited" },
