@@ -112,4 +112,3 @@ The trial is complete when:
 7. Import the three selected records and execute classification and interpretation.
 8. Inspect pages, audit data, cost, and quality with the user.
 9. If necessary, version and refine the prompt, then rerun only the intended papers. Full-text features remain a separate design phase.
-
