@@ -506,6 +506,24 @@ h3 {
   text-underline-offset: 0.2em;
 }
 
+.interpret-button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+  text-decoration: underline;
+}
+
+.interpret-button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.error-label {
+  color: #a33a32;
+}
+
 .external-link {
   color: var(--blue);
 }

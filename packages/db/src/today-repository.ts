@@ -23,6 +23,7 @@ export type TodayRecommendation = {
   title: string;
   journal: string | null;
   publishedAt: Date | null;
+  createdAt: Date;
   originalUrl: string | null;
   accessStatus: "UNKNOWN" | "OPEN" | "RESTRICTED";
   sourceName: string | null;
@@ -112,6 +113,7 @@ export function createTodayRepository(client: DatabaseClient): TodayRepository {
             title: true,
             journal: true,
             publishedAt: true,
+            createdAt: true,
             originalUrl: true,
             accessStatus: true,
             sources: {
@@ -166,6 +168,7 @@ export function createTodayRepository(client: DatabaseClient): TodayRepository {
           title: paper.title,
           journal: paper.journal,
           publishedAt: paper.publishedAt,
+          createdAt: paper.createdAt,
           originalUrl: paper.originalUrl,
           accessStatus: paper.accessStatus,
           sourceName: paper.sources[0]?.sourceName ?? null,
@@ -200,7 +203,7 @@ export function createTodayRepository(client: DatabaseClient): TodayRepository {
         now,
       );
       const papersById = new Map(mappedPapers.map((paper) => [paper.id, paper]));
-      const recommendations = ranking.flatMap((ranked) => {
+      const ranked = ranking.flatMap((ranked) => {
         const paper = papersById.get(ranked.paperId);
         return paper
           ? [
@@ -213,25 +216,35 @@ export function createTodayRepository(client: DatabaseClient): TodayRepository {
             ]
           : [];
       });
-      const dayStart = startOfDayAtOffset(now, SHANGHAI_OFFSET_MINUTES);
-      const todayPapers = recommendations.filter(
-        ({ publishedAt }) =>
-          publishedAt !== null && publishedAt >= dayStart && publishedAt <= now,
+      // 排序：有解读的论文优先，然后按评分降序
+      const recommendations = ranked.sort((a, b) => {
+        if (a.hasInterpretation !== b.hasInterpretation) {
+          return a.hasInterpretation ? -1 : 1;
+        }
+        return b.score - a.score || a.id.localeCompare(b.id);
+      });
+
+      // 统计昨日数据（上海时区昨日 00:00–24:00），基于入库时间而非发布时间
+      const todayStart = startOfDayAtOffset(now, SHANGHAI_OFFSET_MINUTES);
+      const yesterdayStart = new Date(todayStart.getTime() - 24 * 60 * 60 * 1000);
+      const yesterdayPapers = recommendations.filter(
+        ({ createdAt }) =>
+          createdAt !== null && createdAt >= yesterdayStart && createdAt < todayStart,
       );
 
       return {
         generatedAt: now,
         stats: {
-          newPapers: todayPapers.length,
-          openPapers: todayPapers.filter(({ accessStatus }) => accessStatus === "OPEN")
+          newPapers: yesterdayPapers.length,
+          openPapers: yesterdayPapers.filter(({ accessStatus }) => accessStatus === "OPEN")
             .length,
-          interpretedPapers: todayPapers.filter(({ hasInterpretation }) => hasInterpretation)
+          interpretedPapers: yesterdayPapers.filter(({ hasInterpretation }) => hasInterpretation)
             .length,
-          crossDisciplinaryPapers: todayPapers.filter(({ tags }) =>
+          crossDisciplinaryPapers: yesterdayPapers.filter(({ tags }) =>
             tags.some(({ isCrossDisciplinary }) => isCrossDisciplinary),
           ).length,
         },
-        crossSignals: collectCrossSignals(todayPapers),
+        crossSignals: collectCrossSignals(yesterdayPapers),
         recommendations,
         readingQueue: recommendations
           .filter(({ readingStatus }) =>

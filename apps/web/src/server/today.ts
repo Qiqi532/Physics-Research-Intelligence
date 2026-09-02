@@ -38,7 +38,7 @@ export function createTodayApi(
         const today = await repository.getToday({
           userId: "default",
           now: now(),
-          candidateLimit: 50,
+          candidateLimit: 500,
         });
         return { status: 200, body: toTodayDto(today) };
       } catch (error) {

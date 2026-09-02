@@ -4,12 +4,15 @@ import type {
   AiProvider,
   AiProviderResult,
   PaperAiInput,
+  ScreenInput,
 } from "./provider";
 import {
   classificationOutputSchema,
   interpretationOutputSchema,
+  screenBatchOutputSchema,
   type ClassificationOutput,
   type InterpretationOutput,
+  type ScreenBatchOutput,
 } from "./schemas";
 
 type SuccessScenario<T> = {
@@ -30,6 +33,7 @@ export type MockAiProviderOptions = {
   model?: string;
   classify?: Scenario<ClassificationOutput>;
   interpret?: Scenario<InterpretationOutput>;
+  screenBatch?: Scenario<ScreenBatchOutput>;
   health?: AiHealthResult;
 };
 
@@ -52,6 +56,14 @@ export function createMockAiProvider(options: MockAiProviderOptions = {}): AiPro
       return runScenario(
         options.interpret,
         interpretationOutputSchema.parse,
+        name,
+        model,
+      );
+    },
+    async screenBatch(_inputs: ScreenInput[], _userInterests?: Record<string, number>) {
+      return runScenario(
+        options.screenBatch,
+        screenBatchOutputSchema.parse,
         name,
         model,
       );

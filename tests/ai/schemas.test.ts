@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   classificationOutputSchema,
   interpretationOutputSchema,
+  screenBatchOutputSchema,
 } from "../../packages/ai/src/schemas";
 
 const abstractEvidence = {
@@ -126,5 +127,52 @@ describe("AI output schemas", () => {
     },
   ])("rejects interpretation $name", ({ value }) => {
     expect(interpretationOutputSchema.safeParse(value).success).toBe(false);
+  });
+
+  it("accepts a strict batch screening result", () => {
+    expect(screenBatchOutputSchema.parse({
+      papers: [{
+        paperId: "paper-1",
+        score: 0.8,
+        directionSlug: "amo-optics",
+        reason: "方向相关且质量较高",
+        selected: true,
+      }],
+    })).toEqual(expect.objectContaining({
+      papers: [expect.objectContaining({ paperId: "paper-1", score: 0.8 })],
+    }));
+  });
+
+  it.each([
+    {
+      papers: [{
+        paperId: "paper-1",
+        score: 1.1,
+        directionSlug: "amo-optics",
+        reason: "invalid score",
+        selected: true,
+      }],
+    },
+    {
+      papers: [{
+        paperId: "paper-1",
+        score: 0.8,
+        directionSlug: "invented-physics",
+        reason: "invalid direction",
+        selected: true,
+      }],
+    },
+    {
+      papers: [{
+        paperId: "paper-1",
+        score: 0.8,
+        directionSlug: "amo-optics",
+        reason: "unknown field",
+        selected: true,
+        hidden: true,
+      }],
+    },
+  ])("rejects an invalid batch screening result", (value) => {
+    expect(screenBatchOutputSchema.safeParse(value).success).toBe(false);
   });
 });

@@ -68,9 +68,29 @@ export const interpretationOutputSchema = z.discriminatedUnion("basis", [
     .strict(),
 ]);
 
+// ---- Batch screening output ----
+
+export const screenPaperOutputSchema = z
+  .object({
+    paperId: z.string().trim().min(1),
+    score: z.number().min(0).max(1),
+    directionSlug: physicsTagSlugSchema,
+    reason: z.string().trim().min(1),
+    selected: z.boolean(),
+  })
+  .strict();
+
+export const screenBatchOutputSchema = z
+  .object({
+    papers: z.array(screenPaperOutputSchema).min(1),
+  })
+  .strict();
+
 export type ClassificationOutput = z.infer<typeof classificationOutputSchema>;
 export type InterpretationOutput = z.infer<typeof interpretationOutputSchema>;
 export type EvidenceClaim = z.infer<typeof evidenceClaimSchema>;
+export type ScreenPaperOutput = z.infer<typeof screenPaperOutputSchema>;
+export type ScreenBatchOutput = z.infer<typeof screenBatchOutputSchema>;
 
 export function parseClassificationOutput(rawText: string): ClassificationOutput {
   return parseOutput(rawText, classificationOutputSchema);
@@ -78,6 +98,10 @@ export function parseClassificationOutput(rawText: string): ClassificationOutput
 
 export function parseInterpretationOutput(rawText: string): InterpretationOutput {
   return parseOutput(rawText, interpretationOutputSchema);
+}
+
+export function parseScreenBatchOutput(rawText: string): ScreenBatchOutput {
+  return parseOutput(rawText, screenBatchOutputSchema);
 }
 
 function parseOutput<T>(rawText: string, schema: z.ZodType<T>): T {

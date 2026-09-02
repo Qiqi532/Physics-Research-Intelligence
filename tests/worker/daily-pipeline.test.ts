@@ -8,7 +8,7 @@ const window = {
 };
 
 describe("daily pipeline", () => {
-  it("runs public ingestion, classification, interpretation, Today preparation and cleanup in order", async () => {
+  it("runs public ingestion, screening, interpretation, Today preparation and cleanup in order", async () => {
     const events: string[] = [];
     const result = await runDailyPipeline({
       window,
@@ -16,13 +16,9 @@ describe("daily pipeline", () => {
         events.push(`ingest:${input.key}`);
         return { status: "complete", records: 3 };
       }),
-      listPaperIds: vi.fn(async (input) => {
-        events.push(`list:${input.key}`);
-        return ["paper-1", "paper-2"];
-      }),
-      classify: vi.fn(async (paperId) => {
-        events.push(`classify:${paperId}`);
-        return paperId === "paper-1" ? "complete" : "duplicate";
+      screen: vi.fn(async (input) => {
+        events.push(`screen:${input.key}`);
+        return { status: "complete", screened: 2, selected: 1, batches: 1, failures: [] };
       }),
       listInterpretationPaperIds: vi.fn(async (input) => {
         events.push(`list-interpret:${input.key}`);
@@ -44,9 +40,7 @@ describe("daily pipeline", () => {
 
     expect(events).toEqual([
       "ingest:2026-08-30",
-      "list:2026-08-30",
-      "classify:paper-1",
-      "classify:paper-2",
+      "screen:2026-08-30",
       "list-interpret:2026-08-30",
       "interpret:paper-1",
       "today:2026-08-30",
@@ -55,7 +49,7 @@ describe("daily pipeline", () => {
     expect(result).toEqual({
       windowKey: "2026-08-30",
       ingestedRecords: 3,
-      classification: { complete: 1, duplicate: 1, failed: 0, inProgress: 0 },
+      screening: { screened: 2, selected: 1, batches: 1, failedBatches: 0 },
       interpretation: {
         complete: 1,
         duplicate: 0,
@@ -67,49 +61,51 @@ describe("daily pipeline", () => {
     });
   });
 
-  it("does not classify or prepare Today when ingestion cannot safely complete", async () => {
-    const listPaperIds = vi.fn();
+  it("does not screen or prepare Today when ingestion cannot safely complete", async () => {
+    const screen = vi.fn();
     const prepareToday = vi.fn();
     const pruneExpired = vi.fn();
 
     await expect(runDailyPipeline({
       window,
       ingest: vi.fn().mockResolvedValue({ status: "failed", errorCode: "source_failed" }),
-      listPaperIds,
-      classify: vi.fn(),
+      screen,
       listInterpretationPaperIds: vi.fn(),
       interpret: vi.fn(),
       prepareToday,
       pruneExpired,
     })).rejects.toThrow("daily_ingestion_failed");
 
-    expect(listPaperIds).not.toHaveBeenCalled();
+    expect(screen).not.toHaveBeenCalled();
     expect(prepareToday).not.toHaveBeenCalled();
     expect(pruneExpired).not.toHaveBeenCalled();
   });
 
-  it("isolates one classification failure and still prepares Today and cleanup", async () => {
+  it("records screening batch failures and still prepares Today and cleanup", async () => {
     const prepareToday = vi.fn().mockResolvedValue({ recommendations: 1 });
     const pruneExpired = vi.fn().mockResolvedValue({ status: "ok", deleted: 0 });
 
     const result = await runDailyPipeline({
       window,
       ingest: vi.fn().mockResolvedValue({ status: "duplicate", records: 0 }),
-      listPaperIds: vi.fn().mockResolvedValue(["paper-1", "paper-2"]),
-      classify: vi.fn()
-        .mockRejectedValueOnce(new Error("provider unavailable"))
-        .mockResolvedValueOnce("in_progress"),
+      screen: vi.fn().mockResolvedValue({
+        status: "complete",
+        screened: 10,
+        selected: 5,
+        batches: 2,
+        failures: [{ batchIndex: 1, errorCode: "provider_unavailable" }],
+      }),
       listInterpretationPaperIds: vi.fn().mockResolvedValue([]),
       interpret: vi.fn(),
       prepareToday,
       pruneExpired,
     });
 
-    expect(result.classification).toEqual({
-      complete: 0,
-      duplicate: 0,
-      failed: 1,
-      inProgress: 1,
+    expect(result.screening).toEqual({
+      screened: 10,
+      selected: 5,
+      batches: 2,
+      failedBatches: 1,
     });
     expect(prepareToday).toHaveBeenCalledOnce();
     expect(pruneExpired).toHaveBeenCalledOnce();
@@ -121,8 +117,7 @@ describe("daily pipeline", () => {
     const result = await runDailyPipeline({
       window,
       ingest: vi.fn().mockResolvedValue({ status: "duplicate", records: 0 }),
-      listPaperIds: vi.fn().mockResolvedValue([]),
-      classify: vi.fn(),
+      screen: vi.fn().mockResolvedValue({ status: "complete", screened: 0, selected: 0, batches: 0, failures: [] }),
       listInterpretationPaperIds: vi.fn().mockResolvedValue([
         "paper-1",
         "paper-2",
@@ -149,8 +144,7 @@ describe("daily pipeline", () => {
     const result = await runDailyPipeline({
       window,
       ingest: vi.fn().mockResolvedValue({ status: "duplicate", records: 0 }),
-      listPaperIds: vi.fn().mockResolvedValue([]),
-      classify: vi.fn(),
+      screen: vi.fn().mockResolvedValue({ status: "complete", screened: 0, selected: 0, batches: 0, failures: [] }),
       listInterpretationPaperIds: vi.fn().mockResolvedValue([]),
       interpret: vi.fn(),
       prepareToday,
@@ -171,8 +165,7 @@ describe("daily pipeline", () => {
     const result = await runDailyPipeline({
       window,
       ingest: vi.fn().mockResolvedValue({ status: "duplicate", records: 0 }),
-      listPaperIds: vi.fn().mockResolvedValue([]),
-      classify: vi.fn(),
+      screen: vi.fn().mockResolvedValue({ status: "complete", screened: 0, selected: 0, batches: 0, failures: [] }),
       listInterpretationPaperIds: vi.fn().mockResolvedValue([]),
       interpret: vi.fn(),
       prepareToday,

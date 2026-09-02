@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { LibraryPaperList } from "../../apps/web/src/components/library-paper-list";
 import { PaperInterpretation } from "../../apps/web/src/components/paper-interpretation";
 import { PaperPublicAbstract } from "../../apps/web/src/components/paper-public-abstract";
@@ -7,7 +9,10 @@ import {
   readingStatePayloadForAction,
 } from "../../apps/web/src/components/paper-state-controls";
 import { ReadingQueue } from "../../apps/web/src/components/reading-queue";
-import { RecommendationCard } from "../../apps/web/src/components/recommendation-card";
+import {
+  interpretUiOutcome,
+  RecommendationCard,
+} from "../../apps/web/src/components/recommendation-card";
 import { TodayOverview } from "../../apps/web/src/components/today-overview";
 import { presentPaperDetail } from "../../apps/web/src/presentation/paper";
 import type { TodayRecommendationDto } from "../../apps/web/src/presentation/today";
@@ -33,9 +38,9 @@ describe("Today Physics server components", () => {
   });
 
   it("renders required paper-card facts, reasons and links", () => {
-    const tree = RecommendationCard({ paper: recommendation() });
-    const output = textContent(tree);
-    const hrefs = collectProps(tree, "href");
+    const output = renderToStaticMarkup(
+      createElement(RecommendationCard, { paper: recommendation() }),
+    );
 
     expect(output).toContain("A recommended paper");
     expect(output).toContain("arXiv · Test Physics");
@@ -43,8 +48,40 @@ describe("Today Physics server components", () => {
     expect(output).toContain("原子、分子与光学");
     expect(output).toContain("为什么推荐");
     expect(output).toContain("开放获取");
-    expect(hrefs).toContain("/papers/10.1103%2Fexample");
-    expect(hrefs).toContain("https://example.test/paper");
+    expect(output).toContain("/papers/10.1103%2Fexample");
+    expect(output).toContain("https://example.test/paper");
+    expect(output).toContain("查看解读");
+    expect(output).not.toContain("AI 解读");
+  });
+
+  it("renders an interpretation action only when interpretation is missing", () => {
+    const output = renderToStaticMarkup(
+      createElement(RecommendationCard, {
+        paper: recommendation({ hasInterpretation: false }),
+      }),
+    );
+
+    expect(output).toContain("详情页");
+    expect(output).toContain("AI 解读");
+    expect(output).not.toContain("查看解读");
+  });
+
+  it("keeps an HTTP 202 interpretation request in progress", () => {
+    expect(interpretUiOutcome(202, true, { status: "in_progress" })).toEqual({
+      state: "in_progress",
+      error: null,
+    });
+    expect(interpretUiOutcome(200, true, { status: "complete" })).toEqual({
+      state: "success",
+      error: null,
+    });
+    expect(interpretUiOutcome(503, false, {
+      status: "unavailable",
+      errorCode: "service_unavailable",
+    })).toEqual({
+      state: "failed",
+      error: "service_unavailable",
+    });
   });
 
   it("renders an explicit empty reading queue", () => {
@@ -158,7 +195,9 @@ describe("library paper list", () => {
   });
 });
 
-function recommendation(): TodayRecommendationDto {
+function recommendation(
+  overrides: Partial<TodayRecommendationDto> = {},
+): TodayRecommendationDto {
   return {
     id: "paper-1",
     doi: "10.1103/example",
@@ -189,6 +228,7 @@ function recommendation(): TodayRecommendationDto {
       readingState: 0,
     },
     reasons: ["匹配你的「原子、分子与光学」兴趣（相关度 80%）"],
+    ...overrides,
   };
 }
 

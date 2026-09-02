@@ -1,7 +1,18 @@
 import type { DailyWindow } from "./scheduler";
 
-type ClassificationStatus = "complete" | "duplicate" | "in_progress" | "failed";
-type InterpretationStatus = ClassificationStatus;
+type InterpretationStatus = "complete" | "duplicate" | "in_progress" | "failed";
+
+type ScreeningOutcome = {
+  status: "complete";
+  /** Papers that passed journal filtering and were sent to LLM screening. */
+  screened: number;
+  /** Papers marked selected by the LLM. */
+  selected: number;
+  /** Number of batches processed. */
+  batches: number;
+  /** Per-batch failures (does not stop other batches). */
+  failures: Array<{ batchIndex: number; errorCode: string }>;
+};
 
 type DailyPipelineDependencies = {
   window: DailyWindow;
@@ -9,8 +20,11 @@ type DailyPipelineDependencies = {
     | { status: "complete" | "duplicate"; records: number }
     | { status: "failed"; errorCode: string }
   >;
-  listPaperIds(window: DailyWindow): Promise<string[]>;
-  classify(paperId: string): Promise<ClassificationStatus>;
+  /**
+   * Stage 1+2: deterministic journal filter then batch LLM screening.
+   * Returns aggregate counts rather than per-paper status.
+   */
+  screen(window: DailyWindow): Promise<ScreeningOutcome>;
   listInterpretationPaperIds(window: DailyWindow): Promise<string[]>;
   interpret(paperId: string): Promise<InterpretationStatus>;
   prepareToday(window: DailyWindow): Promise<{ recommendations: number }>;
@@ -23,11 +37,11 @@ type DailyPipelineDependencies = {
 export type DailyPipelineResult = {
   windowKey: string;
   ingestedRecords: number;
-  classification: {
-    complete: number;
-    duplicate: number;
-    failed: number;
-    inProgress: number;
+  screening: {
+    screened: number;
+    selected: number;
+    batches: number;
+    failedBatches: number;
   };
   interpretation: {
     complete: number;
@@ -46,25 +60,10 @@ export async function runDailyPipeline(
   if (ingestion.status === "failed") {
     throw new Error("daily_ingestion_failed");
   }
-  const paperIds = await dependencies.listPaperIds(dependencies.window);
-  const classification = {
-    complete: 0,
-    duplicate: 0,
-    failed: 0,
-    inProgress: 0,
-  };
-  for (const paperId of paperIds) {
-    try {
-      const status = await dependencies.classify(paperId);
-      if (status === "in_progress") {
-        classification.inProgress += 1;
-      } else {
-        classification[status] += 1;
-      }
-    } catch {
-      classification.failed += 1;
-    }
-  }
+
+  // Stage 1+2: journal quality filter + batch LLM screening.
+  const screening = await dependencies.screen(dependencies.window);
+
   const interpretationPaperIds = await dependencies.listInterpretationPaperIds(
     dependencies.window,
   );
@@ -96,7 +95,12 @@ export async function runDailyPipeline(
   return {
     windowKey: dependencies.window.key,
     ingestedRecords: ingestion.records,
-    classification,
+    screening: {
+      screened: screening.screened,
+      selected: screening.selected,
+      batches: screening.batches,
+      failedBatches: screening.failures.length,
+    },
     interpretation,
     recommendations: today.recommendations,
     cleanup,

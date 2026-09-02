@@ -23,9 +23,9 @@ import {
   type SourceConnector,
 } from "@pri/sources";
 import { runDailyPipeline } from "./daily-pipeline";
-import { classifyPaper } from "./jobs/classify-paper";
 import { ingestSources } from "./jobs/ingest-source";
 import { interpretPaper } from "./jobs/interpret-paper";
+import { screenPapers } from "./jobs/screen-papers";
 import { dailyWindowAt } from "./scheduler";
 import {
   createRuntimeAiConfigResolver,
@@ -34,6 +34,18 @@ import {
   type RuntimeAiTaskRoute,
 } from "./runtime-ai-config";
 
+export type ScreenedSelectionPool = {
+  interests: Record<string, number>;
+  candidates: Array<{
+    id: string;
+    publishedAt: Date | null;
+    score: number;
+    directionSlug: string;
+    selected: boolean;
+  }>;
+};
+
+/** @deprecated Use ScreenedSelectionPool + buildDailySelectionFromScreening. */
 export type DailySelectionPool = {
   interests: Record<string, number>;
   candidates: Array<{
@@ -47,6 +59,7 @@ export type DailySelectionPool = {
   }>;
 };
 
+/** @deprecated Use buildDailySelectionFromScreening for the screening-based flow. */
 export function buildDailySelection(input: {
   pool: DailySelectionPool;
   now: Date;
@@ -81,6 +94,54 @@ export function buildDailySelection(input: {
       tagSlug: classification.tagSlug,
       relevance: classification.relevance,
     })),
+  }));
+  const paperIds = selectDailyPapers({
+    candidates: scoredCandidates,
+    minCount: input.minCount,
+    maxCount: input.maxCount,
+    perDirectionCap: input.perDirectionCap,
+  });
+  return { paperIds, candidateCount: scoredCandidates.length };
+}
+
+export function buildDailySelectionFromScreening(input: {
+  pool: ScreenedSelectionPool;
+  now: Date;
+  minCount: number;
+  maxCount: number;
+  perDirectionCap: number;
+}): { paperIds: string[]; candidateCount: number } {
+  const rankedById = new Map(
+    rankRecommendations(
+      input.pool.candidates.map((candidate) => ({
+        paperId: candidate.id,
+        publishedAt: candidate.publishedAt,
+        classifications: [
+          {
+            tagSlug: candidate.directionSlug,
+            tagLabel: candidate.directionSlug,
+            relevance: candidate.score,
+            isCrossDisciplinary: false,
+          },
+        ],
+        interests: input.pool.interests,
+        readingStatus: "UNREAD" as const,
+        feedback: "NONE" as const,
+        hasInterpretation: false,
+      })),
+      input.now,
+    ).map((ranked) => [ranked.paperId, ranked]),
+  );
+  const scoredCandidates = input.pool.candidates.map((candidate) => ({
+    paperId: candidate.id,
+    publishedAt: candidate.publishedAt,
+    score: rankedById.get(candidate.id)?.total ?? candidate.score,
+    tags: [
+      {
+        tagSlug: candidate.directionSlug,
+        relevance: candidate.score,
+      },
+    ],
   }));
   const paperIds = selectDailyPapers({
     candidates: scoredCandidates,
@@ -133,7 +194,8 @@ export function createConfiguredDailyProcessor(
   return {
     async process() {
       const snapshot = await resolver.resolve();
-      const classificationProviders = createTaskProviders(
+      // Screening reuses the classification route (same Kimi connection).
+      const screeningProviders = createTaskProviders(
         snapshot.classify,
         createProvider,
       );
@@ -167,27 +229,41 @@ export function createConfiguredDailyProcessor(
             ),
           };
         },
-        listPaperIds: (input) => aiRepository.listPaperIdsForClassification({
-          from: input.from,
-          until: input.until,
-          limit: 500,
-        }),
-        async classify(paperId) {
-          const outcome = await classifyPaper({
-            paperId,
+        async screen(input) {
+          // Load user interests to guide LLM screening (safe for test mocks).
+          let userInterests: Record<string, number> | undefined;
+          try {
+            if (client.userInterest) {
+              const interestRows = await client.userInterest.findMany({
+                where: { userId: "default" },
+                select: { tagSlug: true, weight: true },
+              });
+              userInterests = Object.fromEntries(
+                interestRows.map(({ tagSlug, weight }) => [tagSlug, weight]),
+              );
+            }
+          } catch {
+            // In test environments without a real database, skip interest loading.
+            userInterests = undefined;
+          }
+          return screenPapers({
+            from: input.from,
+            until: input.until,
+            limit: 1000,
+            batchSize: 15,
             repository: aiRepository,
-            primary: classificationProviders.primary,
-            fallback: classificationProviders.fallback,
+            primary: screeningProviders.primary,
+            fallback: screeningProviders.fallback,
+            userInterests,
           });
-          return outcome.status;
         },
         async listInterpretationPaperIds(input) {
-          const pool = await aiRepository.listDailySelectionCandidates({
+          const pool = await aiRepository.listScreenedSelectionCandidates({
             from: input.from,
             until: input.until,
             limit: 500,
           });
-          const selection = buildDailySelection({
+          const selection = buildDailySelectionFromScreening({
             pool,
             now: input.until,
             minCount: config.DAILY_PAPER_TARGET_MIN,
@@ -209,7 +285,7 @@ export function createConfiguredDailyProcessor(
           const today = await todayRepository.getToday({
             userId: "default",
             now: new Date(),
-            candidateLimit: 50,
+            candidateLimit: 500,
           });
           return { recommendations: today.recommendations.length };
         },

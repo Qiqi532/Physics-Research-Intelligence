@@ -12,7 +12,7 @@ export type SafePaperFacts = {
 
 export type ClaimAiRunInput = {
   paperId: string;
-  runType: "CLASSIFY" | "INTERPRET";
+  runType: "CLASSIFY" | "INTERPRET" | "SCREEN";
   idempotencyKey: string;
   provider: string;
   model: string;
@@ -32,6 +32,14 @@ export type AiAttemptInput = {
   completedAt: Date;
 };
 
+export type ScreeningResultInput = {
+  paperId: string;
+  score: number;
+  directionSlug: string;
+  reason: string;
+  selected: boolean;
+};
+
 export interface AiRepository {
   listPaperIdsForClassification(input: {
     from: Date;
@@ -43,6 +51,16 @@ export interface AiRepository {
     until: Date;
     limit: number;
   }): Promise<string[]>;
+  /**
+   * List papers in the daily window that have no screening record yet.
+   * Returns full public facts so the caller can apply the journal whitelist
+   * before batching them to the LLM.
+   */
+  listPapersForScreening(input: {
+    from: Date;
+    until: Date;
+    limit: number;
+  }): Promise<SafePaperFacts[]>;
   listDailySelectionCandidates(input: {
     from: Date;
     until: Date;
@@ -57,6 +75,24 @@ export interface AiRepository {
         relevance: number;
         isCrossDisciplinary: boolean;
       }>;
+    }>;
+  }>;
+  /**
+   * List papers that passed screening (selected=true) for final daily
+   * selection. Includes score and direction for diversity-aware picking.
+   */
+  listScreenedSelectionCandidates(input: {
+    from: Date;
+    until: Date;
+    limit: number;
+  }): Promise<{
+    interests: Record<string, number>;
+    candidates: Array<{
+      id: string;
+      publishedAt: Date | null;
+      score: number;
+      directionSlug: string;
+      selected: boolean;
     }>;
   }>;
   findPaperForAi(paperId: string): Promise<SafePaperFacts | null>;
@@ -95,6 +131,18 @@ export interface AiRepository {
     promptVersion: string;
     content: Record<string, unknown>;
   }): Promise<void>;
+  /**
+   * Upsert a batch of screening results. Each paper gets one row per
+   * (paperId, model, promptVersion); re-running with the same version
+   * updates score/direction/reason/selected in place.
+   */
+  saveScreeningResults(input: {
+    batchId: string;
+    provider: string;
+    model: string;
+    promptVersion: string;
+    results: ScreeningResultInput[];
+  }): Promise<void>;
 }
 
 export function createAiRepository(client: DatabaseClient): AiRepository {
@@ -120,6 +168,26 @@ export function createAiRepository(client: DatabaseClient): AiRepository {
         select: { id: true },
       });
       return papers.map(({ id }) => id);
+    },
+
+    async listPapersForScreening(input) {
+      const papers = await client.paper.findMany({
+        where: {
+          publishedAt: { gte: input.from, lte: input.until },
+          screenings: { none: {} },
+        },
+        orderBy: [{ publishedAt: "asc" }, { id: "asc" }],
+        take: input.limit,
+        select: {
+          id: true,
+          title: true,
+          abstract: true,
+          journal: true,
+          publishedAt: true,
+          accessStatus: true,
+        },
+      });
+      return papers;
     },
 
     async listDailySelectionCandidates(input) {
@@ -165,6 +233,52 @@ export function createAiRepository(client: DatabaseClient): AiRepository {
             }),
           ),
         })),
+      };
+    },
+
+    async listScreenedSelectionCandidates(input) {
+      const [interestRows, paperRows] = await Promise.all([
+        client.userInterest.findMany({
+          where: { userId: "default" },
+          select: { tagSlug: true, weight: true },
+        }),
+        client.paper.findMany({
+          where: {
+            publishedAt: { gte: input.from, lte: input.until },
+            screenings: { some: { selected: true } },
+          },
+          orderBy: [{ publishedAt: "asc" }, { id: "asc" }],
+          take: input.limit,
+          select: {
+            id: true,
+            publishedAt: true,
+            screenings: {
+              where: { selected: true },
+              orderBy: [{ score: "desc" }, { createdAt: "desc" }],
+              take: 1,
+              select: {
+                score: true,
+                directionSlug: true,
+                selected: true,
+              },
+            },
+          },
+        }),
+      ]);
+      const interests = Object.fromEntries(
+        interestRows.map(({ tagSlug, weight }) => [tagSlug, weight]),
+      );
+      return {
+        interests,
+        candidates: paperRows
+          .filter((paper) => paper.screenings.length > 0)
+          .map((paper) => ({
+            id: paper.id,
+            publishedAt: paper.publishedAt,
+            score: paper.screenings[0]!.score,
+            directionSlug: paper.screenings[0]!.directionSlug,
+            selected: paper.screenings[0]!.selected,
+          })),
       };
     },
 
@@ -327,6 +441,41 @@ export function createAiRepository(client: DatabaseClient): AiRepository {
           content,
           status: "COMPLETE",
         },
+      });
+    },
+
+    async saveScreeningResults(input) {
+      await client.$transaction(async (transaction) => {
+        for (const result of input.results) {
+          await transaction.paperScreening.upsert({
+            where: {
+              paperId_model_promptVersion: {
+                paperId: result.paperId,
+                model: input.model,
+                promptVersion: input.promptVersion,
+              },
+            },
+            create: {
+              paperId: result.paperId,
+              score: result.score,
+              directionSlug: result.directionSlug,
+              reason: result.reason,
+              selected: result.selected,
+              batchId: input.batchId,
+              provider: input.provider,
+              model: input.model,
+              promptVersion: input.promptVersion,
+            },
+            update: {
+              score: result.score,
+              directionSlug: result.directionSlug,
+              reason: result.reason,
+              selected: result.selected,
+              batchId: input.batchId,
+              provider: input.provider,
+            },
+          });
+        }
       });
     },
 

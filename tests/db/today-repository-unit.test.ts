@@ -108,6 +108,67 @@ describe("Today repository aggregation", () => {
     ]);
   });
 
+  it("counts only the previous Shanghai calendar day by creation time", async () => {
+    const repository = createTodayRepository({
+      userInterest: { findMany: vi.fn().mockResolvedValue([]) },
+      paper: {
+        findMany: vi.fn().mockResolvedValue([
+          paperRow({
+            id: "paper-yesterday",
+            createdAt: new Date("2026-08-28T16:00:00.000Z"),
+          }),
+          paperRow({
+            id: "paper-before-yesterday",
+            createdAt: new Date("2026-08-28T15:59:59.999Z"),
+          }),
+          paperRow({
+            id: "paper-today",
+            createdAt: new Date("2026-08-29T16:00:00.000Z"),
+          }),
+        ]),
+      },
+    } as unknown as DatabaseClient);
+
+    const result = await repository.getToday({
+      userId: "default",
+      now,
+      candidateLimit: 20,
+    });
+
+    expect(result.stats).toEqual({
+      newPapers: 1,
+      openPapers: 1,
+      interpretedPapers: 0,
+      crossDisciplinaryPapers: 0,
+    });
+  });
+
+  it("places interpreted papers before non-interpreted papers", async () => {
+    const repository = createTodayRepository({
+      userInterest: { findMany: vi.fn().mockResolvedValue([]) },
+      paper: {
+        findMany: vi.fn().mockResolvedValue([
+          paperRow({ id: "paper-without-interpretation" }),
+          paperRow({
+            id: "paper-with-interpretation",
+            interpretations: [{ id: "interpretation-1" }],
+          }),
+        ]),
+      },
+    } as unknown as DatabaseClient);
+
+    const result = await repository.getToday({
+      userId: "default",
+      now,
+      candidateLimit: 20,
+    });
+
+    expect(result.recommendations.map(({ id }) => id)).toEqual([
+      "paper-with-interpretation",
+      "paper-without-interpretation",
+    ]);
+  });
+
   it("upserts a safe state by normalized DOI and reports missing papers", async () => {
     const findUnique = vi
       .fn()
@@ -173,6 +234,7 @@ function paperRow(overrides: Record<string, unknown> = {}) {
     title: "A physics paper",
     journal: "Test Physics",
     publishedAt: new Date("2026-08-30T01:00:00.000Z"),
+    createdAt: new Date("2026-08-29T00:00:00.000Z"),
     originalUrl: "https://example.test/paper",
     accessStatus: "OPEN",
     sources: [{ sourceName: "arxiv" }],

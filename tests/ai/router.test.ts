@@ -1,15 +1,35 @@
 import { describe, expect, it, vi } from "vitest";
 import { createMockAiProvider } from "../../packages/ai/src/mock-provider";
 import { AiProviderError } from "../../packages/ai/src/errors";
-import type { AiErrorCode, PaperAiInput } from "../../packages/ai/src/provider";
+import type {
+  AiErrorCode,
+  PaperAiInput,
+  ScreenInput,
+} from "../../packages/ai/src/provider";
 import {
   routeClassification,
   routeInterpretation,
+  routeScreenBatch,
 } from "../../packages/ai/src/router";
 
 const paper: PaperAiInput = {
   title: "A fictional optical measurement",
   abstract: "We demonstrate a fictional result.",
+};
+
+const screenInputs: ScreenInput[] = [{
+  paperId: "paper-1",
+  ...paper,
+}];
+
+const screening = {
+  papers: [{
+    paperId: "paper-1",
+    score: 0.8,
+    directionSlug: "amo-optics" as const,
+    reason: "方向相关且质量较高",
+    selected: true,
+  }],
 };
 
 const classification = {
@@ -165,5 +185,46 @@ describe("AI router fallback", () => {
     expect(outcome.attempts).toEqual([
       expect.objectContaining({ status: "failed", durationMs: 17 }),
     ]);
+  });
+
+  it("falls back once for a retryable batch screening failure", async () => {
+    const primary = createMockAiProvider({
+      name: "primary",
+      screenBatch: { errorCode: "timeout" },
+    });
+    const fallback = createMockAiProvider({
+      name: "fallback",
+      screenBatch: {
+        output: screening,
+        inputTokens: 10,
+        outputTokens: 5,
+        durationMs: 2,
+      },
+    });
+    const interests = { "amo-optics": 2 };
+    const primaryCall = vi.spyOn(primary, "screenBatch");
+    const fallbackCall = vi.spyOn(fallback, "screenBatch");
+
+    const outcome = await routeScreenBatch({
+      primary,
+      fallback,
+      inputs: screenInputs,
+      userInterests: interests,
+    });
+
+    expect(outcome).toEqual(expect.objectContaining({ ok: true }));
+    expect(outcome.attempts).toEqual([
+      expect.objectContaining({
+        provider: "primary",
+        status: "failed",
+        errorCode: "timeout",
+      }),
+      expect.objectContaining({
+        provider: "fallback",
+        status: "complete",
+      }),
+    ]);
+    expect(primaryCall).toHaveBeenCalledWith(screenInputs, interests);
+    expect(fallbackCall).toHaveBeenCalledWith(screenInputs, interests);
   });
 });

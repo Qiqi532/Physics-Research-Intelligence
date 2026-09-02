@@ -38,6 +38,7 @@ enum UserFeedback {
 enum AiRunType {
   CLASSIFY
   INTERPRET
+  SCREEN
 }
 
 enum AiRunStatus {
@@ -69,6 +70,7 @@ model Paper {
   sources         PaperSource[]
   classifications PaperClassification[]
   interpretations PaperInterpretation[]
+  screenings      PaperScreening[]
   userStates      UserPaperState[]
   aiRuns          AiRun[]
 
@@ -106,6 +108,7 @@ model PhysicsTag {
   isCrossDisciplinary   Boolean @default(false)
 
   classifications PaperClassification[]
+  screenings      PaperScreening[]
   userInterests    UserInterest[]
 }
 
@@ -124,6 +127,27 @@ model PaperClassification {
 
   @@unique([paperId, tagSlug, model, promptVersion])
   @@index([tagSlug, relevance])
+}
+
+model PaperScreening {
+  id            String   @id @default(uuid()) @db.Uuid
+  paperId       String   @db.Uuid
+  score         Float
+  directionSlug String
+  reason        String
+  selected      Boolean  @default(false)
+  batchId       String
+  provider      String
+  model         String
+  promptVersion String
+  createdAt     DateTime @default(now()) @db.Timestamptz(6)
+
+  paper     Paper      @relation(fields: [paperId], references: [id], onDelete: Cascade)
+  direction PhysicsTag @relation(fields: [directionSlug], references: [slug], onDelete: Restrict)
+
+  @@unique([paperId, model, promptVersion])
+  @@index([batchId])
+  @@index([selected, score])
 }
 
 model PaperInterpretation {

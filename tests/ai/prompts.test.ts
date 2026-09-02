@@ -7,6 +7,10 @@ import {
   INTERPRET_PROMPT_VERSION,
   buildInterpretationPrompt,
 } from "../../packages/ai/src/prompts/interpret";
+import {
+  SCREEN_PROMPT_VERSION,
+  buildScreenPrompt,
+} from "../../packages/ai/src/prompts/screen";
 
 const paper = {
   title: "A fictional optical measurement",
@@ -52,5 +56,34 @@ describe("AI prompts", () => {
       basis: "abstract_only",
       ...paper,
     });
+  });
+
+  it("builds a compact screening prompt with bounded public abstract text", () => {
+    const longAbstract = "x".repeat(250);
+    const prompt = buildScreenPrompt([{
+      paperId: "paper-1",
+      title: paper.title,
+      journal: paper.journal,
+      abstractSnippet: longAbstract,
+    }], {
+      "amo-optics": 2,
+      astrophysics: 0,
+    });
+    const payload = JSON.parse(prompt.user) as {
+      papers: Array<Record<string, unknown>>;
+    };
+
+    expect(SCREEN_PROMPT_VERSION).toMatch(/^screen-v\d+$/u);
+    expect(payload.papers).toEqual([{
+      index: 0,
+      paperId: "paper-1",
+      title: paper.title,
+      journal: paper.journal,
+      abstractSnippet: `${"x".repeat(200)}…`,
+    }]);
+    expect(prompt.system).toContain("amo-optics(2.00)");
+    expect(prompt.system).not.toContain("astrophysics(0.00)");
+    expect(prompt.user).not.toContain("apiKey");
+    expect(prompt.user).not.toContain("fullText");
   });
 });

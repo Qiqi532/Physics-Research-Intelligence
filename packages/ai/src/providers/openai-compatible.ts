@@ -12,11 +12,14 @@ import type {
 } from "../provider";
 import { buildClassificationPrompt, type AiPrompt } from "../prompts/classify";
 import { buildInterpretationPrompt } from "../prompts/interpret";
+import { buildScreenPrompt } from "../prompts/screen";
 import {
   classificationOutputSchema,
   interpretationOutputSchema,
   parseClassificationOutput,
   parseInterpretationOutput,
+  parseScreenBatchOutput,
+  screenBatchOutputSchema,
 } from "../schemas";
 
 export type OpenAiCompatibleProviderName =
@@ -65,6 +68,23 @@ export function createOpenAiCompatibleProvider(
         "interpretation_output",
         z.toJSONSchema(interpretationOutputSchema),
         parseInterpretationOutput,
+      );
+    },
+    screenBatch(inputs, userInterests) {
+      const items = inputs.map((input) => ({
+        paperId: input.paperId,
+        title: input.title,
+        journal: input.journal ?? null,
+        abstractSnippet: input.abstract,
+      }));
+      const prompt = buildScreenPrompt(items, userInterests);
+      return generate(
+        name,
+        options,
+        prompt,
+        "screen_batch_output",
+        z.toJSONSchema(screenBatchOutputSchema),
+        parseScreenBatchOutput,
       );
     },
     async healthCheck() {

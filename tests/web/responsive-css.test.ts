@@ -18,4 +18,15 @@ describe("Today responsive CSS", () => {
       /@media\s*\(max-width:\s*42rem\)[\s\S]*?\.hero h1\s*\{[^}]*max-width:\s*7ch;/u,
     );
   });
+
+  it("styles the interpretation action as an accessible text button", async () => {
+    const css = await readFile("apps/web/src/app/globals.css", "utf8");
+
+    expect(css).toMatch(
+      /\.interpret-button\s*\{[^}]*border:\s*0;[^}]*background:\s*transparent;[^}]*cursor:\s*pointer;/su,
+    );
+    expect(css).toMatch(
+      /\.interpret-button:disabled\s*\{[^}]*cursor:\s*wait;[^}]*opacity:/su,
+    );
+  });
 });

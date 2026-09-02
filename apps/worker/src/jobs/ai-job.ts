@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import type { AiRouteAttempt, PaperAiInput } from "@pri/ai";
+import type { AiRouteAttempt, PaperAiInput, ScreenInput } from "@pri/ai";
 import type { AiAttemptInput, SafePaperFacts } from "@pri/db";
 
 export function toPaperAiInput(paper: SafePaperFacts): PaperAiInput {
@@ -11,19 +11,48 @@ export function toPaperAiInput(paper: SafePaperFacts): PaperAiInput {
   };
 }
 
+export function toScreenInput(paper: SafePaperFacts): ScreenInput {
+  return {
+    paperId: paper.id,
+    title: paper.title,
+    abstract: paper.abstract,
+    journal: paper.journal,
+    publishedAt: paper.publishedAt?.toISOString() ?? null,
+  };
+}
+
 export function createInputHash(input: PaperAiInput): string {
   return createHash("sha256").update(JSON.stringify(input)).digest("hex");
 }
 
+export function createBatchInputHash(inputs: readonly ScreenInput[]): string {
+  return createHash("sha256")
+    .update(JSON.stringify(inputs.map((input) => input.paperId).sort()))
+    .digest("hex");
+}
+
 export function createIdempotencyKey(input: {
   paperId: string;
-  runType: "CLASSIFY" | "INTERPRET";
+  runType: "CLASSIFY" | "INTERPRET" | "SCREEN";
   model: string;
   promptVersion: string;
 }): string {
   return [
     input.paperId,
     input.runType,
+    input.model,
+    input.promptVersion,
+  ].join(":");
+}
+
+export function createBatchIdempotencyKey(input: {
+  batchKey: string;
+  model: string;
+  promptVersion: string;
+}): string {
+  return [
+    "screen-batch",
+    input.batchKey,
     input.model,
     input.promptVersion,
   ].join(":");

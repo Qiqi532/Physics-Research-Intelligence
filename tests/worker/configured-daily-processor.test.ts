@@ -3,22 +3,31 @@ import type { ServerConfig } from "../../packages/domain/src/config";
 import type { RuntimeAiSnapshot } from "../../apps/worker/src/runtime-ai-config";
 
 const mocks = vi.hoisted(() => ({
-  classifyPaper: vi.fn().mockResolvedValue({ status: "complete" }),
+  screenPapers: vi.fn().mockResolvedValue({
+    status: "complete",
+    screened: 2,
+    selected: 1,
+    batches: 1,
+    failures: [],
+  }),
   interpretPaper: vi.fn().mockResolvedValue({ status: "complete" }),
   disconnect: vi.fn().mockResolvedValue(undefined),
   runDailyPipeline: vi.fn(async (input: {
-    classify(id: string): Promise<unknown>;
+    window: { from: Date; until: Date };
+    screen(window: { from: Date; until: Date }): Promise<unknown>;
     interpret(id: string): Promise<unknown>;
   }) => {
-    await input.classify("paper-1");
-    await input.classify("paper-2");
+    await input.screen(input.window);
     await input.interpret("paper-1");
     return { status: "complete" };
   }),
 }));
 
 vi.mock("@pri/db", () => ({
-  createPrismaClient: vi.fn(() => ({ $disconnect: mocks.disconnect })),
+  createPrismaClient: vi.fn(() => ({
+    $disconnect: mocks.disconnect,
+    userInterest: { findMany: vi.fn().mockResolvedValue([]) },
+  })),
   createPaperRepository: vi.fn(() => ({})),
   createSourceSyncRepository: vi.fn(() => ({})),
   createAiRepository: vi.fn(() => ({})),
@@ -32,8 +41,8 @@ vi.mock("@pri/sources", () => ({
 vi.mock("../../apps/worker/src/daily-pipeline", () => ({
   runDailyPipeline: mocks.runDailyPipeline,
 }));
-vi.mock("../../apps/worker/src/jobs/classify-paper", () => ({
-  classifyPaper: mocks.classifyPaper,
+vi.mock("../../apps/worker/src/jobs/screen-papers", () => ({
+  screenPapers: mocks.screenPapers,
 }));
 vi.mock("../../apps/worker/src/jobs/interpret-paper", () => ({
   interpretPaper: mocks.interpretPaper,
@@ -60,6 +69,7 @@ describe("configured daily processor runtime routing", () => {
       model: input.model,
       classify: vi.fn(),
       interpret: vi.fn(),
+      screenBatch: vi.fn(),
       healthCheck: vi.fn(),
     }));
     const processor = createConfiguredDailyProcessor(config(), {
@@ -78,12 +88,11 @@ describe("configured daily processor runtime routing", () => {
       "model-b-classify",
       "model-b-interpret",
     ]);
-    const firstBatchFirstProvider = mocks.classifyPaper.mock.calls[0]![0].primary;
-    const firstBatchSecondProvider = mocks.classifyPaper.mock.calls[1]![0].primary;
-    expect(firstBatchFirstProvider).toBe(firstBatchSecondProvider);
-    expect(firstBatchFirstProvider.model).toBe("model-a-classify");
-    expect(mocks.classifyPaper.mock.calls[2]![0].primary.model).toBe("model-b-classify");
-    expect(mocks.classifyPaper.mock.calls[0]![0]).not.toHaveProperty("prices");
+    // Screening reuses the classify route.
+    const firstScreenCall = mocks.screenPapers.mock.calls[0]![0];
+    expect(firstScreenCall.primary.model).toBe("model-a-classify");
+    expect(mocks.screenPapers.mock.calls[1]![0].primary.model).toBe("model-b-classify");
+    expect(firstScreenCall).not.toHaveProperty("prices");
     expect(mocks.interpretPaper.mock.calls[0]![0]).not.toHaveProperty("prices");
   });
 
@@ -97,6 +106,7 @@ describe("configured daily processor runtime routing", () => {
         model: "model-a",
         classify: vi.fn(),
         interpret: vi.fn(),
+        screenBatch: vi.fn(),
         healthCheck: vi.fn(),
       })),
     });
@@ -108,6 +118,7 @@ describe("configured daily processor runtime routing", () => {
     expect(typeof deps.pruneExpired).toBe("function");
     expect(typeof deps.prepareToday).toBe("function");
     expect(typeof deps.listInterpretationPaperIds).toBe("function");
+    expect(typeof deps.screen).toBe("function");
     expect(result).toEqual(expect.objectContaining({ status: "complete" }));
   });
 

@@ -37,6 +37,7 @@ export {
   type AiRepository,
   type ClaimAiRunInput,
   type SafePaperFacts,
+  type ScreeningResultInput,
 } from "./ai-repository";
 export {
   createTodayRepository,

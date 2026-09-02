@@ -26,7 +26,7 @@ describe("Today API service", () => {
     expect(repository.getToday).toHaveBeenCalledWith({
       userId: "default",
       now,
-      candidateLimit: 50,
+      candidateLimit: 500,
     });
     expect(result).toEqual({
       status: 200,

@@ -1,3 +1,6 @@
+"use client";
+
+import { useCallback, useState } from "react";
 import type { TodayRecommendationDto } from "@/presentation/today";
 
 const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
@@ -7,9 +10,64 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
   timeZone: "Asia/Shanghai",
 });
 
+type InterpretState = "idle" | "loading" | "in_progress" | "success" | "failed";
+
+type InterpretUiOutcome = {
+  state: Exclude<InterpretState, "idle" | "loading">;
+  error: string | null;
+};
+
+export function interpretUiOutcome(
+  httpStatus: number,
+  responseOk: boolean,
+  payload: unknown,
+): InterpretUiOutcome {
+  const data = isRecord(payload) ? payload : {};
+  if (httpStatus === 202 || data.status === "in_progress") {
+    return { state: "in_progress", error: null };
+  }
+  if (
+    responseOk &&
+    (data.status === "complete" || data.status === "duplicate")
+  ) {
+    return { state: "success", error: null };
+  }
+  return {
+    state: "failed",
+    error: typeof data.errorCode === "string"
+      ? data.errorCode
+      : "解读请求失败",
+  };
+}
+
 export function RecommendationCard({ paper }: { paper: TodayRecommendationDto }) {
   const detailHref = paper.doi ? `/papers/${encodeURIComponent(paper.doi)}` : null;
   const sourceLine = [paper.sourceName, paper.journal].filter(Boolean).join(" · ");
+  const [interpretState, setInterpretState] = useState<InterpretState>("idle");
+  const [interpretError, setInterpretError] = useState<string | null>(null);
+
+  const handleInterpret = useCallback(async () => {
+    if (!paper.doi || interpretState === "loading") return;
+    setInterpretState("loading");
+    setInterpretError(null);
+    try {
+      const response = await fetch(
+        `/api/papers/${encodeURIComponent(paper.doi)}/interpret`,
+        { method: "POST" },
+      );
+      const data = await response.json().catch(() => ({}));
+      const outcome = interpretUiOutcome(response.status, response.ok, data);
+      setInterpretState(outcome.state);
+      setInterpretError(outcome.error);
+      if (outcome.state === "success") {
+        // 延迟刷新页面，让用户看到成功状态
+        setTimeout(() => window.location.reload(), 1500);
+      }
+    } catch {
+      setInterpretError("网络错误，请稍后重试");
+      setInterpretState("failed");
+    }
+  }, [paper.doi, interpretState]);
 
   return (
     <article className="paper-card">
@@ -43,10 +101,35 @@ export function RecommendationCard({ paper }: { paper: TodayRecommendationDto })
       <div className="paper-card-actions">
         {detailHref ? (
           <a className="text-link" href={detailHref}>
-            查看解读
+            {paper.hasInterpretation ? "查看解读" : "详情页"}
           </a>
         ) : (
           <span className="muted-label">暂无 DOI 详情页</span>
+        )}
+        {!paper.hasInterpretation && paper.doi && (
+          <button
+            type="button"
+            className="text-link interpret-button"
+            onClick={handleInterpret}
+            disabled={
+              interpretState === "loading" ||
+              interpretState === "in_progress" ||
+              interpretState === "success"
+            }
+          >
+            {interpretState === "loading"
+              ? "AI 解读中..."
+              : interpretState === "in_progress"
+                ? "解读任务进行中"
+              : interpretState === "success"
+                ? "解读完成，刷新中..."
+                : interpretState === "failed"
+                  ? "重试解读"
+                  : "AI 解读"}
+          </button>
+        )}
+        {interpretError && (
+          <span className="muted-label error-label">{interpretError}</span>
         )}
         {paper.originalUrl ? (
           <a
@@ -63,6 +146,10 @@ export function RecommendationCard({ paper }: { paper: TodayRecommendationDto })
       </div>
     </article>
   );
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
 }
 
 function accessLabel(status: TodayRecommendationDto["accessStatus"]): string {
