@@ -8,12 +8,12 @@ test.beforeEach(async ({ page }) => {
   await blockExternalNetwork(page);
 });
 
-test("cold start and saved interests produce different deterministic ordering", async ({ page }) => {
+test("interpreted papers stay first and saved interests add a personal reason", async ({ page }) => {
   await page.goto("/");
   const headings = page.locator(".recommendation-list article h3");
   const coldTitles = await headings.allTextContents();
-  expect(coldTitles.indexOf("Astrophysics frontier fixture"))
-    .toBeLessThan(coldTitles.indexOf("AMO precision fixture"));
+  expect(coldTitles.indexOf("AMO precision fixture"))
+    .toBeLessThan(coldTitles.indexOf("Astrophysics frontier fixture"));
 
   await page.getByRole("link", { name: "兴趣设置" }).click();
   const amoWeight = page.getByRole("slider", { name: "原子、分子与光学兴趣权重" });

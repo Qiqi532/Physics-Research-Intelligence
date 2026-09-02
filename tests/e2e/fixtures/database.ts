@@ -74,6 +74,7 @@ export async function clearE2eBusinessData(): Promise<void> {
 export async function resetE2eData(): Promise<void> {
   const client = createPrismaClient(e2eDatabaseUrl());
   const now = new Date();
+  const createdAt = yesterdayShanghaiFixtureDate(now);
   try {
     await client.aiRuntimeRouting.deleteMany();
     await client.aiConnectionProfile.deleteMany();
@@ -86,6 +87,7 @@ export async function resetE2eData(): Promise<void> {
       doi: "10.5555/astro-fixture",
       title: "Astrophysics frontier fixture",
       abstract: "Public English abstract about a new transient observation.",
+      createdAt,
       publishedAt: recentShanghaiFixtureDate(now, 0),
       tagSlug: "astrophysics",
       relevance: 1,
@@ -94,6 +96,7 @@ export async function resetE2eData(): Promise<void> {
       doi: "10.5555/amo-fixture",
       title: "AMO precision fixture",
       abstract: "Public English abstract about precision optical measurements.",
+      createdAt,
       publishedAt: recentShanghaiFixtureDate(now, 1),
       tagSlug: "amo-optics",
       relevance: 0.5,
@@ -115,6 +118,7 @@ export async function resetE2eData(): Promise<void> {
       doi: "10.5555/cross-fixture",
       title: "Cross-disciplinary discovery fixture",
       abstract: "Public abstract connecting materials and biophysics.",
+      createdAt,
       publishedAt: recentShanghaiFixtureDate(now, 2),
       tagSlug: "cross-disciplinary",
       relevance: 0.9,
@@ -123,6 +127,7 @@ export async function resetE2eData(): Promise<void> {
       doi: "10.5555/corrupt-fixture",
       title: "Corrupt interpretation fixture",
       abstract: "Public facts remain available.",
+      createdAt,
       publishedAt: recentShanghaiFixtureDate(now, 3),
       tagSlug: "nuclear",
       relevance: 0.7,
@@ -143,6 +148,7 @@ export async function resetE2eData(): Promise<void> {
         title: "Unclassified fixture",
         normalizedTitle: "unclassified fixture",
         abstract: "Public abstract awaiting classification.",
+        createdAt,
         publishedAt: recentShanghaiFixtureDate(now, 4),
         originalUrl: "https://example.test/unclassified-fixture",
         accessStatus: "OPEN",
@@ -177,12 +183,24 @@ function recentShanghaiFixtureDate(now: Date, minutesAgo: number): Date {
   return new Date(Math.max(dayStart, now.getTime() - minutesAgo * 60_000));
 }
 
+function yesterdayShanghaiFixtureDate(now: Date): Date {
+  const shanghaiOffsetMs = 8 * 60 * 60_000;
+  const shifted = new Date(now.getTime() + shanghaiOffsetMs);
+  const todayStart = Date.UTC(
+    shifted.getUTCFullYear(),
+    shifted.getUTCMonth(),
+    shifted.getUTCDate(),
+  ) - shanghaiOffsetMs;
+  return new Date(todayStart - 12 * 60 * 60_000);
+}
+
 async function createPaper(
   client: ReturnType<typeof createPrismaClient>,
   input: {
     doi: string;
     title: string;
     abstract: string;
+    createdAt: Date;
     publishedAt: Date;
     tagSlug: string;
     relevance: number;
@@ -194,6 +212,7 @@ async function createPaper(
       title: input.title,
       normalizedTitle: input.title.toLowerCase(),
       abstract: input.abstract,
+      createdAt: input.createdAt,
       journal: "Fixture Physics",
       firstAuthor: "F. Researcher",
       publishedAt: input.publishedAt,
