@@ -560,7 +560,7 @@ Expected: PostgreSQL and Redis are healthy. Do not print `.env` or the model-set
 Run:
 
 ```powershell
-$env:TEST_DATABASE_URL='postgresql://pri:pri@127.0.0.1:5432/pri?schema=pri_stage5_e2e'
+$env:TEST_DATABASE_URL='<dedicated-loopback-test-database-url>?schema=pri_stage5_e2e'
 pnpm test:e2e
 ```
 
@@ -618,13 +618,9 @@ Expected: working tree has no unintended staged files; commits are logically sep
 
 - [ ] **Step 4: Run a final secret-pattern scan on committed content**
 
-Run:
+Run the repository-approved secret scanner against `git diff main...HEAD`. Do not copy actual credential values or private-key material into the command, its output, or the review report.
 
-```powershell
-git diff main...HEAD | rg -n "sk-[A-Za-z0-9_-]{16,}|BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY|postgresql://\S+:\S+@"
-```
-
-Expected: no added credential or private-key value is found. If a documentation-only local example matches, verify it uses public placeholder credentials and record that classification in the review report.
+Expected: no added credential, authenticated database URL, or private-key value is found. Documentation must use explicit placeholders rather than example passwords.
 
 - [ ] **Step 5: Push the independent review branch without force**
 
