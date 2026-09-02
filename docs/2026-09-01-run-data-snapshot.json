@@ -1,0 +1,128 @@
+{
+  "runDate": "2026-09-01",
+  "runMode": "manual",
+  "totalDurationSeconds": 449.6,
+  "kimiCallCount": 12,
+  "model": "kimi-k2.6",
+  "interpretationBasis": "abstract_only",
+  "costTracking": "disabled",
+
+  "pipelineStages": {
+    "ingest": {
+      "windowStart": "2026-08-31T06:00:00+08:00",
+      "windowEnd": "2026-09-01T06:00:00+08:00",
+      "papersInWindow": 3900,
+      "ingested": 2335
+    },
+    "journalScreening": {
+      "whitelistSize": 75,
+      "whitelistTiers": ["Tier1", "Tier2"],
+      "inputCount": 3900,
+      "outputCount": 24,
+      "passRate": 0.00615
+    },
+    "kimiBatchScreening": {
+      "batchSize": 15,
+      "batchCount": 2,
+      "batchesFailed": 0,
+      "inputCount": 24,
+      "selectedCount": 10,
+      "selectionRate": 0.417
+    },
+    "kimiInterpretation": {
+      "inputCount": 10,
+      "successCount": 8,
+      "failedCount": 2,
+      "failureRate": 0.2,
+      "errorCodes": ["invalid_json"]
+    },
+    "todayPreparation": {
+      "recommendations": 50
+    },
+    "cleanup": {
+      "deleted": 0,
+      "retentionDays": 30
+    }
+  },
+
+  "databaseSnapshot": {
+    "Paper": { "total": 8938, "createdToday": 8938 },
+    "PaperScreening": { "total": 24, "selected": 10 },
+    "PaperClassification": { "total": 22, "createdToday": 22 },
+    "PaperInterpretation": { "total": 11, "complete": 11, "failed": 0 },
+    "AiRun": { "total": 18, "screen": 2, "interpret": 13, "failed": 2 },
+    "prismaMigrations": { "applied": 8, "total": 8 }
+  },
+
+  "selectedPapers": [
+    { "rank": 1, "journal": "The Astrophysical Journal Letters", "direction": "astrophysics", "score": 0.80, "interpretation": "COMPLETE", "title": "Flyby-induced Second Accretion as a Pathway to Giant Planets Around M..." },
+    { "rank": 2, "journal": "Advanced Optical Materials", "direction": "amo-optics", "score": 0.78, "interpretation": "NONE", "title": "Shape-Sensitive Second-Harmonic Generation in Mie-resonant TMDC Nanopa..." },
+    { "rank": 3, "journal": "eLight", "direction": "amo-optics", "score": 0.78, "interpretation": "COMPLETE", "title": "Light-driven molecular reorientation for large-scale photonic in-memor..." },
+    { "rank": 4, "journal": "Physical Review C", "direction": "nuclear", "score": 0.75, "interpretation": "COMPLETE", "title": "Many-body perturbation theory for the nuclear equation of state up to..." },
+    { "rank": 5, "journal": "Laser & Photonics Review", "direction": "amo-optics", "score": 0.75, "interpretation": "COMPLETE", "title": "On-Chip Erbium-Doped Tantalum Oxide Single-Mode Laser via Photonic Dam..." },
+    { "rank": 6, "journal": "Monthly Notices of the Royal Astronomical Society", "direction": "astrophysics", "score": 0.72, "interpretation": "NONE", "title": "Flyby-induced high-eccentricity migration and the prevalence of hot Ju..." },
+    { "rank": 7, "journal": "Monthly Notices of the Royal Astronomical Society", "direction": "astrophysics", "score": 0.72, "interpretation": "COMPLETE", "title": "On the collimation properties of jets with finite Poynting flux launch..." },
+    { "rank": 8, "journal": "Physical Review D", "direction": "high-energy-particle", "score": 0.70, "interpretation": "COMPLETE", "title": "Probing the dark axion portal via J/ψ decays at BESIII and STCF" },
+    { "rank": 9, "journal": "Physical Review C", "direction": "nuclear", "score": 0.68, "interpretation": "COMPLETE", "title": "Role of nuclear shell effects of different nuclear physics ingredients..." },
+    { "rank": 10, "journal": "The Astrophysical Journal Letters", "direction": "astrophysics", "score": 0.68, "interpretation": "COMPLETE", "title": "Dust Activity Evolution and Constraints on Icy Grains in the Interstel..." }
+  ],
+
+  "directionDistribution": {
+    "astrophysics": 4,
+    "amo-optics": 3,
+    "nuclear": 2,
+    "high-energy-particle": 1
+  },
+
+  "failedInterpretations": [
+    { "timeUtc": "2026-09-01T15:31:51Z", "runType": "INTERPRET", "model": "kimi-k2.6", "errorCode": "invalid_json", "paper": "Shape-Sensitive Second-Harmonic Generation... (Advanced Optical Materials)" },
+    { "timeUtc": "2026-09-01T15:33:27Z", "runType": "INTERPRET", "model": "kimi-k2.6", "errorCode": "invalid_json", "paper": "Flyby-induced high-eccentricity migration... (MNRAS)" }
+  ],
+
+  "journalDistribution": {
+    "Physical Review D": 3,
+    "Physical Review C": 3,
+    "The Astrophysical Journal": 3,
+    "Monthly Notices of the Royal Astronomical Society": 2,
+    "The Astrophysical Journal Letters": 2,
+    "Physical Review B": 2,
+    "PNAS": 1,
+    "Advanced Optical Materials": 1,
+    "eLight": 1,
+    "Laser & Photonics Review": 1,
+    "Optical Engineering": 1,
+    "Photonics Research": 1,
+    "nonPhysicsMisMatched": 3
+  },
+
+  "configSnapshot": {
+    "DAILY_PIPELINE_ENABLED": false,
+    "DAILY_PIPELINE_TIME": "06:00",
+    "DAILY_PIPELINE_TIMEZONE": "Asia/Shanghai",
+    "PAPER_RETENTION_DAYS": 30,
+    "DAILY_PAPER_TARGET_MIN": 10,
+    "DAILY_PAPER_TARGET_MAX": 15,
+    "kimiConnectionConfigured": true,
+    "kimiModel": "kimi-k2.6",
+    "kimiBaseUrl": "https://api.moonshot.cn/v1",
+    "kimiTimeoutMs": 120000,
+    "screenBatchSize": 15,
+    "candidateLimit": 500
+  },
+
+  "knownIssues": [
+    "Today stats show 0 because stats use publishedAt today, papers are from yesterday",
+    "No cross-disciplinary signals because screening only gives single directionSlug",
+    "Journal whitelist mis-matches non-physics journals (SIAM Life Sciences, J Environmental Science, J Science Communication)",
+    "2 interpretation failures with invalid_json error code",
+    "CSS styling may have path issues in standalone build mode",
+    "Recommendation list does not prioritize papers with interpretation"
+  ],
+
+  "git": {
+    "branch": "main",
+    "head": "cfd5086",
+    "coreNoCostCommit": "7338bb6",
+    "pushedToGitHub": false
+  }
+}

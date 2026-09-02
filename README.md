@@ -169,6 +169,7 @@ pnpm build
 - [双语 README 与 Kimi 试运行设计](docs/superpowers/specs/2026-09-01-bilingual-readme-kimi-trial-design.md)
 - [本地论文库与 AI 阅读路线图](docs/superpowers/plans/2026-09-01-local-library-ai-reading-roadmap.md)
 - [个人部署与运维](docs/operations.md)
+- [每日全自动流程开发、验收与部署规范](docs/daily-automation-development-and-deployment.md)
 - [人工质量评审](docs/evaluation-rubric.md)
 
 ## English
@@ -337,4 +338,5 @@ Documentation:
 - [Bilingual README and Kimi trial design](docs/superpowers/specs/2026-09-01-bilingual-readme-kimi-trial-design.md)
 - [Local library and AI reading roadmap](docs/superpowers/plans/2026-09-01-local-library-ai-reading-roadmap.md)
 - [Personal deployment and operations](docs/operations.md)
+- [Daily automation development, acceptance, and deployment guide (Chinese)](docs/daily-automation-development-and-deployment.md)
 - [Human evaluation rubric](docs/evaluation-rubric.md)

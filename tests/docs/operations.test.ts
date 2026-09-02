@@ -55,6 +55,35 @@ describe("stage 5 operations documentation", () => {
     expect(guide).toContain("NEXT_TELEMETRY_DISABLED=1");
   });
 
+  it("keeps daily automation reliability gates explicit and testable", async () => {
+    const guide = await readFile(
+      "docs/daily-automation-development-and-deployment.md",
+      "utf8",
+    );
+
+    for (const requirement of [
+      "DAILY_PIPELINE_ENABLED=false",
+      "DAILY_PIPELINE_ENABLED=true",
+      "Asia/Shanghai",
+      "DailyPipelineRun",
+      "运行锁",
+      "PENDING -> RUNNING -> SUCCEEDED",
+      "PARTIAL",
+      "FAILED",
+      "prisma:deploy",
+      "备份",
+      "恢复演练",
+      "回滚",
+      "连续 3 天",
+      "80%",
+    ]) {
+      expect(guide).toContain(requirement);
+    }
+
+    expect(guide).toContain("当前能力与缺口");
+    expect(guide).toContain("不得直接公开到互联网");
+  });
+
   it("documents model console secrets, recovery and worker hot switching", async () => {
     const example = await readFile(".env.example", "utf8");
     const guide = await readFile("docs/operations.md", "utf8");

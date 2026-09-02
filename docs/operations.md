@@ -78,6 +78,8 @@ Provider billing and balances are managed in the provider console. The applicati
 
 ## Daily automation
 
+The scheduler exists, but unattended production reliability is not complete. Keep `DAILY_PIPELINE_ENABLED=false` until the persistent run ledger, cross-process run lock/lease, stale-run recovery, alerting, and three consecutive shadow runs pass the gates in [每日全自动流程：开发、验收与部署规范](daily-automation-development-and-deployment.md).
+
 Set:
 
 ```dotenv
@@ -89,8 +91,8 @@ DAILY_PAPER_TARGET_MIN=10
 DAILY_PAPER_TARGET_MAX=15
 ```
 
-The worker upserts one stable BullMQ scheduler. Each daily run executes public-source ingestion, classification, interpretation, and Today preparation in order. The schedule has two bounded attempts with exponential backoff. Source cursors, AI idempotency keys, logical run claims, and the stable scheduler ID make repeated execution in the same window safe.
-Papers published inside the current stable daily window form the deterministic selection pool. Each run picks a diverse 10–15 paper daily set (bounded by `DAILY_PAPER_TARGET_MIN` and `DAILY_PAPER_TARGET_MAX`, with a per-direction cap) and feeds only that set into interpretation, so a single physics direction cannot consume the whole daily set when alternatives exist. Classification still processes the window candidates needed to establish direction under the existing idempotency keys and provider fallback rules. After Today preparation, papers older than `PAPER_RETENTION_DAYS` that have never been favorited are pruned with their dependent records; a recoverable cleanup failure never makes Today unavailable, and rerunning the same window converges to the same result.
+The worker upserts one stable BullMQ scheduler. Each daily run executes public-source ingestion, deterministic journal screening, LLM batch screening, selected-paper interpretation, Today preparation, and retention cleanup. The schedule has two bounded attempts with exponential backoff. Source cursors, screening input hashes, AI idempotency keys, and stage claims reduce duplicate work, but they are not a cross-process run lock; run exactly one worker and keep automation disabled until the reliability gates above are complete.
+Papers published inside the current stable daily window form the candidate pool. Journal screening removes records outside the curated physics whitelist, then LLM screening selects a diverse 10–15 paper daily set (bounded by `DAILY_PAPER_TARGET_MIN` and `DAILY_PAPER_TARGET_MAX`) for interpretation. After Today preparation, papers older than `PAPER_RETENTION_DAYS` that have never been favorited are pruned with their dependent records. A recoverable cleanup failure must remain visible as a warning or partial failure rather than being reported as a complete success.
 Favorited papers appear in the personal library at `http://127.0.0.1:3000/library`, linked from the home site navigation. Favorites survive the 30-day cleanup; removing the favorite makes the paper eligible for normal retention cleanup again without deleting an unexpired record.
 
 ## Production build and processes
