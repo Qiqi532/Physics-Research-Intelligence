@@ -21,3 +21,7 @@ data/review-corpus/pdfs/
 # Journal full-text corpus for AI reading / RAG (metadata remains tracked)
 data/journal-corpus/pdfs/
 backups/
+
+# Local agent scratch state and Git worktrees
+/.superpowers/
+/.worktrees/
