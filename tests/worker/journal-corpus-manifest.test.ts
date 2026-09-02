@@ -94,6 +94,23 @@ describe("journal corpus manifest", () => {
     expect(JSON.stringify(input)).not.toContain("2504.21524v1.pdf");
     expect(JSON.stringify(input)).not.toContain("license_note");
   });
+
+  it("keeps corpus scripts portable and avoids absolute workstation paths", async () => {
+    const buildScript = await readFile(
+      "data/journal-corpus/scripts/build_corpus.py",
+      "utf8",
+    );
+    const verifyScript = await readFile(
+      "data/journal-corpus/scripts/verify_corpus.py",
+      "utf8",
+    );
+
+    expect(buildScript).toContain("Path(__file__).resolve().parent.parent");
+    expect(verifyScript).toContain("Path(__file__).resolve().parent.parent");
+    expect(buildScript).not.toMatch(/[A-Z]:\\/u);
+    expect(verifyScript).not.toMatch(/[A-Z]:\\/u);
+    expect(buildScript).not.toContain("legally storable");
+  });
 });
 
 function entry(overrides: Record<string, unknown> = {}) {
