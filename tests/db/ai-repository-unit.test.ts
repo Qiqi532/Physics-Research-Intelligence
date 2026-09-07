@@ -145,4 +145,64 @@ describe("AI repository queries", () => {
       },
     });
   });
+
+  it("suppresses a whole paper when any selected screening was recently delivered", async () => {
+    const from = new Date("2026-08-01T00:00:00.000Z");
+    const until = new Date("2026-08-30T00:00:00.000Z");
+    const findMany = vi.fn().mockResolvedValue([]);
+    const repository = createAiRepository({
+      userInterest: { findMany: vi.fn().mockResolvedValue([]) },
+      paper: { findMany },
+    } as unknown as DatabaseClient);
+
+    await repository.listScreenedSelectionCandidates({
+      from,
+      until,
+      limit: 500,
+      excludeDeliveredWithinDays: 30,
+    });
+
+    expect(findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          screenings: {
+            some: { selected: true },
+            none: {
+              selected: true,
+              deliveredAt: { gte: expect.any(Date) },
+            },
+          },
+        }),
+        select: expect.objectContaining({
+          screenings: expect.objectContaining({
+            where: {
+              selected: true,
+              OR: [
+                { deliveredAt: null },
+                { deliveredAt: { lt: expect.any(Date) } },
+              ],
+            },
+          }),
+        }),
+      }),
+    );
+  });
+
+  it("stamps deliveredAt on selected screenings for the delivered papers", async () => {
+    const updateMany = vi.fn().mockResolvedValue({ count: 2 });
+    const repository = createAiRepository({
+      paperScreening: { updateMany },
+    } as unknown as DatabaseClient);
+
+    const result = await repository.markScreeningsDelivered({
+      paperIds: ["paper-1", "paper-2"],
+      at: new Date("2026-08-30T04:00:00.000Z"),
+    });
+
+    expect(result).toEqual({ count: 2 });
+    expect(updateMany).toHaveBeenCalledWith({
+      where: { paperId: { in: ["paper-1", "paper-2"] }, selected: true },
+      data: { deliveredAt: new Date("2026-08-30T04:00:00.000Z") },
+    });
+  });
 });

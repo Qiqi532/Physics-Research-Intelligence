@@ -80,11 +80,16 @@ export interface AiRepository {
   /**
    * List papers that passed screening (selected=true) for final daily
    * selection. Includes score and direction for diversity-aware picking.
+   *
+   * When `excludeDeliveredWithinDays` is set, papers whose screening was
+   * already delivered inside that window are suppressed so the same paper is
+   * not re-picked every day ("每天不重复").
    */
   listScreenedSelectionCandidates(input: {
     from: Date;
     until: Date;
     limit: number;
+    excludeDeliveredWithinDays?: number;
   }): Promise<{
     interests: Record<string, number>;
     candidates: Array<{
@@ -95,6 +100,14 @@ export interface AiRepository {
       selected: boolean;
     }>;
   }>;
+  /**
+   * Stamp the `deliveredAt` of the selected screenings for the given papers,
+   * so delivery-dedupe can suppress them for `deliveryRecencyDays`.
+   */
+  markScreeningsDelivered(input: {
+    paperIds: string[];
+    at: Date;
+  }): Promise<{ count: number }>;
   findPaperForAi(paperId: string): Promise<SafePaperFacts | null>;
   findSuccessfulRun(idempotencyKey: string): Promise<{ id: string } | null>;
   claimRun(input: ClaimAiRunInput): Promise<
@@ -237,6 +250,20 @@ export function createAiRepository(client: DatabaseClient): AiRepository {
     },
 
     async listScreenedSelectionCandidates(input) {
+      const deliveryCutoff = input.excludeDeliveredWithinDays
+        ? new Date(
+            input.until.getTime() -
+              input.excludeDeliveredWithinDays * 24 * 60 * 60 * 1_000,
+          )
+        : undefined;
+      const eligibleDeliveryFilter = deliveryCutoff
+        ? {
+            OR: [
+              { deliveredAt: null },
+              { deliveredAt: { lt: deliveryCutoff } },
+            ],
+          }
+        : undefined;
       const [interestRows, paperRows] = await Promise.all([
         client.userInterest.findMany({
           where: { userId: "default" },
@@ -245,7 +272,17 @@ export function createAiRepository(client: DatabaseClient): AiRepository {
         client.paper.findMany({
           where: {
             publishedAt: { gte: input.from, lte: input.until },
-            screenings: { some: { selected: true } },
+            screenings: {
+              some: { selected: true },
+              ...(deliveryCutoff
+                ? {
+                    none: {
+                      selected: true,
+                      deliveredAt: { gte: deliveryCutoff },
+                    },
+                  }
+                : {}),
+            },
           },
           orderBy: [{ publishedAt: "asc" }, { id: "asc" }],
           take: input.limit,
@@ -253,7 +290,7 @@ export function createAiRepository(client: DatabaseClient): AiRepository {
             id: true,
             publishedAt: true,
             screenings: {
-              where: { selected: true },
+              where: { selected: true, ...eligibleDeliveryFilter },
               orderBy: [{ score: "desc" }, { createdAt: "desc" }],
               take: 1,
               select: {
@@ -280,6 +317,17 @@ export function createAiRepository(client: DatabaseClient): AiRepository {
             selected: paper.screenings[0]!.selected,
           })),
       };
+    },
+
+    async markScreeningsDelivered(input) {
+      if (input.paperIds.length === 0) {
+        return { count: 0 };
+      }
+      const result = await client.paperScreening.updateMany({
+        where: { paperId: { in: input.paperIds }, selected: true },
+        data: { deliveredAt: input.at },
+      });
+      return { count: result.count };
     },
 
     async findPaperForAi(paperId) {

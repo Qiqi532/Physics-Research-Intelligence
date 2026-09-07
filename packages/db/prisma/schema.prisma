@@ -140,6 +140,7 @@ model PaperScreening {
   provider      String
   model         String
   promptVersion String
+  deliveredAt   DateTime? @db.Timestamptz(6)
   createdAt     DateTime @default(now()) @db.Timestamptz(6)
 
   paper     Paper      @relation(fields: [paperId], references: [id], onDelete: Cascade)
@@ -148,6 +149,7 @@ model PaperScreening {
   @@unique([paperId, model, promptVersion])
   @@index([batchId])
   @@index([selected, score])
+  @@index([deliveredAt])
 }
 
 model PaperInterpretation {

@@ -32,6 +32,9 @@ describe("daily pipeline", () => {
         events.push(`today:${input.key}`);
         return { recommendations: 2 };
       }),
+      markDelivered: vi.fn(async (_input, paperIds) => {
+        events.push(`mark-delivered:${paperIds.join(",")}`);
+      }),
       pruneExpired: vi.fn(async (input) => {
         events.push(`prune:${input.key}`);
         return { status: "ok", deleted: 2 };
@@ -44,6 +47,7 @@ describe("daily pipeline", () => {
       "list-interpret:2026-08-30",
       "interpret:paper-1",
       "today:2026-08-30",
+      "mark-delivered:paper-1",
       "prune:2026-08-30",
     ]);
     expect(result).toEqual({
@@ -73,6 +77,7 @@ describe("daily pipeline", () => {
       listInterpretationPaperIds: vi.fn(),
       interpret: vi.fn(),
       prepareToday,
+      markDelivered: vi.fn(),
       pruneExpired,
     })).rejects.toThrow("daily_ingestion_failed");
 
@@ -98,6 +103,7 @@ describe("daily pipeline", () => {
       listInterpretationPaperIds: vi.fn().mockResolvedValue([]),
       interpret: vi.fn(),
       prepareToday,
+      markDelivered: vi.fn().mockResolvedValue(undefined),
       pruneExpired,
     });
 
@@ -126,6 +132,7 @@ describe("daily pipeline", () => {
         .mockResolvedValueOnce("complete")
         .mockRejectedValueOnce(new Error("provider unavailable")),
       prepareToday,
+      markDelivered: vi.fn().mockResolvedValue(undefined),
       pruneExpired,
     });
 
@@ -148,6 +155,7 @@ describe("daily pipeline", () => {
       listInterpretationPaperIds: vi.fn().mockResolvedValue([]),
       interpret: vi.fn(),
       prepareToday,
+      markDelivered: vi.fn().mockResolvedValue(undefined),
       pruneExpired: vi.fn().mockResolvedValue({
         status: "failed",
         errorCode: "retention_cleanup_failed",
@@ -169,10 +177,45 @@ describe("daily pipeline", () => {
       listInterpretationPaperIds: vi.fn().mockResolvedValue([]),
       interpret: vi.fn(),
       prepareToday,
+      markDelivered: vi.fn().mockResolvedValue(undefined),
       pruneExpired: vi.fn().mockRejectedValue(new Error("unexpected")),
     });
 
     expect(result.cleanup).toEqual({ status: "failed", errorCode: "retention_cleanup_failed" });
     expect(result.recommendations).toBe(1);
+  });
+
+  it("does not stamp delivery when Today preparation fails", async () => {
+    const markDelivered = vi.fn();
+
+    await expect(runDailyPipeline({
+      window,
+      ingest: vi.fn().mockResolvedValue({ status: "duplicate", records: 0 }),
+      screen: vi.fn().mockResolvedValue({ status: "complete", screened: 0, selected: 0, batches: 0, failures: [] }),
+      listInterpretationPaperIds: vi.fn().mockResolvedValue(["paper-1"]),
+      interpret: vi.fn().mockResolvedValue("complete"),
+      prepareToday: vi.fn().mockRejectedValue(new Error("today unavailable")),
+      markDelivered,
+      pruneExpired: vi.fn(),
+    })).rejects.toThrow("today unavailable");
+
+    expect(markDelivered).not.toHaveBeenCalled();
+  });
+
+  it("fails the run visibly when delivery stamping fails", async () => {
+    const pruneExpired = vi.fn();
+
+    await expect(runDailyPipeline({
+      window,
+      ingest: vi.fn().mockResolvedValue({ status: "duplicate", records: 0 }),
+      screen: vi.fn().mockResolvedValue({ status: "complete", screened: 0, selected: 0, batches: 0, failures: [] }),
+      listInterpretationPaperIds: vi.fn().mockResolvedValue(["paper-1"]),
+      interpret: vi.fn().mockResolvedValue("complete"),
+      prepareToday: vi.fn().mockResolvedValue({ recommendations: 1 }),
+      markDelivered: vi.fn().mockRejectedValue(new Error("delivery stamp failed")),
+      pruneExpired,
+    })).rejects.toThrow("delivery stamp failed");
+
+    expect(pruneExpired).not.toHaveBeenCalled();
   });
 });

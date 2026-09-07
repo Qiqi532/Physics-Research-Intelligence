@@ -116,6 +116,36 @@ describe("server configuration", () => {
     expect(config.DAILY_PAPER_TARGET_MAX).toBe(12);
   });
 
+  it("accepts zero delivery recency as an explicit disable switch", () => {
+    const config = parseConfig({
+      ...validEnvironment,
+      DAILY_DELIVERY_RECENCY_DAYS: "0",
+    });
+
+    expect(config.DAILY_PIPELINE.deliveryRecencyDays).toBe(0);
+  });
+
+  it.each(["-1", "1.5", "abc"])(
+    "rejects malformed delivery recency days %j",
+    (value) => {
+      expect(() =>
+        parseConfig({
+          ...validEnvironment,
+          DAILY_DELIVERY_RECENCY_DAYS: value,
+        }),
+      ).toThrow("DAILY_DELIVERY_RECENCY_DAYS must be a non-negative integer");
+    },
+  );
+
+  it("rejects delivery recency above its supported maximum", () => {
+    expect(() =>
+      parseConfig({
+        ...validEnvironment,
+        DAILY_DELIVERY_RECENCY_DAYS: "366",
+      }),
+    ).toThrow("DAILY_DELIVERY_RECENCY_DAYS must be at most 365");
+  });
+
   it.each([
     "0",
     "-1",

@@ -13,9 +13,12 @@ const mocks = vi.hoisted(() => ({
   interpretPaper: vi.fn().mockResolvedValue({ status: "complete" }),
   disconnect: vi.fn().mockResolvedValue(undefined),
   runDailyPipeline: vi.fn(async (input: {
-    window: { from: Date; until: Date };
-    screen(window: { from: Date; until: Date }): Promise<unknown>;
+    window: { key: string; from: Date; until: Date };
+    screen(window: { key: string; from: Date; until: Date }): Promise<unknown>;
+    listInterpretationPaperIds(window: { key: string; from: Date; until: Date }): Promise<string[]>;
     interpret(id: string): Promise<unknown>;
+    prepareToday(window: { key: string; from: Date; until: Date }): Promise<unknown>;
+    markDelivered(window: { key: string; from: Date; until: Date }, paperIds: string[]): Promise<void>;
   }) => {
     await input.screen(input.window);
     await input.interpret("paper-1");
@@ -50,6 +53,7 @@ vi.mock("../../apps/worker/src/jobs/interpret-paper", () => ({
 
 import {
   createConfiguredDailyProcessor,
+  markDeliveredSelection,
   retentionCutoffAt,
 } from "../../apps/worker/src/configured-daily-processor";
 
@@ -117,9 +121,40 @@ describe("configured daily processor runtime routing", () => {
     const deps = mocks.runDailyPipeline.mock.calls[0]![0];
     expect(typeof deps.pruneExpired).toBe("function");
     expect(typeof deps.prepareToday).toBe("function");
+    expect(typeof deps.markDelivered).toBe("function");
     expect(typeof deps.listInterpretationPaperIds).toBe("function");
     expect(typeof deps.screen).toBe("function");
     expect(result).toEqual(expect.objectContaining({ status: "complete" }));
+  });
+
+  it("stamps selected papers at the explicit delivery boundary", async () => {
+    const markScreeningsDelivered = vi.fn().mockResolvedValue({ count: 1 });
+    const at = new Date("2026-08-30T06:00:00.000Z");
+
+    await markDeliveredSelection({
+      repository: { markScreeningsDelivered },
+      paperIds: ["paper-1"],
+      at,
+      deliveryRecencyDays: 30,
+    });
+
+    expect(markScreeningsDelivered).toHaveBeenCalledWith({
+      paperIds: ["paper-1"],
+      at,
+    });
+  });
+
+  it("does not stamp delivery when recency dedupe is disabled", async () => {
+    const markScreeningsDelivered = vi.fn();
+
+    await markDeliveredSelection({
+      repository: { markScreeningsDelivered },
+      paperIds: ["paper-1"],
+      at: new Date("2026-08-30T06:00:00.000Z"),
+      deliveryRecencyDays: 0,
+    });
+
+    expect(markScreeningsDelivered).not.toHaveBeenCalled();
   });
 
   it("derives the retention cutoff from a stable number of days", () => {
@@ -155,13 +190,19 @@ function connection(model: string) {
   };
 }
 
-function config(): ServerConfig {
+function config(deliveryRecencyDays = 30): ServerConfig {
   return {
     DATABASE_URL: "postgresql://fixture.invalid/pri",
     REDIS_URL: "redis://fixture.invalid/0",
     PAPER_RETENTION_DAYS: 30,
     DAILY_PAPER_TARGET_MIN: 10,
     DAILY_PAPER_TARGET_MAX: 15,
-    DAILY_PIPELINE: { enabled: true, time: "06:00", timezone: "Asia/Shanghai" },
+    DAILY_PIPELINE: {
+      enabled: true,
+      time: "06:00",
+      timezone: "Asia/Shanghai",
+      ingestWindowDays: 30,
+      deliveryRecencyDays,
+    },
   };
 }

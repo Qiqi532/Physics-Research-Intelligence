@@ -225,6 +225,43 @@ describe("Today repository aggregation", () => {
       }),
     ).resolves.toEqual({ status: "not_found" });
   });
+
+  it("surfaces cross-disciplinary papers in Today regardless of ingestion day", async () => {
+    // Regression: the previous implementation scoped crossSignals to papers
+    // createdAt within the previous Shanghai day, so older cross-disciplinary
+    // papers (e.g. imported journal-corpus items) were permanently invisible.
+    const repository = createTodayRepository({
+      userInterest: { findMany: vi.fn().mockResolvedValue([]) },
+      paper: {
+        findMany: vi.fn().mockResolvedValue([
+          paperRow({
+            id: "paper-old-cross",
+            createdAt: new Date("2026-08-01T00:00:00.000Z"),
+            classifications: [
+              classificationRow({
+                tagSlug: "cross-disciplinary",
+                tag: {
+                  slug: "cross-disciplinary",
+                  labelZh: "交叉物理",
+                  isCrossDisciplinary: true,
+                },
+              }),
+            ],
+          }),
+        ]),
+      },
+    } as unknown as DatabaseClient);
+
+    const result = await repository.getToday({
+      userId: "default",
+      now,
+      candidateLimit: 20,
+    });
+
+    expect(result.crossSignals).toEqual([
+      { tagSlug: "cross-disciplinary", labelZh: "交叉物理", paperCount: 1 },
+    ]);
+  });
 });
 
 function paperRow(overrides: Record<string, unknown> = {}) {

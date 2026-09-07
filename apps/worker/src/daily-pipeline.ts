@@ -28,6 +28,7 @@ type DailyPipelineDependencies = {
   listInterpretationPaperIds(window: DailyWindow): Promise<string[]>;
   interpret(paperId: string): Promise<InterpretationStatus>;
   prepareToday(window: DailyWindow): Promise<{ recommendations: number }>;
+  markDelivered(window: DailyWindow, paperIds: string[]): Promise<void>;
   pruneExpired(window: DailyWindow): Promise<
     | { status: "ok"; deleted: number }
     | { status: "failed"; errorCode: string }
@@ -86,6 +87,10 @@ export async function runDailyPipeline(
     }
   }
   const today = await dependencies.prepareToday(dependencies.window);
+  await dependencies.markDelivered(
+    dependencies.window,
+    interpretationPaperIds,
+  );
   let cleanup: DailyPipelineResult["cleanup"];
   try {
     cleanup = await dependencies.pruneExpired(dependencies.window);

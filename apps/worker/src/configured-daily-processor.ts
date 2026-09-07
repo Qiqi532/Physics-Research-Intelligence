@@ -160,6 +160,26 @@ export function retentionCutoffAt(until: Date, retentionDays: number): Date {
   return new Date(until.getTime() - retentionDays * 24 * 60 * 60 * 1_000);
 }
 
+export async function markDeliveredSelection(input: {
+  repository: {
+    markScreeningsDelivered(args: {
+      paperIds: string[];
+      at: Date;
+    }): Promise<{ count: number }>;
+  };
+  paperIds: string[];
+  at: Date;
+  deliveryRecencyDays: number;
+}): Promise<void> {
+  if (input.deliveryRecencyDays === 0 || input.paperIds.length === 0) {
+    return;
+  }
+  await input.repository.markScreeningsDelivered({
+    paperIds: input.paperIds,
+    at: input.at,
+  });
+}
+
 export function createConfiguredDailyProcessor(
   config: ServerConfig,
   options: {
@@ -207,6 +227,7 @@ export function createConfiguredDailyProcessor(
         new Date(),
         config.DAILY_PIPELINE.timezone,
         config.DAILY_PIPELINE.time,
+        config.DAILY_PIPELINE.ingestWindowDays,
       );
       return runDailyPipeline({
         window,
@@ -262,6 +283,10 @@ export function createConfiguredDailyProcessor(
             from: input.from,
             until: input.until,
             limit: 500,
+            excludeDeliveredWithinDays:
+              config.DAILY_PIPELINE.deliveryRecencyDays > 0
+                ? config.DAILY_PIPELINE.deliveryRecencyDays
+                : undefined,
           });
           const selection = buildDailySelectionFromScreening({
             pool,
@@ -288,6 +313,14 @@ export function createConfiguredDailyProcessor(
             candidateLimit: 500,
           });
           return { recommendations: today.recommendations.length };
+        },
+        async markDelivered(input, paperIds) {
+          await markDeliveredSelection({
+            repository: aiRepository,
+            paperIds,
+            at: input.until,
+            deliveryRecencyDays: config.DAILY_PIPELINE.deliveryRecencyDays,
+          });
         },
         async pruneExpired(input) {
           try {

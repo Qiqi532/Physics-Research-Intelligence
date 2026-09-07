@@ -26,6 +26,8 @@ describe("daily pipeline scheduler", () => {
       enabled: true,
       time: "06:30",
       timezone: "Asia/Shanghai",
+      ingestWindowDays: 30,
+      deliveryRecencyDays: 30,
     });
   });
 

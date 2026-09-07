@@ -26,6 +26,13 @@ export type DailyPipelineConfig = {
   enabled: boolean;
   time: string;
   timezone: string;
+  /** How many days back the ingest/screen/selection window spans. */
+  ingestWindowDays: number;
+  /**
+   * A paper selected for daily delivery is suppressed from re-selection for
+   * this many days. 0 disables the no-repeat guard.
+   */
+  deliveryRecencyDays: number;
 };
 
 export const aiProviderNames = [
@@ -103,6 +110,8 @@ const configSchema = z.object({
   DAILY_PIPELINE_ENABLED: z.string().trim().optional(),
   DAILY_PIPELINE_TIME: z.string().trim().optional(),
   DAILY_PIPELINE_TIMEZONE: z.string().trim().optional(),
+  DAILY_INGEST_WINDOW_DAYS: z.string().trim().optional(),
+  DAILY_DELIVERY_RECENCY_DAYS: z.string().trim().optional(),
   SOURCE_CONTACT_EMAIL: z.preprocess(
     (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
     z.string().trim().email().optional(),
@@ -138,6 +147,8 @@ export function parseConfig(environment: NodeJS.ProcessEnv): ServerConfig {
     DAILY_PIPELINE_ENABLED: _enabled,
     DAILY_PIPELINE_TIME: _time,
     DAILY_PIPELINE_TIMEZONE: _timezone,
+    DAILY_INGEST_WINDOW_DAYS: _ingestWindowDays,
+    DAILY_DELIVERY_RECENCY_DAYS: _deliveryRecencyDays,
     AI_SETTINGS_MASTER_KEY_FILE: masterKeyFile,
     ...serviceConfig
   } = result.data;
@@ -189,7 +200,25 @@ function parseDailyPipelineConfig(environment: NodeJS.ProcessEnv): DailyPipeline
   } catch {
     throw new Error("DAILY_PIPELINE_TIMEZONE must be a valid IANA timezone");
   }
-  return { enabled: enabledValue === "true", time, timezone };
+  const ingestWindowDays = parseOptionalBoundedPositiveInteger(
+    environment,
+    "DAILY_INGEST_WINDOW_DAYS",
+    30,
+    365,
+  );
+  const deliveryRecencyDays = parseOptionalBoundedNonNegativeInteger(
+    environment,
+    "DAILY_DELIVERY_RECENCY_DAYS",
+    ingestWindowDays,
+    365,
+  );
+  return {
+    enabled: enabledValue === "true",
+    time,
+    timezone,
+    ingestWindowDays,
+    deliveryRecencyDays,
+  };
 }
 
 function parseAiConfig(environment: NodeJS.ProcessEnv): AiServerConfig | undefined {
@@ -403,6 +432,26 @@ function parseOptionalBoundedPositiveInteger(
   maximum: number,
 ): number {
   const value = parseOptionalPositiveInteger(environment, name, defaultValue);
+  if (value > maximum) {
+    throw new Error(`${name} must be at most ${maximum}`);
+  }
+  return value;
+}
+
+function parseOptionalBoundedNonNegativeInteger(
+  environment: NodeJS.ProcessEnv,
+  name: string,
+  defaultValue: number,
+  maximum: number,
+): number {
+  const rawValue = optionalEnvironmentValue(environment, name);
+  if (rawValue === undefined) {
+    return defaultValue;
+  }
+  const value = Number(rawValue);
+  if (!Number.isInteger(value) || value < 0) {
+    throw new Error(`${name} must be a non-negative integer`);
+  }
   if (value > maximum) {
     throw new Error(`${name} must be at most ${maximum}`);
   }

@@ -244,7 +244,9 @@ export function createTodayRepository(client: DatabaseClient): TodayRepository {
             tags.some(({ isCrossDisciplinary }) => isCrossDisciplinary),
           ).length,
         },
-        crossSignals: collectCrossSignals(yesterdayPapers),
+        // Cross-signals describe the ranked papers shown in Today rather than
+        // only the previous day's ingestion cohort.
+        crossSignals: collectCrossSignals(recommendations),
         recommendations,
         readingQueue: recommendations
           .filter(({ readingStatus }) =>

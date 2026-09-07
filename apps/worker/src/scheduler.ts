@@ -55,6 +55,7 @@ export function dailyWindowAt(
   now: Date,
   timezone: string,
   scheduleTime: string,
+  ingestWindowDays = 1,
 ): DailyWindow {
   const local = zonedParts(now, timezone);
   const [scheduleHour, scheduleMinute] = scheduleTime.split(":").map(Number);
@@ -62,10 +63,10 @@ export function dailyWindowAt(
     (local.hour === scheduleHour && local.minute < scheduleMinute!);
   const localDate = `${local.year}-${twoDigits(local.month)}-${twoDigits(local.day)}`;
   const key = beforeSchedule ? shiftDate(localDate, -1) : localDate;
-  const previousKey = shiftDate(key, -1);
+  const windowStartKey = shiftDate(key, -ingestWindowDays);
   return {
     key,
-    from: scheduledInstant(previousKey, scheduleTime, timezone),
+    from: scheduledInstant(windowStartKey, scheduleTime, timezone),
     until: scheduledInstant(key, scheduleTime, timezone),
   };
 }
