@@ -4,12 +4,12 @@ import { PHYSICS_TAG_SLUGS } from "../../packages/domain/src/physics-tags";
 import { parseReviewCorpusManifest } from "../../apps/worker/src/review-corpus/manifest";
 
 describe("local real-data trial boundary", () => {
-  it("publishes a bilingual MVP and Kimi abstract-trial guide", async () => {
+  it("publishes a Chinese-first MVP and concise English overview with a Kimi trial guide", async () => {
     const readme = await readFile("README.md", "utf8");
 
     expect(readme).toContain("# Physics Research Intelligence");
-    expect(readme).toContain("## 中文");
-    expect(readme).toContain("## English");
+    expect(readme).not.toContain("## 中文");
+    expect(readme).toContain("## English overview");
     expect(readme).toMatch(/45 篇|45 papers/);
     expect(readme).toContain("2504.21524v1");
     expect(readme).toContain("2410.10611v2");
