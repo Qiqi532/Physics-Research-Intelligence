@@ -1,0 +1,2269 @@
+{
+  "meta": {
+    "snapshotAt": "2026-09-03T04:02:49.071Z",
+    "commit": "6ab9658",
+    "branch": "codex/review-manual-pipeline-automation",
+    "purpose": "Early partial quality-review snapshot. Contains 11 AI outputs and the public facts the model saw; it is not the complete 30-paper evaluation set.",
+    "scope": "early-partial-11-of-30",
+    "paperCount": 11,
+    "models": [
+      "kimi/kimi-k2.6/interpret-v1"
+    ]
+  },
+  "papers": [
+    {
+      "id": "12f649c5-3c16-4e68-8782-5d484174231d",
+      "doi": "10.1103/94sm-dm7x",
+      "title": "Probing the dark axion portal via J / ψ decays at BESIII and STCF",
+      "abstract": null,
+      "journal": "Physical review. D/Physical review. D.",
+      "publishedAt": "2026-08-31T00:00:00+00:00",
+      "originalUrl": "https://doi.org/10.1103/94sm-dm7x",
+      "accessStatus": "UNKNOWN",
+      "classifications": [
+        {
+          "id": "4b7d3054-479b-4a5b-9c23-04ea44ec293a",
+          "paperId": "12f649c5-3c16-4e68-8782-5d484174231d",
+          "tagSlug": "high-energy-particle",
+          "relevance": 0.7,
+          "reason": "BESIII和STCF探测暗轴子门户的新途径",
+          "model": "kimi-k2.6",
+          "promptVersion": "classify-v1",
+          "createdAt": "2026-09-01T15:38:46.030045+00:00"
+        }
+      ],
+      "interpretations": [
+        {
+          "id": "eca0e228-7f0d-4865-9644-ad788d353c74",
+          "paperId": "12f649c5-3c16-4e68-8782-5d484174231d",
+          "content": {
+            "basis": "abstract_only",
+            "overviewZh": {
+              "text": "本文探讨利用BESIII实验和未来超级陶粲工厂（STCF）通过J/ψ衰变探测暗轴子门户（dark axion portal）的可能性。由于摘要为null，无法获取具体研究内容。",
+              "evidenceLevel": "uncertain",
+              "evidenceReferences": [
+                {
+                  "quote": "Probing the dark axion portal via J / ψ decays at BESIII and STCF",
+                  "source": "metadata",
+                  "locator": "title"
+                },
+                {
+                  "quote": "null",
+                  "source": "metadata",
+                  "locator": "abstract"
+                }
+              ]
+            },
+            "innovations": [
+              {
+                "text": "标题暗示研究可能提出利用J/ψ衰变作为探测暗轴子门户的新途径，并比较BESIII现有数据与STCF未来能力的潜力。",
+                "evidenceLevel": "inferred",
+                "evidenceReferences": [
+                  {
+                    "quote": "Probing the dark axion portal via J / ψ decays at BESIII and STCF",
+                    "source": "metadata",
+                    "locator": "title"
+                  }
+                ]
+              }
+            ],
+            "limitations": [
+              {
+                "text": "摘要完全缺失，无法评估研究局限性。基于标题推断，可能受限于BESIII的统计量和STCF尚未运行的不确定性。",
+                "evidenceLevel": "inferred",
+                "evidenceReferences": [
+                  {
+                    "quote": "null",
+                    "source": "metadata",
+                    "locator": "abstract"
+                  },
+                  {
+                    "quote": "Probing the dark axion portal via J / ψ decays at BESIII and STCF",
+                    "source": "metadata",
+                    "locator": "title"
+                  }
+                ]
+              }
+            ],
+            "readingAdvice": [
+              "由于摘要为null，强烈建议获取全文或补充材料以了解具体研究内容",
+              "关注BESIII关于J/ψ稀有衰变的最新实验结果",
+              "了解STCF的设计指标和预期物理灵敏度",
+              "查阅暗轴子门户模型的理论框架和现有实验限制"
+            ],
+            "researchQuestion": {
+              "text": "如何利用J/ψ衰变在BESIII和STCF实验中探测暗轴子门户？由于摘要缺失，具体研究问题无法确定。",
+              "evidenceLevel": "uncertain",
+              "evidenceReferences": [
+                {
+                  "quote": "Probing the dark axion portal via J / ψ decays at BESIII and STCF",
+                  "source": "metadata",
+                  "locator": "title"
+                },
+                {
+                  "quote": "null",
+                  "source": "metadata",
+                  "locator": "abstract"
+                }
+              ]
+            },
+            "sourceDisclosure": "基于摘要解读",
+            "methodsAndEvidence": [
+              {
+                "text": "研究涉及BESIII实验和未来STCF设施。由于摘要为null，具体方法学和证据无法确定。",
+                "evidenceLevel": "uncertain",
+                "evidenceReferences": [
+                  {
+                    "quote": "Probing the dark axion portal via J / ψ decays at BESIII and STCF",
+                    "source": "metadata",
+                    "locator": "title"
+                  },
+                  {
+                    "quote": "null",
+                    "source": "metadata",
+                    "locator": "abstract"
+                  }
+                ]
+              }
+            ]
+          },
+          "status": "COMPLETE",
+          "provider": "kimi",
+          "model": "kimi-k2.6",
+          "promptVersion": "interpret-v1",
+          "createdAt": "2026-09-01T15:34:58.934+00:00",
+          "updatedAt": "2026-09-01T15:34:58.934+00:00"
+        }
+      ],
+      "screenings": [
+        {
+          "id": "4317467a-ee72-4888-93b3-38475c8a2adf",
+          "paperId": "12f649c5-3c16-4e68-8782-5d484174231d",
+          "score": 0.7,
+          "directionSlug": "high-energy-particle",
+          "reason": "BESIII和STCF探测暗轴子门户的新途径",
+          "selected": true,
+          "batchId": "screen-batch:2026-08-30T22:00:00.000Z|2026-08-31T22:00:00.000Z|0|15:kimi-k2.6:screen-v1",
+          "provider": "kimi",
+          "model": "kimi-k2.6",
+          "promptVersion": "screen-v1",
+          "createdAt": "2026-09-01T15:30:10.682+00:00"
+        }
+      ],
+      "sources": [
+        {
+          "sourceName": "openalex",
+          "sourceRecordId": "W7204847815"
+        }
+      ]
+    },
+    {
+      "id": "04335893-345d-4ef9-9743-396f9b1544c3",
+      "doi": "10.3847/2041-8213/ae9a89",
+      "title": "Dust Activity Evolution and Constraints on Icy Grains in the Interstellar Comet 3I/ATLAS",
+      "abstract": "Abstract We present Zwicky Transient Facility observations of the interstellar comet 3I/ATLAS to characterize its dust-activity evolution before and after perihelion. Before perihelion, the effective scattering cross section C e brightened across the inner 2 × 10 4 km as C e ∝ r H − γ , with γ increasing from 1.63 ± 0.14 to 1.88 ± 0.34 with aperture size. After perihelion, the heliocentric index decreased from 2.44 ± 0.09 in the 5 × 10 3 km aperture to 1.54 ± 0.09 in the 8 × 10 4 km aperture, indicating faster fading of the inner coma. Under adopted grain-size and residence-time assumptions, the implied dust mass-loss rates are ∼123–203 kg s −1 before perihelion and ∼596–1412 kg s −1 after perihelion. The morphology yields a sunward ejection-speed scale of v ej ∼ ( 190 ± 3 ) a μ m − 1 / 2 m s − 1 and an effective perpendicular velocity of v ⊥ = ( 79 ± 6 ) a μ m − 1 / 2 m s − 1 . Postperihelion surface-brightness profiles transiently steepened to k ∼ −2.7 in late November and early December, then became shallower and approached k = −1.5 by January. Matched g − r profiles show that this phase coincided with an anomalously blue outer coma that disappeared by January. We characterize the fading component with a projected destruction length of ℓ DE ∼ (6.4–7.2) × 10 4 km. Thermophysical sublimation calculations indicate that this scale, together with the order of magnitude of the water production near the main imaging epoch, is consistent with a 0 ∼ 5–10 μ m icy grains containing a small absorbing carbonaceous fraction of f C ∼ 0.1%. These results suggest that the early postperihelion coma likely contained a short-lived, volatile-bearing, icy-grain component whose fading contributed to the outer-coma brightness and color evolution.",
+      "journal": "The Astrophysical Journal Letters",
+      "publishedAt": "2026-08-31T00:00:00+00:00",
+      "originalUrl": "https://doi.org/10.3847/2041-8213/ae9a89",
+      "accessStatus": "OPEN",
+      "classifications": [
+        {
+          "id": "a7a39856-ca32-43a7-be3c-e9a62ec3ca52",
+          "paperId": "04335893-345d-4ef9-9743-396f9b1544c3",
+          "tagSlug": "astrophysics",
+          "relevance": 0.68,
+          "reason": "星际彗星3I/ATLAS尘埃活动与冰颗粒约束",
+          "model": "kimi-k2.6",
+          "promptVersion": "classify-v1",
+          "createdAt": "2026-09-01T15:38:46.030045+00:00"
+        }
+      ],
+      "interpretations": [
+        {
+          "id": "35b431de-5a9d-4022-a851-0aa035a6bb47",
+          "paperId": "04335893-345d-4ef9-9743-396f9b1544c3",
+          "content": {
+            "basis": "abstract_only",
+            "overviewZh": {
+              "text": "本研究利用Zwicky瞬变设施（ZTF）观测星际彗星3I/ATLAS，表征其近日点前后尘埃活动的演化，并约束冰尘颗粒的性质。研究发现彗星在近日点后表现出更快的内部彗发衰减，并探测到一个短寿命的含挥发物冰尘成分，该成分的消散导致了外彗发亮度和颜色的演化。",
+              "evidenceLevel": "direct",
+              "evidenceReferences": [
+                {
+                  "quote": "We present Zwicky Transient Facility observations of the interstellar comet 3I/ATLAS to characterize its dust-activity evolution before and after perihelion",
+                  "source": "abstract",
+                  "locator": "全文"
+                },
+                {
+                  "quote": "These results suggest that the early postperihelion coma likely contained a short-lived, volatile-bearing, icy-grain component whose fading contributed to the outer-coma brightness and color evolution",
+                  "source": "abstract",
+                  "locator": "后半部分"
+                }
+              ]
+            },
+            "innovations": [
+              {
+                "text": "首次系统表征星际彗星3I/ATLAS近日点前后的尘埃活动演化，包括有效散射截面、尘埃质量损失率和喷射速度尺度等关键参数。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "Before perihelion, the effective scattering cross section Ce brightened...with γ increasing from 1.63 ± 0.14 to 1.88 ± 0.34 with aperture size",
+                    "source": "abstract",
+                    "locator": "观测与参数部分"
+                  },
+                  {
+                    "quote": "the implied dust mass-loss rates are ~123–203 kg s−1 before perihelion and ~596–1412 kg s−1 after perihelion",
+                    "source": "abstract",
+                    "locator": "质量损失率"
+                  },
+                  {
+                    "quote": "The morphology yields a sunward ejection-speed scale of vej ~ (190 ± 3) aμm−1/2 m s−1 and an effective perpendicular velocity of v⊥ = (79 ± 6) aμm−1/2 m s−1",
+                    "source": "abstract",
+                    "locator": "速度参数"
+                  }
+                ]
+              },
+              {
+                "text": "发现近日点后彗发表面亮度轮廓的瞬变陡化现象（k ~ −2.7），并关联到异常蓝色的外彗发，揭示了短寿命含挥发物冰尘成分的存在。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "Postperihelion surface-brightness profiles transiently steepened to k ~ −2.7 in late November and early December, then became shallower and approached k = −1.5 by January",
+                    "source": "abstract",
+                    "locator": "亮度轮廓演化"
+                  },
+                  {
+                    "quote": "Matched g − r profiles show that this phase coincided with an anomalously blue outer coma that disappeared by January",
+                    "source": "abstract",
+                    "locator": "颜色异常"
+                  }
+                ]
+              },
+              {
+                "text": "通过热物理升华计算，将观测到的投影破坏长度与水产生率结合，约束了冰尘颗粒的尺寸（~5–10 μm）和碳质吸收组分比例（~0.1%）。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "Thermophysical sublimation calculations indicate that this scale, together with the order of magnitude of the water production near the main imaging epoch, is consistent with a0 ~ 5–10 μm icy grains containing a small absorbing carbonaceous fraction of fC ~ 0.1%",
+                    "source": "abstract",
+                    "locator": "热物理计算部分"
+                  }
+                ]
+              }
+            ],
+            "limitations": [
+              {
+                "text": "尘埃质量损失率的推导依赖于所采用的颗粒尺寸和停留时间假设，这些假设若与实际不符将影响结果的准确性。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "Under adopted grain-size and residence-time assumptions, the implied dust mass-loss rates are ~123–203 kg s−1 before perihelion and ~596–1412 kg s−1 after perihelion",
+                    "source": "abstract",
+                    "locator": "假设依赖"
+                  }
+                ]
+              },
+              {
+                "text": "冰尘颗粒参数（尺寸~5–10 μm，碳质组分~0.1%）的约束依赖于热物理升华模型和特定时期的水产生率估计，模型选择和输入参数的不确定性可能影响结论。",
+                "evidenceLevel": "inferred",
+                "evidenceReferences": [
+                  {
+                    "quote": "Thermophysical sublimation calculations indicate that this scale, together with the order of magnitude of the water production near the main imaging epoch, is consistent with a0 ~ 5–10 μm icy grains containing a small absorbing carbonaceous fraction of fC ~ 0.1%",
+                    "source": "abstract",
+                    "locator": "模型依赖性"
+                  }
+                ]
+              },
+              {
+                "text": "研究仅基于ZTF的观测数据，未提及其他波段或仪器的独立验证，且摘要未说明观测的时间采样密度和覆盖范围。",
+                "evidenceLevel": "inferred",
+                "evidenceReferences": [
+                  {
+                    "quote": "We present Zwicky Transient Facility observations",
+                    "source": "abstract",
+                    "locator": "观测来源"
+                  }
+                ]
+              }
+            ],
+            "readingAdvice": [
+              "建议阅读全文以获取完整的观测时间线、数据处理方法和模型假设细节，特别是颗粒尺寸分布和停留时间的具体设定。",
+              "关注近日点后彗发快速演化的物理机制，以及冰尘成分与普通尘埃的动力学和热力学差异。",
+              "如需将本研究结果与其他星际天体（如1I/'Oumuamua、2I/Borisov）进行比较，应获取具体的尘埃活动参数和挥发物组成数据。",
+              "注意热物理模型中使用的输入参数（如反照率、热惯量等），这些在摘要中未明确说明但对结果有重要影响。"
+            ],
+            "researchQuestion": {
+              "text": "星际彗星3I/ATLAS的尘埃活动如何在近日点前后演化？其彗发中是否存在冰尘颗粒，它们的物理性质如何？",
+              "evidenceLevel": "inferred",
+              "evidenceReferences": [
+                {
+                  "quote": "We present Zwicky Transient Facility observations of the interstellar comet 3I/ATLAS to characterize its dust-activity evolution before and after perihelion",
+                  "source": "abstract",
+                  "locator": "开头与结尾"
+                },
+                {
+                  "quote": "Thermophysical sublimation calculations indicate that this scale...is consistent with a0 ~ 5–10 μm icy grains containing a small absorbing carbonaceous fraction of fC ~ 0.1%",
+                  "source": "abstract",
+                  "locator": "关于冰尘颗粒的论述"
+                }
+              ]
+            },
+            "sourceDisclosure": "基于摘要解读",
+            "methodsAndEvidence": [
+              {
+                "text": "使用Zwicky瞬变设施（ZTF）对3I/ATLAS进行成像观测，测量有效散射截面Ce随日心距的变化，并通过不同孔径（2×10^4 km至8×10^4 km）分析亮度梯度。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "We present Zwicky Transient Facility observations of the interstellar comet 3I/ATLAS",
+                    "source": "abstract",
+                    "locator": "观测方法"
+                  },
+                  {
+                    "quote": "brightened across the inner 2 × 10^4 km...with γ increasing from 1.63 ± 0.14 to 1.88 ± 0.34 with aperture size...decreased from 2.44 ± 0.09 in the 5 × 10^3 km aperture to 1.54 ± 0.09 in the 8 × 10^4 km aperture",
+                    "source": "abstract",
+                    "locator": "孔径分析"
+                  }
+                ]
+              },
+              {
+                "text": "基于假设的颗粒尺寸和停留时间，推导出近日点前后的尘埃质量损失率，范围分别为~123–203 kg/s和~596–1412 kg/s。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "Under adopted grain-size and residence-time assumptions, the implied dust mass-loss rates are ~123–203 kg s−1 before perihelion and ~596–1412 kg s−1 after perihelion",
+                    "source": "abstract",
+                    "locator": "质量损失率推导"
+                  }
+                ]
+              },
+              {
+                "text": "通过形态分析确定尘埃喷射速度尺度：向太阳方向vej ~ (190 ± 3) aμm^−1/2 m/s，有效垂直速度v⊥ = (79 ± 6) aμm^−1/2 m/s。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "The morphology yields a sunward ejection-speed scale of vej ~ (190 ± 3) aμm−1/2 m s−1 and an effective perpendicular velocity of v⊥ = (79 ± 6) aμm−1/2 m s−1",
+                    "source": "abstract",
+                    "locator": "速度测量"
+                  }
+                ]
+              },
+              {
+                "text": "测量g−r颜色轮廓，发现异常蓝色外彗发与亮度轮廓陡化阶段重合，并表征该成分的投影破坏长度为ℓDE ~ (6.4–7.2) × 10^4 km。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "Matched g − r profiles show that this phase coincided with an anomalously blue outer coma that disappeared by January",
+                    "source": "abstract",
+                    "locator": "颜色与破坏长度"
+                  },
+                  {
+                    "quote": "We characterize the fading component with a projected destruction length of ℓDE ~ (6.4–7.2) × 10^4 km",
+                    "source": "abstract",
+                    "locator": "破坏长度"
+                  }
+                ]
+              },
+              {
+                "text": "结合热物理升华模型，将破坏长度与主成像时期的水产生率量级进行比较，约束冰尘颗粒参数。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "Thermophysical sublimation calculations indicate that this scale, together with the order of magnitude of the water production near the main imaging epoch, is consistent with a0 ~ 5–10 μm icy grains containing a small absorbing carbonaceous fraction of fC ~ 0.1%",
+                    "source": "abstract",
+                    "locator": "模型计算"
+                  }
+                ]
+              }
+            ]
+          },
+          "status": "COMPLETE",
+          "provider": "kimi",
+          "model": "kimi-k2.6",
+          "promptVersion": "interpret-v1",
+          "createdAt": "2026-09-01T15:35:45.123+00:00",
+          "updatedAt": "2026-09-01T15:35:45.123+00:00"
+        }
+      ],
+      "screenings": [
+        {
+          "id": "51ba9c9f-f80b-4100-b78f-282eb3a4f352",
+          "paperId": "04335893-345d-4ef9-9743-396f9b1544c3",
+          "score": 0.68,
+          "directionSlug": "astrophysics",
+          "reason": "星际彗星3I/ATLAS尘埃活动与冰颗粒约束",
+          "selected": true,
+          "batchId": "screen-batch:2026-08-30T22:00:00.000Z|2026-08-31T22:00:00.000Z|0|15:kimi-k2.6:screen-v1",
+          "provider": "kimi",
+          "model": "kimi-k2.6",
+          "promptVersion": "screen-v1",
+          "createdAt": "2026-09-01T15:30:10.657+00:00"
+        }
+      ],
+      "sources": [
+        {
+          "sourceName": "openalex",
+          "sourceRecordId": "W7204854115"
+        }
+      ]
+    },
+    {
+      "id": "1e31fee7-9f76-47b2-81ff-13559423a648",
+      "doi": "10.1126/science.ads5962",
+      "title": "Tracking the baryon number with nuclear collisions",
+      "abstract": "Baryon quantum number is believed to be conserved since baryogenesis in the early Universe. While fractionally charged valence quarks are understood conventionally to each carry a baryon number of 1/3, the baryon junction, a non-perturbative Y-shaped topology of neutral gluons, has also been proposed as an alternative entity tracing the baryon number. Neither scenario has been verified experimentally. The STAR Collaboration reports measurements at mid-rapidity of baryon number ($\\boldsymbol{B}$) over the electric charge number difference ($\\boldsymbol{ΔQ}$) in isobar nuclear collisions, and the net-proton yield along rapidity in photonuclear collisions. A larger $\\boldsymbol{B/ΔQ}$ ratio and less asymmetric net-proton yield are observed than predicted from models assigning baryon number to",
+      "journal": "Science",
+      "publishedAt": "2024-08-27T23:23:35+00:00",
+      "originalUrl": "https://arxiv.org/abs/2408.15441v2",
+      "accessStatus": "UNKNOWN",
+      "classifications": [
+        {
+          "id": "f9448b49-12be-4d4c-9172-db2f811bedc4",
+          "paperId": "1e31fee7-9f76-47b2-81ff-13559423a648",
+          "tagSlug": "nuclear",
+          "relevance": 1,
+          "reason": "The study directly involves nuclear collisions (isobar collisions and photonuclear collisions), net-proton yields, and baryon number conservation in nuclear systems, which are core topics in nuclear physics.",
+          "model": "kimi-k2.6",
+          "promptVersion": "classify-v1",
+          "createdAt": "2026-09-01T08:51:02.308+00:00"
+        },
+        {
+          "id": "b5eb79aa-b67e-4c84-9b15-3580b4857ea8",
+          "paperId": "1e31fee7-9f76-47b2-81ff-13559423a648",
+          "tagSlug": "high-energy-particle",
+          "relevance": 0.85,
+          "reason": "The research addresses baryon number at the quark level (valence quarks with fractional charge 1/3), gluon topologies (baryon junction), and uses the STAR detector at RHIC, which are high-energy particle physics concepts and methods.",
+          "model": "kimi-k2.6",
+          "promptVersion": "classify-v1",
+          "createdAt": "2026-09-01T08:51:02.308+00:00"
+        },
+        {
+          "id": "3c9a2153-cdb0-469d-b77d-9577f142fce6",
+          "paperId": "1e31fee7-9f76-47b2-81ff-13559423a648",
+          "tagSlug": "statistical-computational",
+          "relevance": 0.4,
+          "reason": "The study compares experimental measurements with model predictions, implying statistical analysis and computational modeling, though this is secondary to the physics content.",
+          "model": "kimi-k2.6",
+          "promptVersion": "classify-v1",
+          "createdAt": "2026-09-01T08:51:02.308+00:00"
+        },
+        {
+          "id": "990d75e9-4e78-4282-8fc6-d998109477a9",
+          "paperId": "1e31fee7-9f76-47b2-81ff-13559423a648",
+          "tagSlug": "cross-disciplinary",
+          "relevance": 0.3,
+          "reason": "The work connects nuclear collision physics with early Universe baryogenesis and non-perturbative QCD (gluon topology), bridging nuclear physics, high-energy physics, and cosmology.",
+          "model": "kimi-k2.6",
+          "promptVersion": "classify-v1",
+          "createdAt": "2026-09-01T08:51:02.308+00:00"
+        }
+      ],
+      "interpretations": [
+        {
+          "id": "bf2c32fe-ac6e-429b-91a9-25da9adf713b",
+          "paperId": "1e31fee7-9f76-47b2-81ff-13559423a648",
+          "content": {
+            "basis": "abstract_only",
+            "overviewZh": {
+              "text": "本研究探讨重子数（Baryon number）的携带机制。传统观点认为分数电荷的价夸克各携带1/3重子数，但另一种理论提出重子连接点（baryon junction）——一种Y形中性胶子拓扑结构——可作为追踪重子数的替代实体。STAR合作组通过等压核碰撞和光核碰撞实验，测量了重子数与电荷数差之比（B/ΔQ）以及快度方向的净质子产额，发现实验结果与将重子数赋予夸克的模型预测存在显著差异。",
+              "evidenceLevel": "direct",
+              "evidenceReferences": [
+                {
+                  "quote": "Baryon quantum number is believed to be conserved since baryogenesis in the early Universe. While fractionally charged valence quarks are understood conventionally to each carry a baryon number of 1/3, the baryon junction, a non-perturbative Y-shaped topology of neutral gluons, has also been proposed as an alternative entity tracing the baryon number.",
+                  "source": "abstract",
+                  "locator": "全文"
+                },
+                {
+                  "quote": "The STAR Collaboration reports measurements at mid-rapidity of baryon number (B) over the electric charge number difference (ΔQ) in isobar nuclear collisions, and the net-proton yield along rapidity in photonuclear collisions.",
+                  "source": "abstract",
+                  "locator": "全文"
+                },
+                {
+                  "quote": "A larger B/ΔQ ratio and less asymmetric net-proton yield are observed than predicted from models assigning baryon number to",
+                  "source": "abstract",
+                  "locator": "全文"
+                }
+              ]
+            },
+            "innovations": [
+              {
+                "text": "首次在等压核碰撞中测量中心快度区的重子数与电荷数差之比（B/ΔQ），为区分重子数携带机制提供新的实验观测量。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "The STAR Collaboration reports measurements at mid-rapidity of baryon number (B) over the electric charge number difference (ΔQ) in isobar nuclear collisions",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "首次在光核碰撞中测量快度方向的净质子产额，作为检验重子数携带机制的补充实验手段。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "and the net-proton yield along rapidity in photonuclear collisions",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "通过两种独立测量（B/ΔQ比值和净质子产额快度分布的不对称性）同时偏离夸克模型预测，为重子连接点假说提供实验支持。",
+                "evidenceLevel": "inferred",
+                "evidenceReferences": [
+                  {
+                    "quote": "A larger B/ΔQ ratio and less asymmetric net-proton yield are observed than predicted from models assigning baryon number to",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              }
+            ],
+            "limitations": [
+              {
+                "text": "摘要未明确说明等压核碰撞的具体原子核种类、碰撞能量、中心度选择等实验条件细节。",
+                "evidenceLevel": "uncertain",
+                "evidenceReferences": [
+                  {
+                    "quote": "in isobar nuclear collisions",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "摘要截断，未完整呈现模型对比的具体信息（如与哪些具体模型比较、模型参数等）。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "A larger B/ΔQ ratio and less asymmetric net-proton yield are observed than predicted from models assigning baryon number to",
+                    "source": "abstract",
+                    "locator": "末尾"
+                  }
+                ]
+              },
+              {
+                "text": "未提供统计误差和系统误差的数值，无法评估观测偏离的显著性程度。",
+                "evidenceLevel": "uncertain",
+                "evidenceReferences": [
+                  {
+                    "quote": "A larger B/ΔQ ratio and less asymmetric net-proton yield are observed",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "摘要未提及是否排除了其他可能的理论解释，或是否对重子连接点模型进行了定量拟合。",
+                "evidenceLevel": "uncertain",
+                "evidenceReferences": [
+                  {
+                    "quote": "the baryon junction, a non-perturbative Y-shaped topology of neutral gluons, has also been proposed as an alternative entity tracing the baryon number",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              }
+            ],
+            "readingAdvice": [
+              "需获取全文以了解等压核碰撞的具体系统（如Ru+Ru与Zr+Zr）、碰撞能量√sNN、以及中心度选择等关键实验条件。",
+              "需关注文中与具体理论模型的定量比较细节，特别是重子连接点模型的预测值及其参数依赖性。",
+              "建议查看补充材料中的系统误差分析和统计显著性评估，以判断观测结果对重子数携带机制的区分能力。",
+              "可关注该研究是否被其他独立实验（如LHC-ALICE或未来EIC实验）验证或补充。",
+              "由于摘要末尾截断，需确认完整摘要或正文中是否明确说明模型比较的对象为'将重子数赋予夸克的模型'（models assigning baryon number to quarks）。"
+            ],
+            "researchQuestion": {
+              "text": "重子数究竟由价夸克携带还是由重子连接点（baryon junction）携带？如何通过实验区分这两种不同的重子数分配机制？",
+              "evidenceLevel": "inferred",
+              "evidenceReferences": [
+                {
+                  "quote": "While fractionally charged valence quarks are understood conventionally to each carry a baryon number of 1/3, the baryon junction, a non-perturbative Y-shaped topology of neutral gluons, has also been proposed as an alternative entity tracing the baryon number. Neither scenario has been verified experimentally.",
+                  "source": "abstract",
+                  "locator": "全文"
+                }
+              ]
+            },
+            "sourceDisclosure": "基于摘要解读",
+            "methodsAndEvidence": [
+              {
+                "text": "实验在RHIC-STAR探测器上进行，采用两种碰撞系统：等压核碰撞（isobar collisions，即质量数相同但质子数不同的原子核碰撞，如⁹⁶Ru+⁹⁶Ru与⁹⁶Zr+⁹⁶Zr）和光核碰撞（photonuclear collisions）。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "in isobar nuclear collisions, and the net-proton yield along rapidity in photonuclear collisions",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "主要测量量之一为中心快度区的B/ΔQ比值，其中B为重子数，ΔQ为电荷数差。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "measurements at mid-rapidity of baryon number (B) over the electric charge number difference (ΔQ)",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "另一测量量为光核碰撞中净质子产额随快度的分布。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "the net-proton yield along rapidity in photonuclear collisions",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "实验观测到B/ΔQ比值大于夸克模型预测，且净质子产额快度分布的不对称性小于夸克模型预测。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "A larger B/ΔQ ratio and less asymmetric net-proton yield are observed than predicted from models assigning baryon number to",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              }
+            ]
+          },
+          "status": "COMPLETE",
+          "provider": "kimi",
+          "model": "kimi-k2.6",
+          "promptVersion": "interpret-v1",
+          "createdAt": "2026-09-01T08:51:46.18+00:00",
+          "updatedAt": "2026-09-01T08:51:46.18+00:00"
+        }
+      ],
+      "screenings": [],
+      "sources": [
+        {
+          "sourceName": "arxiv",
+          "sourceRecordId": "2408.15441v2"
+        }
+      ]
+    },
+    {
+      "id": "06750367-aed7-4c8b-b421-0b47907b1920",
+      "doi": "10.1126/science.adt1712",
+      "title": "A phase microscope for quantum gases",
+      "abstract": "Coherence properties are central to quantum systems and are at the heart of phenomena such as superconductivity. Here we study coherence properties of an ultracold Bose gas in a two-dimensional optical lattice across the thermal phase transition. To infer the phase coherence and phase fluctuation profile, we use direct matter-wave imaging of higher Talbot revivals as well as a new phase microscope based on a site-resolved mapping of phase fluctuations to density fluctuations during matter-wave imaging. We observe the algebraic decay of the phase correlations in the superfluid phase and a linear temperature increase of the exponent. These techniques will also allow studying coherence properties in strongly-correlated quantum systems with full spatial resolution.",
+      "journal": "Science",
+      "publishedAt": "2024-10-14T15:17:45+00:00",
+      "originalUrl": "https://arxiv.org/abs/2410.10611v2",
+      "accessStatus": "UNKNOWN",
+      "classifications": [
+        {
+          "id": "896e8637-b55f-42d8-88ff-9bc327b79f6d",
+          "paperId": "06750367-aed7-4c8b-b421-0b47907b1920",
+          "tagSlug": "amo-optics",
+          "relevance": 1,
+          "reason": "The study involves ultracold Bose gases, two-dimensional optical lattices, matter-wave imaging, and Talbot revivals—all core atomic, molecular, and optical physics techniques and systems.",
+          "model": "kimi-k2.6",
+          "promptVersion": "classify-v1",
+          "createdAt": "2026-09-01T08:50:11.025+00:00"
+        },
+        {
+          "id": "4d317092-1941-476d-b8e7-c768b2423371",
+          "paperId": "06750367-aed7-4c8b-b421-0b47907b1920",
+          "tagSlug": "condensed-matter-materials",
+          "relevance": 0.85,
+          "reason": "The work studies phase transitions, superfluidity, algebraic decay of phase correlations, and strongly-correlated quantum systems, which are central topics in condensed matter physics, albeit realized with cold atoms.",
+          "model": "kimi-k2.6",
+          "promptVersion": "classify-v1",
+          "createdAt": "2026-09-01T08:50:11.025+00:00"
+        },
+        {
+          "id": "bc4eae50-5d94-426e-9575-34b022e1ab17",
+          "paperId": "06750367-aed7-4c8b-b421-0b47907b1920",
+          "tagSlug": "statistical-computational",
+          "relevance": 0.4,
+          "reason": "The thermal phase transition and algebraic decay of correlations involve statistical mechanics concepts, though the paper appears focused on experimental techniques rather than computational methods.",
+          "model": "kimi-k2.6",
+          "promptVersion": "classify-v1",
+          "createdAt": "2026-09-01T08:50:11.025+00:00"
+        },
+        {
+          "id": "e2ac63c7-7019-481a-97b5-3be9fe3ea2a4",
+          "paperId": "06750367-aed7-4c8b-b421-0b47907b1920",
+          "tagSlug": "cross-disciplinary",
+          "relevance": 0.3,
+          "reason": "The work bridges AMO physics techniques with condensed matter phenomena (superfluidity, phase transitions, strongly-correlated systems), representing a natural but not deeply cross-disciplinary intersection typical of cold atom quantum simulation.",
+          "model": "kimi-k2.6",
+          "promptVersion": "classify-v1",
+          "createdAt": "2026-09-01T08:50:11.025+00:00"
+        }
+      ],
+      "interpretations": [
+        {
+          "id": "fabd30ef-0acc-4c7e-9258-ae2f54a6f448",
+          "paperId": "06750367-aed7-4c8b-b421-0b47907b1920",
+          "content": {
+            "basis": "abstract_only",
+            "overviewZh": {
+              "text": "本研究利用新型相位显微镜技术，在二维光学晶格中的超冷玻色气体中研究相干性性质，跨越热相变过程。研究观察到超流相中相位关联的代数衰减，以及指数随温度线性增加的现象。",
+              "evidenceLevel": "direct",
+              "evidenceReferences": [
+                {
+                  "quote": "Here we study coherence properties of an ultracold Bose gas in a two-dimensional optical lattice across the thermal phase transition.",
+                  "source": "abstract",
+                  "locator": "全文"
+                },
+                {
+                  "quote": "We observe the algebraic decay of the phase correlations in the superfluid phase and a linear temperature increase of the exponent.",
+                  "source": "abstract",
+                  "locator": "全文"
+                }
+              ]
+            },
+            "innovations": [
+              {
+                "text": "开发了一种基于相位涨落到位点分辨密度涨落映射的新型相位显微镜技术。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "a new phase microscope based on a site-resolved mapping of phase fluctuations to density fluctuations during matter-wave imaging",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "利用高阶Talbot回波的直接物质波成像来推断相位相干性。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "we use direct matter-wave imaging of higher Talbot revivals",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              }
+            ],
+            "limitations": [
+              {
+                "text": "摘要未明确说明温度范围、原子数、晶格深度等具体实验参数。",
+                "evidenceLevel": "uncertain",
+                "evidenceReferences": [
+                  {
+                    "quote": "摘要未提供具体参数信息",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "仅基于摘要，无法评估测量精度、系统误差及统计显著性。",
+                "evidenceLevel": "uncertain",
+                "evidenceReferences": [
+                  {
+                    "quote": "摘要未提供方法学细节",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "关于强关联量子系统的应用前景仅为展望，未在本研究中实际验证。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "These techniques will also allow studying coherence properties in strongly-correlated quantum systems with full spatial resolution",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              }
+            ],
+            "readingAdvice": [
+              "需要阅读全文以获取实验参数（温度范围、原子数、晶格参数等）和定量结果。",
+              "关注新型相位显微镜的具体实现原理和空间分辨率指标。",
+              "注意区分已完成的实验结果（超流相中的代数衰减）与未来展望（强关联系统中的应用）。",
+              "建议查找补充材料以了解误差分析和统计方法。"
+            ],
+            "researchQuestion": {
+              "text": "如何推断二维光学晶格中超冷玻色气体在热相变过程中的相位相干性和相位涨落分布？",
+              "evidenceLevel": "inferred",
+              "evidenceReferences": [
+                {
+                  "quote": "To infer the phase coherence and phase fluctuation profile, we use direct matter-wave imaging of higher Talbot revivals as well as a new phase microscope...",
+                  "source": "abstract",
+                  "locator": "全文"
+                }
+              ]
+            },
+            "sourceDisclosure": "基于摘要解读",
+            "methodsAndEvidence": [
+              {
+                "text": "使用高阶Talbot回波的直接物质波成像方法。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "direct matter-wave imaging of higher Talbot revivals",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "使用新型相位显微镜，将相位涨落映射为位点分辨的密度涨落。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "a new phase microscope based on a site-resolved mapping of phase fluctuations to density fluctuations during matter-wave imaging",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "在超流相中观测到相位关联的代数衰减。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "We observe the algebraic decay of the phase correlations in the superfluid phase",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "观测到衰减指数随温度线性增加。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "a linear temperature increase of the exponent",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              }
+            ]
+          },
+          "status": "COMPLETE",
+          "provider": "kimi",
+          "model": "kimi-k2.6",
+          "promptVersion": "interpret-v1",
+          "createdAt": "2026-09-01T08:50:51.919+00:00",
+          "updatedAt": "2026-09-01T08:50:51.919+00:00"
+        }
+      ],
+      "screenings": [],
+      "sources": [
+        {
+          "sourceName": "arxiv",
+          "sourceRecordId": "2410.10611v2"
+        }
+      ]
+    },
+    {
+      "id": "1493e7b1-4f19-4b79-a805-b340fc671eba",
+      "doi": "10.1103/zbfv-zx72",
+      "title": "Role of nuclear shell effects of different nuclear physics ingredients in shaping r -process abundance patterns",
+      "abstract": null,
+      "journal": "Physical Review C",
+      "publishedAt": "2026-08-31T00:00:00+00:00",
+      "originalUrl": "https://doi.org/10.1103/zbfv-zx72",
+      "accessStatus": "UNKNOWN",
+      "classifications": [
+        {
+          "id": "9a265199-d4e8-43de-9077-607f58631b91",
+          "paperId": "1493e7b1-4f19-4b79-a805-b340fc671eba",
+          "tagSlug": "nuclear",
+          "relevance": 0.68,
+          "reason": "PRC期刊，核壳效应与r过程丰度，但摘要缺失信息有限",
+          "model": "kimi-k2.6",
+          "promptVersion": "classify-v1",
+          "createdAt": "2026-09-01T15:38:46.030045+00:00"
+        }
+      ],
+      "interpretations": [
+        {
+          "id": "04748523-450a-4114-a75b-2c23ddb62c9e",
+          "paperId": "1493e7b1-4f19-4b79-a805-b340fc671eba",
+          "content": {
+            "basis": "abstract_only",
+            "overviewZh": {
+              "text": "该论文发表于Physical Review C，探讨不同核物理输入中的核壳效应在塑造r-过程丰度模式中的作用。由于摘要信息缺失，无法获取具体研究内容。",
+              "evidenceLevel": "uncertain",
+              "evidenceReferences": [
+                {
+                  "quote": "Role of nuclear shell effects of different nuclear physics ingredients in shaping r -process abundance patterns",
+                  "source": "metadata",
+                  "locator": "title"
+                },
+                {
+                  "quote": "Physical Review C",
+                  "source": "metadata",
+                  "locator": "journal"
+                },
+                {
+                  "quote": "2026-08-31T00:00:00.000Z",
+                  "source": "metadata",
+                  "locator": "publishedAt"
+                }
+              ]
+            },
+            "innovations": [
+              {
+                "text": "该研究可能系统比较了多种核物理输入（如质量模型、β衰变率、裂变产额等）中壳效应对r-过程合成的相对贡献。",
+                "evidenceLevel": "uncertain",
+                "evidenceReferences": [
+                  {
+                    "quote": "Role of nuclear shell effects of different nuclear physics ingredients in shaping r -process abundance patterns",
+                    "source": "metadata",
+                    "locator": "title"
+                  }
+                ]
+              }
+            ],
+            "limitations": [
+              {
+                "text": "摘要信息完全缺失，无法评估研究的样本范围、参数不确定性或模型局限性。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "null",
+                    "source": "metadata",
+                    "locator": "abstract"
+                  }
+                ]
+              },
+              {
+                "text": "基于标题推断，该研究可能主要依赖理论计算而非实验数据，远离稳定线的核数据存在较大不确定性。",
+                "evidenceLevel": "inferred",
+                "evidenceReferences": [
+                  {
+                    "quote": "Role of nuclear shell effects of different nuclear physics ingredients in shaping r -process abundance patterns",
+                    "source": "metadata",
+                    "locator": "title"
+                  }
+                ]
+              }
+            ],
+            "readingAdvice": [
+              "建议获取完整摘要或全文以了解具体研究方法和主要发现",
+              "关注该研究如何区分不同核物理输入（质量、衰变、裂变等）中壳效应的相对重要性",
+              "注意比较该研究与此前r-过程核合成工作中壳效应处理的异同",
+              "由于发表日期为2026年8月31日，该论文可能尚未正式出版或为预印本，需核实可获取性"
+            ],
+            "researchQuestion": {
+              "text": "不同核物理成分中的核壳效应如何影响r-过程的丰度模式分布？",
+              "evidenceLevel": "inferred",
+              "evidenceReferences": [
+                {
+                  "quote": "Role of nuclear shell effects of different nuclear physics ingredients in shaping r -process abundance patterns",
+                  "source": "metadata",
+                  "locator": "title"
+                }
+              ]
+            },
+            "sourceDisclosure": "基于摘要解读",
+            "methodsAndEvidence": [
+              {
+                "text": "由于摘要为null，无法确定具体采用的理论框架、核反应网络代码或观测数据对比方法。",
+                "evidenceLevel": "uncertain",
+                "evidenceReferences": [
+                  {
+                    "quote": "null",
+                    "source": "metadata",
+                    "locator": "abstract"
+                  }
+                ]
+              }
+            ]
+          },
+          "status": "COMPLETE",
+          "provider": "kimi",
+          "model": "kimi-k2.6",
+          "promptVersion": "interpret-v1",
+          "createdAt": "2026-09-01T15:36:01.168+00:00",
+          "updatedAt": "2026-09-01T15:36:01.168+00:00"
+        }
+      ],
+      "screenings": [
+        {
+          "id": "7aa1b4cd-5e4b-41dc-8884-219120a0cdb5",
+          "paperId": "1493e7b1-4f19-4b79-a805-b340fc671eba",
+          "score": 0.68,
+          "directionSlug": "nuclear",
+          "reason": "PRC期刊，核壳效应与r过程丰度，但摘要缺失信息有限",
+          "selected": true,
+          "batchId": "screen-batch:2026-08-30T22:00:00.000Z|2026-08-31T22:00:00.000Z|1|9:kimi-k2.6:screen-v1",
+          "provider": "kimi",
+          "model": "kimi-k2.6",
+          "promptVersion": "screen-v1",
+          "createdAt": "2026-09-01T15:30:25.827+00:00"
+        }
+      ],
+      "sources": [
+        {
+          "sourceName": "openalex",
+          "sourceRecordId": "W7204788439"
+        }
+      ]
+    },
+    {
+      "id": "1ed76b0a-1f3f-4b3a-8c9e-c2c506869c11",
+      "doi": "10.1103/8fr2-cyf5",
+      "title": "Many-body perturbation theory for the nuclear equation of state up to fifth order",
+      "abstract": null,
+      "journal": "Physical Review C",
+      "publishedAt": "2026-08-31T00:00:00+00:00",
+      "originalUrl": "https://doi.org/10.1103/8fr2-cyf5",
+      "accessStatus": "UNKNOWN",
+      "classifications": [
+        {
+          "id": "41a4535c-ae8b-486d-a542-59962998eb9c",
+          "paperId": "1ed76b0a-1f3f-4b3a-8c9e-c2c506869c11",
+          "tagSlug": "nuclear",
+          "relevance": 0.75,
+          "reason": "PRC期刊，五阶微扰论计算核物态方程，理论方法有显著推进",
+          "model": "kimi-k2.6",
+          "promptVersion": "classify-v1",
+          "createdAt": "2026-09-01T15:38:46.030045+00:00"
+        }
+      ],
+      "interpretations": [
+        {
+          "id": "92c6a208-1a05-440d-8ae7-425e76827082",
+          "paperId": "1ed76b0a-1f3f-4b3a-8c9e-c2c506869c11",
+          "content": {
+            "basis": "abstract_only",
+            "overviewZh": {
+              "text": "本文研究多体微扰理论在核物质物态方程中的应用，将计算推进至五阶微扰。由于摘要信息缺失，无法确定具体研究结论或发现。",
+              "evidenceLevel": "uncertain",
+              "evidenceReferences": [
+                {
+                  "quote": "Many-body perturbation theory for the nuclear equation of state up to fifth order",
+                  "source": "metadata",
+                  "locator": "title"
+                },
+                {
+                  "quote": "Physical Review C",
+                  "source": "metadata",
+                  "locator": "journal"
+                },
+                {
+                  "quote": "2026-08-31T00:00:00.000Z",
+                  "source": "metadata",
+                  "locator": "publishedAt"
+                }
+              ]
+            },
+            "innovations": [
+              {
+                "text": "将多体微扰理论计算扩展至五阶，以研究核物质物态方程。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "Many-body perturbation theory for the nuclear equation of state up to fifth order",
+                    "source": "metadata",
+                    "locator": "title"
+                  }
+                ]
+              }
+            ],
+            "limitations": [
+              {
+                "text": "摘要信息完全缺失，无法评估研究的具体方法细节、数值结果、收敛性及任何系统性局限。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "null",
+                    "source": "metadata",
+                    "locator": "abstract"
+                  }
+                ]
+              }
+            ],
+            "readingAdvice": [
+              "由于摘要为空，建议获取全文以了解五阶微扰的具体实现、与低阶结果的比较、收敛行为分析以及对核物质物态方程的定量预测。",
+              "注意发表日期为2026年8月31日，可能为预印本或提前发布的文章，需确认最终版本。"
+            ],
+            "researchQuestion": {
+              "text": "本文旨在探究高阶多体微扰理论（直至五阶）对核物质物态方程的适用性与预测能力。",
+              "evidenceLevel": "inferred",
+              "evidenceReferences": [
+                {
+                  "quote": "Many-body perturbation theory for the nuclear equation of state up to fifth order",
+                  "source": "metadata",
+                  "locator": "title"
+                }
+              ]
+            },
+            "sourceDisclosure": "基于摘要解读",
+            "methodsAndEvidence": [
+              {
+                "text": "采用多体微扰理论作为理论框架。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "Many-body perturbation theory for the nuclear equation of state up to fifth order",
+                    "source": "metadata",
+                    "locator": "title"
+                  }
+                ]
+              }
+            ]
+          },
+          "status": "COMPLETE",
+          "provider": "kimi",
+          "model": "kimi-k2.6",
+          "promptVersion": "interpret-v1",
+          "createdAt": "2026-09-01T15:33:27.34+00:00",
+          "updatedAt": "2026-09-01T15:33:27.34+00:00"
+        }
+      ],
+      "screenings": [
+        {
+          "id": "ca97a188-eaf3-4b84-a288-a81d918ddb0f",
+          "paperId": "1ed76b0a-1f3f-4b3a-8c9e-c2c506869c11",
+          "score": 0.75,
+          "directionSlug": "nuclear",
+          "reason": "PRC期刊，五阶微扰论计算核物态方程，理论方法有显著推进",
+          "selected": true,
+          "batchId": "screen-batch:2026-08-30T22:00:00.000Z|2026-08-31T22:00:00.000Z|1|9:kimi-k2.6:screen-v1",
+          "provider": "kimi",
+          "model": "kimi-k2.6",
+          "promptVersion": "screen-v1",
+          "createdAt": "2026-09-01T15:30:25.841+00:00"
+        }
+      ],
+      "sources": [
+        {
+          "sourceName": "openalex",
+          "sourceRecordId": "W7204785697"
+        }
+      ]
+    },
+    {
+      "id": "9ab3ea17-c97e-4af3-a559-ed2a061fa81b",
+      "doi": "10.1126/science.adx1707",
+      "title": "Levitated Sensor for Magnetometry in Ambient Environment",
+      "abstract": "Levitated particle systems have gained significant attention as a rapidly advancing platform for precision sensing, offering low-loss, highly isolated environments by eliminating mechanical contact and associated noise. Current room-temperature levitation techniques are primarily sensitive to acceleration, with magnetic sensing often relying on the Meissner effect, which is impractical under ambient conditions. Here, we demonstrate a diamagnetically stabilized magnetically levitated magnet magnetometer (LeMaMa), where the motion of the magnet is detected optically. Leveraging strong spin-lattice coupling in the ferromagnet to suppress spin-projection noise and minimizing dissipation through levitation, we achieve a sensitivity of 32 fT $/Hz^{1/2}$. This sensitivity is adequate for a wide r",
+      "journal": "Science",
+      "publishedAt": "2025-04-30T11:18:46+00:00",
+      "originalUrl": "https://arxiv.org/abs/2504.21524v1",
+      "accessStatus": "UNKNOWN",
+      "classifications": [
+        {
+          "id": "a23321dc-0956-4d5a-bf1a-cd03f5e8e973",
+          "paperId": "9ab3ea17-c97e-4af3-a559-ed2a061fa81b",
+          "tagSlug": "amo-optics",
+          "relevance": 0.85,
+          "reason": "The LeMaMa uses optical detection of magnet motion, involving laser-based readout and precision optical measurement techniques central to atomic, molecular, and optical physics.",
+          "model": "kimi-k2.6",
+          "promptVersion": "classify-v1",
+          "createdAt": "2026-09-01T08:49:11.873+00:00"
+        },
+        {
+          "id": "ff2580cb-0f58-4122-83eb-7c4c1394edce",
+          "paperId": "9ab3ea17-c97e-4af3-a559-ed2a061fa81b",
+          "tagSlug": "condensed-matter-materials",
+          "relevance": 0.75,
+          "reason": "The device relies on ferromagnetic materials with strong spin-lattice coupling, and diamagnetic stabilization involves material magnetic properties studied in condensed matter physics.",
+          "model": "kimi-k2.6",
+          "promptVersion": "classify-v1",
+          "createdAt": "2026-09-01T08:49:11.873+00:00"
+        },
+        {
+          "id": "d9fb593d-c53f-4957-835b-34360323f348",
+          "paperId": "9ab3ea17-c97e-4af3-a559-ed2a061fa81b",
+          "tagSlug": "statistical-computational",
+          "relevance": 0.6,
+          "reason": "Precision magnetometry involves noise analysis, sensitivity optimization, and potentially signal processing to achieve the reported 32 fT/Hz^1/2 sensitivity.",
+          "model": "kimi-k2.6",
+          "promptVersion": "classify-v1",
+          "createdAt": "2026-09-01T08:49:11.873+00:00"
+        },
+        {
+          "id": "bc796eb8-1a4f-4e0e-a410-c6577391bd07",
+          "paperId": "9ab3ea17-c97e-4af3-a559-ed2a061fa81b",
+          "tagSlug": "cross-disciplinary",
+          "relevance": 0.9,
+          "reason": "The work integrates optical detection (AMO), magnetic materials and superconducting/diamagnetic phenomena (condensed matter), mechanical levitation engineering, and precision measurement methodology, making it inherently interdisciplinary.",
+          "model": "kimi-k2.6",
+          "promptVersion": "classify-v1",
+          "createdAt": "2026-09-01T08:49:11.873+00:00"
+        }
+      ],
+      "interpretations": [
+        {
+          "id": "cd5985df-1c46-4f7f-8bdf-4a885a91406d",
+          "paperId": "9ab3ea17-c97e-4af3-a559-ed2a061fa81b",
+          "content": {
+            "basis": "abstract_only",
+            "overviewZh": {
+              "text": "本文介绍了一种在室温环境下工作的磁悬浮磁力计（LeMaMa），通过抗磁稳定磁悬浮磁铁并结合光学检测运动，实现了32 fT/Hz^1/2的磁灵敏度。该技术利用铁磁体中的强自旋-晶格耦合来抑制自旋投影噪声，并通过悬浮消除机械接触损耗，为环境条件下的精密磁测量提供了新平台。",
+              "evidenceLevel": "direct",
+              "evidenceReferences": [
+                {
+                  "quote": "Here, we demonstrate a diamagnetically stabilized magnetically levitated magnet magnetometer (LeMaMa), where the motion of the magnet is detected optically.",
+                  "source": "abstract",
+                  "locator": "全文"
+                },
+                {
+                  "quote": "we achieve a sensitivity of 32 fT $/Hz^{1/2}$",
+                  "source": "abstract",
+                  "locator": "全文"
+                }
+              ]
+            },
+            "innovations": [
+              {
+                "text": "提出并实现了抗磁稳定磁悬浮磁铁磁力计（LeMaMa），在环境条件下工作，无需依赖迈斯纳效应。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "Here, we demonstrate a diamagnetically stabilized magnetically levitated magnet magnetometer (LeMaMa)",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "利用铁磁体中的强自旋-晶格耦合来抑制自旋投影噪声。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "Leveraging strong spin-lattice coupling in the ferromagnet to suppress spin-projection noise",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "通过磁悬浮消除机械接触及其相关噪声，同时最小化耗散。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "minimizing dissipation through levitation",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              }
+            ],
+            "limitations": [
+              {
+                "text": "摘要未提供关于系统带宽、动态范围、长期稳定性或环境扰动（如振动、温度波动）对性能影响的具体信息。",
+                "evidenceLevel": "uncertain",
+                "evidenceReferences": [
+                  {
+                    "quote": "Levitated particle systems have gained significant attention as a rapidly advancing platform for precision sensing, offering low-loss, highly isolated environments by eliminating mechanical contact and associated noise.",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "摘要末尾截断，无法获知该灵敏度的完整应用范围及与现有技术的全面比较。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "This sensitivity is adequate for a wide r",
+                    "source": "abstract",
+                    "locator": "末尾截断处"
+                  }
+                ]
+              },
+              {
+                "text": "未明确说明该磁力计的具体工作温度范围、悬浮稳定性条件或光学检测系统的复杂程度。",
+                "evidenceLevel": "uncertain",
+                "evidenceReferences": [
+                  {
+                    "quote": "Here, we demonstrate a diamagnetically stabilized magnetically levitated magnet magnetometer (LeMaMa), where the motion of the magnet is detected optically.",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              }
+            ],
+            "readingAdvice": [
+              "需要获取全文以了解完整的应用领域描述、系统详细参数（如带宽、动态范围）以及与现有磁力计技术的定量比较。",
+              "关注抗磁悬浮稳定机制的具体实现方式，以及光学检测系统的构型和噪声来源分析。",
+              "注意验证32 fT/Hz^1/2灵敏度是在何种实验条件下（如积分时间、环境屏蔽程度）测得的。",
+              "由于摘要末尾截断，建议通过原文补充了解该技术的潜在应用场景和实际限制。"
+            ],
+            "researchQuestion": {
+              "text": "如何在室温环境条件下实现高精度磁测量，克服现有磁悬浮技术主要对加速度敏感、且依赖迈斯纳效应的磁传感在环境条件下不切实际的问题？",
+              "evidenceLevel": "inferred",
+              "evidenceReferences": [
+                {
+                  "quote": "Current room-temperature levitation techniques are primarily sensitive to acceleration, with magnetic sensing often relying on the Meissner effect, which is impractical under ambient conditions.",
+                  "source": "abstract",
+                  "locator": "全文"
+                }
+              ]
+            },
+            "sourceDisclosure": "基于摘要解读",
+            "methodsAndEvidence": [
+              {
+                "text": "采用光学方法检测悬浮磁铁的运动。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "where the motion of the magnet is detected optically",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "实现了32 fT/Hz^1/2的磁灵敏度。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "we achieve a sensitivity of 32 fT $/Hz^{1/2}$",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "该灵敏度足以满足广泛应用需求（摘要末尾未完整显示）。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "This sensitivity is adequate for a wide r",
+                    "source": "abstract",
+                    "locator": "末尾截断处"
+                  }
+                ]
+              }
+            ]
+          },
+          "status": "COMPLETE",
+          "provider": "kimi",
+          "model": "kimi-k2.6",
+          "promptVersion": "interpret-v1",
+          "createdAt": "2026-09-01T08:49:39.5+00:00",
+          "updatedAt": "2026-09-01T08:49:39.5+00:00"
+        }
+      ],
+      "screenings": [],
+      "sources": [
+        {
+          "sourceName": "arxiv",
+          "sourceRecordId": "2504.21524v1"
+        }
+      ]
+    },
+    {
+      "id": "0e5630a9-5187-41c3-ad83-a68d3e1333a7",
+      "doi": "10.3847/2041-8213/ae984f",
+      "title": "Flyby-induced Second Accretion as a Pathway to Giant Planets Around M Dwarfs",
+      "abstract": "Abstract Classical pebble and core accretion theories face a severe challenge: they struggle to produce giant planets around low-mass M dwarfs, whose protoplanetary disks contain insufficient material. Yet, discoveries of such systems continue to mount. We propose flyby-induced second accretion (FISA), a new formation channel in which an M dwarf already hosting a terrestrial planet flies through a younger star’s protoplanetary disk, capturing gas and dust to build a second-generation disk. The preexisting planet then undergoes renewed pebble and gas accretion within this replenished reservoir and migrates inward to become a close-in giant. We performed hydrodynamic and core-accretion simulations to show that, under favorable encounter geometries, protoplanets around M dwarfs can grow into gas giants via this two-stage process. We apply the FISA framework to TOI-6894 b, a 0.168 Jupiter-mass planet orbiting a 0.207 solar-mass star at just 0.026 au, showing that it is a plausible outcome of such a flyby. An order-of-magnitude estimation shows that the probability for a close-in gas giant to form in an M dwarf system via the proposed disk-flyby mechanism is roughly 3 × 10 −5 .",
+      "journal": "The Astrophysical Journal Letters",
+      "publishedAt": "2026-08-31T00:00:00+00:00",
+      "originalUrl": "https://doi.org/10.3847/2041-8213/ae984f",
+      "accessStatus": "OPEN",
+      "classifications": [
+        {
+          "id": "3f90ce05-1ca2-4e3b-b8cf-1e91a431308f",
+          "paperId": "0e5630a9-5187-41c3-ad83-a68d3e1333a7",
+          "tagSlug": "astrophysics",
+          "relevance": 0.8,
+          "reason": "飞掠诱导二次吸积解决M矮星巨行星形成难题",
+          "model": "kimi-k2.6",
+          "promptVersion": "classify-v1",
+          "createdAt": "2026-09-01T15:38:46.030045+00:00"
+        }
+      ],
+      "interpretations": [
+        {
+          "id": "d4d0805e-a931-464b-bd73-f039050a8f02",
+          "paperId": "0e5630a9-5187-41c3-ad83-a68d3e1333a7",
+          "content": {
+            "basis": "abstract_only",
+            "overviewZh": {
+              "text": "本文提出了一种新的行星形成通道——飞掠诱导的二次吸积（FISA），用以解释M矮星周围巨行星的形成难题。传统卵石和核吸积理论难以在物质不足的M矮星原行星盘中产生巨行星，但观测发现此类系统持续增加。FISA机制描述了一个已拥有类地行星的M矮星飞掠穿过年轻恒星的原行星盘，捕获气体和尘埃形成第二代盘，原有行星在该补充物质库中重新吸积卵石和气体并内迁，最终成为近距离巨行星。作者通过流体动力学和核吸积模拟验证了这一两阶段过程的可行性，并将其应用于TOI-6894 b系统，估算该机制在M矮星系统中形成近距离巨行星的概率约为3×10⁻⁵。",
+              "evidenceLevel": "direct",
+              "evidenceReferences": [
+                {
+                  "quote": "Classical pebble and core accretion theories face a severe challenge: they struggle to produce giant planets around low-mass M dwarfs, whose protoplanetary disks contain insufficient material. Yet, discoveries of such systems continue to mount. We propose flyby-induced second accretion (FISA), a new formation channel in which an M dwarf already hosting a terrestrial planet flies through a younger star's protoplanetary disk, capturing gas and dust to build a second-generation disk.",
+                  "source": "abstract",
+                  "locator": "全文"
+                },
+                {
+                  "quote": "We performed hydrodynamic and core-accretion simulations to show that, under favorable encounter geometries, protoplanets around M dwarfs can grow into gas giants via this two-stage process.",
+                  "source": "abstract",
+                  "locator": "全文"
+                },
+                {
+                  "quote": "We apply the FISA framework to TOI-6894 b, a 0.168 Jupiter-mass planet orbiting a 0.207 solar-mass star at just 0.026 au, showing that it is a plausible outcome of such a flyby.",
+                  "source": "abstract",
+                  "locator": "全文"
+                },
+                {
+                  "quote": "An order-of-magnitude estimation shows that the probability for a close-in gas giant to form in an M dwarf system via the proposed disk-flyby mechanism is roughly 3 × 10 −5 .",
+                  "source": "abstract",
+                  "locator": "全文"
+                }
+              ]
+            },
+            "innovations": [
+              {
+                "text": "提出飞掠诱导的二次吸积（FISA）这一全新的行星形成通道，即已拥有类地行星的M矮星通过飞掠年轻恒星的原行星盘捕获物质，形成第二代盘。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "We propose flyby-induced second accretion (FISA), a new formation channel in which an M dwarf already hosting a terrestrial planet flies through a younger star's protoplanetary disk, capturing gas and dust to build a second-generation disk.",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "建立了两阶段形成机制：原有类地行星在第二代补充物质库中重新进行卵石和气体吸积，并内迁成为近距离巨行星。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "The preexisting planet then undergoes renewed pebble and gas accretion within this replenished reservoir and migrates inward to become a close-in giant.",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "将FISA框架具体应用于TOI-6894 b系统，展示该机制对实际观测系统的解释力。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "We apply the FISA framework to TOI-6894 b, a 0.168 Jupiter-mass planet orbiting a 0.207 solar-mass star at just 0.026 au, showing that it is a plausible outcome of such a flyby.",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              }
+            ],
+            "limitations": [
+              {
+                "text": "模拟结果依赖于\"有利的 encounter geometries（遭遇几何构型）\"，暗示该机制仅在特定条件下有效，普适性可能受限。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "under favorable encounter geometries",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "形成概率的数量级估算极低（约3×10⁻⁵），表明该机制在M矮星系统中可能是稀有事件，难以解释所有观测到的M矮星巨行星。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "An order-of-magnitude estimation shows that the probability for a close-in gas giant to form in an M dwarf system via the proposed disk-flyby mechanism is roughly 3 × 10 −5 .",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "摘要未明确说明模拟的具体参数范围、样本量或统计显著性，无法评估结果的稳健性。",
+                "evidenceLevel": "uncertain",
+                "evidenceReferences": [
+                  {
+                    "quote": "We performed hydrodynamic and core-accretion simulations",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "基于摘要无法判断该机制与其他替代解释（如盘不稳定模型、高金属丰度环境等）的比较优势。",
+                "evidenceLevel": "uncertain",
+                "evidenceReferences": [
+                  {
+                    "quote": "Classical pebble and core accretion theories face a severe challenge",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              }
+            ],
+            "readingAdvice": [
+              "建议阅读全文以获取模拟的具体参数设置、初始条件和 encounter geometries 的详细定义",
+              "需关注文中对3×10⁻⁵概率估算的方法论细节，包括假设前提和不确定性来源",
+              "建议对比该机制与其他M矮星巨行星形成模型（如盘不稳定、高金属丰度核吸积等）的预测差异",
+              "TOI-6894 b作为案例研究的具体匹配程度和参数约束值得深入考察",
+              "注意评估'有利几何构型'在实际星团环境中的发生频率是否与概率估算一致"
+            ],
+            "researchQuestion": {
+              "text": "如何解释M矮星周围巨行星的形成？传统卵石和核吸积理论因M矮星原行星盘物质不足而难以产生此类行星，但观测发现却持续增加，这一矛盾如何解决？",
+              "evidenceLevel": "direct",
+              "evidenceReferences": [
+                {
+                  "quote": "Classical pebble and core accretion theories face a severe challenge: they struggle to produce giant planets around low-mass M dwarfs, whose protoplanetary disks contain insufficient material. Yet, discoveries of such systems continue to mount.",
+                  "source": "abstract",
+                  "locator": "全文"
+                }
+              ]
+            },
+            "sourceDisclosure": "基于摘要解读",
+            "methodsAndEvidence": [
+              {
+                "text": "采用流体动力学模拟研究M矮星飞掠年轻恒星原行星盘时的物质捕获过程及第二代盘的形成。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "We performed hydrodynamic and core-accretion simulations to show that, under favorable encounter geometries, protoplanets around M dwarfs can grow into gas giants via this two-stage process.",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "采用核吸积模拟验证原有行星在第二代盘中重新吸积并成长为气体巨行星的过程。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "We performed hydrodynamic and core-accretion simulations to show that, under favorable encounter geometries, protoplanets around M dwarfs can grow into gas giants via this two-stage process.",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "通过数量级估算得出该机制在M矮星系统中形成近距离巨行星的概率约为3×10⁻⁵。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "An order-of-magnitude estimation shows that the probability for a close-in gas giant to form in an M dwarf system via the proposed disk-flyby mechanism is roughly 3 × 10 −5 .",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              }
+            ]
+          },
+          "status": "COMPLETE",
+          "provider": "kimi",
+          "model": "kimi-k2.6",
+          "promptVersion": "interpret-v1",
+          "createdAt": "2026-09-01T15:31:14.967+00:00",
+          "updatedAt": "2026-09-01T15:31:14.967+00:00"
+        }
+      ],
+      "screenings": [
+        {
+          "id": "ebfab878-0f89-42e2-9243-79190f5b5a45",
+          "paperId": "0e5630a9-5187-41c3-ad83-a68d3e1333a7",
+          "score": 0.8,
+          "directionSlug": "astrophysics",
+          "reason": "飞掠诱导二次吸积解决M矮星巨行星形成难题",
+          "selected": true,
+          "batchId": "screen-batch:2026-08-30T22:00:00.000Z|2026-08-31T22:00:00.000Z|0|15:kimi-k2.6:screen-v1",
+          "provider": "kimi",
+          "model": "kimi-k2.6",
+          "promptVersion": "screen-v1",
+          "createdAt": "2026-09-01T15:30:10.677+00:00"
+        }
+      ],
+      "sources": [
+        {
+          "sourceName": "openalex",
+          "sourceRecordId": "W7204828766"
+        }
+      ]
+    },
+    {
+      "id": "03fcf157-7b3a-45ad-a761-f3eee61b7ea4",
+      "doi": "10.1186/s43593-026-00141-0",
+      "title": "Light-driven molecular reorientation for large-scale photonic in-memory computing",
+      "abstract": "Abstract Photonics has the potential to transform high-speed and energy-efficient artificial intelligence. However, most photonic computing platforms still rely on costly electro-optic conversions for data input, weight loading and storage, resulting in substantial overhead during large-scale computation. Here, we present a large-scale photonic in-memory computing platform based on liquid crystal (LC)-enabled Poincaré-sphere-connected neural networks. Megabyte-level nonvolatile photonic memory is introduced through light-driven reorientation of sulfonic azo-dye and LC molecules, which also functions as the reconfigurable optical neurons. This architecture uniquely integrates optical sensing, memory, and computing in situ, allowing minimal data-movement overheads in various switchable machine vision tasks. Ultrahigh scalability is demonstrated by a 9.44-million-neuron photonic processor array that supports massively parallel optical computing, recording and retrieval, providing a memory capacity 100,000 times larger than state-of-the-art photonic in-memory computing. This work offers a novel pathway toward scalable submicrometer-precision photonic memory, thus establishing a new paradigm for physical neural networks and brain-like artificial intelligence.",
+      "journal": "eLight",
+      "publishedAt": "2026-08-31T00:00:00+00:00",
+      "originalUrl": "https://doi.org/10.1186/s43593-026-00141-0",
+      "accessStatus": "OPEN",
+      "classifications": [
+        {
+          "id": "e7681754-bf28-4da9-a7db-09bd35cbe64d",
+          "paperId": "03fcf157-7b3a-45ad-a761-f3eee61b7ea4",
+          "tagSlug": "amo-optics",
+          "relevance": 0.78,
+          "reason": "光驱动分子重取向实现大规模光子存内计算",
+          "model": "kimi-k2.6",
+          "promptVersion": "classify-v1",
+          "createdAt": "2026-09-01T15:38:46.030045+00:00"
+        }
+      ],
+      "interpretations": [
+        {
+          "id": "b3b6da85-0676-47d1-957e-76d1e628a249",
+          "paperId": "03fcf157-7b3a-45ad-a761-f3eee61b7ea4",
+          "content": {
+            "basis": "abstract_only",
+            "overviewZh": {
+              "text": "本文提出了一种基于液晶（LC）的庞加莱球连接神经网络的大规模光子存内计算平台。该平台利用光驱动的磺酸偶氮染料和液晶分子重取向实现兆字节级非易失性光子存储，同时充当可重构光学神经元。该架构将光学传感、存储和计算原位集成，在多种可切换机器视觉任务中实现最小化的数据移动开销。研究展示了944万神经元的光子处理器阵列，支持大规模并行光学计算、记录和检索，存储容量比现有最先进光子存内计算大10万倍。",
+              "evidenceLevel": "direct",
+              "evidenceReferences": [
+                {
+                  "quote": "Here, we present a large-scale photonic in-memory computing platform based on liquid crystal (LC)-enabled Poincaré-sphere-connected neural networks. Megabyte-level nonvolatile photonic memory is introduced through light-driven reorientation of sulfonic azo-dye and LC molecules, which also functions as the reconfigurable optical neurons.",
+                  "source": "abstract",
+                  "locator": "全文"
+                },
+                {
+                  "quote": "Ultrahigh scalability is demonstrated by a 9.44-million-neuron photonic processor array that supports massively parallel optical computing, recording and retrieval, providing a memory capacity 100,000 times larger than state-of-the-art photonic in-memory computing.",
+                  "source": "abstract",
+                  "locator": "全文"
+                }
+              ]
+            },
+            "innovations": [
+              {
+                "text": "提出基于液晶的庞加莱球连接神经网络架构，实现光学传感、存储和计算的原位集成。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "This architecture uniquely integrates optical sensing, memory, and computing in situ, allowing minimal data-movement overheads in various switchable machine vision tasks.",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "利用光驱动的磺酸偶氮染料和液晶分子重取向实现兆字节级非易失性光子存储，且该存储同时充当可重构光学神经元，实现存储与计算功能的融合。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "Megabyte-level nonvolatile photonic memory is introduced through light-driven reorientation of sulfonic azo-dye and LC molecules, which also functions as the reconfigurable optical neurons.",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "实现了944万神经元的光子处理器阵列，存储容量达到现有最先进光子存内计算的10万倍。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "Ultrahigh scalability is demonstrated by a 9.44-million-neuron photonic processor array that supports massively parallel optical computing, recording and retrieval, providing a memory capacity 100,000 times larger than state-of-the-art photonic in-memory computing.",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              }
+            ],
+            "limitations": [
+              {
+                "text": "摘要未提供具体的能效对比数据（如每操作能耗）、速度指标（如吞吐量或延迟）、或与传统电子计算的详细性能比较。",
+                "evidenceLevel": "uncertain",
+                "evidenceReferences": [
+                  {
+                    "quote": "摘要未提及具体能效数值或速度指标",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "分子重取向的响应时间、循环耐久性、以及长期稳定性等关键可靠性参数在摘要中未明确说明。",
+                "evidenceLevel": "uncertain",
+                "evidenceReferences": [
+                  {
+                    "quote": "摘要未涉及响应时间或耐久性数据",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "可切换机器视觉任务的具体类型、数据集、识别准确率等任务级性能指标在摘要中未披露。",
+                "evidenceLevel": "uncertain",
+                "evidenceReferences": [
+                  {
+                    "quote": "various switchable machine vision tasks",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "与电光转换方案相比，实际节省的系统级能耗比例和成本降低幅度缺乏定量数据支持。",
+                "evidenceLevel": "uncertain",
+                "evidenceReferences": [
+                  {
+                    "quote": "resulting in substantial overhead...minimal data-movement overheads",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              }
+            ],
+            "readingAdvice": [
+              "需阅读全文以获取具体的能效指标（如每操作焦耳数）、计算速度（如TOPS/W或帧率）及与传统电子/光子系统的定量对比。",
+              "建议关注光驱动分子重取向的物理机制细节，包括写入光功率、响应时间、循环次数及热稳定性等关键参数。",
+              "需核实944万神经元阵列的具体物理实现方式（如芯片面积、集成密度）和实验验证程度（仿真或实测）。",
+              "建议了解可切换机器视觉任务的具体应用场景、测试数据集及任务精度，以评估实际应用价值。",
+              "注意该论文发表于未来日期（2026-08-31），可能为预印本或提前发布版本，需确认是否为最终同行评审版本。"
+            ],
+            "researchQuestion": {
+              "text": "如何克服现有光子计算平台依赖昂贵电光转换进行数据输入、权重加载和存储所导致的巨大开销，实现大规模、高能效的光子存内计算？",
+              "evidenceLevel": "inferred",
+              "evidenceReferences": [
+                {
+                  "quote": "However, most photonic computing platforms still rely on costly electro-optic conversions for data input, weight loading and storage, resulting in substantial overhead during large-scale computation.",
+                  "source": "abstract",
+                  "locator": "开头"
+                }
+              ]
+            },
+            "sourceDisclosure": "基于摘要解读",
+            "methodsAndEvidence": [
+              {
+                "text": "采用光驱动分子重取向技术，通过磺酸偶氮染料和液晶分子的重取向实现非易失性光子存储。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "Megabyte-level nonvolatile photonic memory is introduced through light-driven reorientation of sulfonic azo-dye and LC molecules",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "构建了庞加莱球连接神经网络架构，将存储单元同时作为可重构光学神经元使用。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "based on liquid crystal (LC)-enabled Poincaré-sphere-connected neural networks...which also functions as the reconfigurable optical neurons",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "通过944万神经元阵列展示超大规模可扩展性和大规模并行光学计算、记录与检索能力。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "Ultrahigh scalability is demonstrated by a 9.44-million-neuron photonic processor array that supports massively parallel optical computing, recording and retrieval",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "在多种可切换机器视觉任务中验证了最小化数据移动开销的优势。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "allowing minimal data-movement overheads in various switchable machine vision tasks",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              }
+            ]
+          },
+          "status": "COMPLETE",
+          "provider": "kimi",
+          "model": "kimi-k2.6",
+          "promptVersion": "interpret-v1",
+          "createdAt": "2026-09-01T15:31:51.407+00:00",
+          "updatedAt": "2026-09-01T15:31:51.407+00:00"
+        }
+      ],
+      "screenings": [
+        {
+          "id": "455844df-0be9-4441-9698-ae360b4c282a",
+          "paperId": "03fcf157-7b3a-45ad-a761-f3eee61b7ea4",
+          "score": 0.78,
+          "directionSlug": "amo-optics",
+          "reason": "光驱动分子重取向实现大规模光子存内计算",
+          "selected": true,
+          "batchId": "screen-batch:2026-08-30T22:00:00.000Z|2026-08-31T22:00:00.000Z|0|15:kimi-k2.6:screen-v1",
+          "provider": "kimi",
+          "model": "kimi-k2.6",
+          "promptVersion": "screen-v1",
+          "createdAt": "2026-09-01T15:30:10.654+00:00"
+        }
+      ],
+      "sources": [
+        {
+          "sourceName": "openalex",
+          "sourceRecordId": "W7204805235"
+        }
+      ]
+    },
+    {
+      "id": "0b7383b2-462e-4210-ae13-3644fda22a76",
+      "doi": "10.1002/lpor.71822",
+      "title": "On‐Chip Erbium‐Doped Tantalum Oxide Single‐Mode Laser via Photonic Damascene Process",
+      "abstract": "ABSTRACT We demonstrate a monolithic singlemode erbium‐doped tantalum oxide laser fabricated on an oxidized silicon substrate. Using an optimized photonic Damascene process to bypass the scattering losses of direct active‐film dry etching, the gain medium achieves a background propagation loss of 0.36 dB/cm (measured outside the Er 3+ absorption band). The device comprises a microring resonator symmetrically coupled to a macroscopic U‐shaped feedback waveguide, enabling strict longitudinal mode selection via the Vernier effect. Under non‐resonant 1480 nm pumping, the laser operates at ∼1556 nm at room temperature with a threshold of ∼3.3 mW, a slope efficiency of 0.3%, and a side‐mode suppression ratio of 53.5 dB. Temperature‐dependent measurements from 18°C to 68°C reveal stable single‐mode tuning, continuous intra‐band redshifts, and macroscopic mode‐hopping, which are well described by a transfer matrix method model. This architecture provides a scalable, low‐loss platform for high‐purity rare‐earth light sources and active‐passive integration on tantalum oxide.",
+      "journal": "Laser & Photonics Review",
+      "publishedAt": "2026-08-31T00:00:00+00:00",
+      "originalUrl": "https://doi.org/10.1002/lpor.71822",
+      "accessStatus": "UNKNOWN",
+      "classifications": [
+        {
+          "id": "7beccd68-ae60-4113-bf81-544804b15a33",
+          "paperId": "0b7383b2-462e-4210-ae13-3644fda22a76",
+          "tagSlug": "amo-optics",
+          "relevance": 0.75,
+          "reason": "光子大马士革工艺实现片上铒掺杂单模激光器",
+          "model": "kimi-k2.6",
+          "promptVersion": "classify-v1",
+          "createdAt": "2026-09-01T15:38:46.030045+00:00"
+        }
+      ],
+      "interpretations": [
+        {
+          "id": "65ac1103-e2b2-4279-81f5-9db215d2f2d4",
+          "paperId": "0b7383b2-462e-4210-ae13-3644fda22a76",
+          "content": {
+            "basis": "abstract_only",
+            "overviewZh": {
+              "text": "本研究展示了一种基于氧化钽（Ta₂O₅）的单模掺铒（Er³⁺）片上激光器，采用光子大马士革工艺（photonic Damascene process）在氧化硅衬底上单片集成。该器件通过微环谐振腔与宏观U形反馈波导的对称耦合结构，利用游标效应（Vernier effect）实现严格的纵模选择，在1480 nm非共振泵浦下于室温实现~1556 nm单模激光输出，具有53.5 dB的边模抑制比和~3.3 mW的阈值功率。",
+              "evidenceLevel": "direct",
+              "evidenceReferences": [
+                {
+                  "quote": "We demonstrate a monolithic singlemode erbium-doped tantalum oxide laser fabricated on an oxidized silicon substrate",
+                  "source": "abstract",
+                  "locator": "全文"
+                },
+                {
+                  "quote": "The device comprises a microring resonator symmetrically coupled to a macroscopic U-shaped feedback waveguide, enabling strict longitudinal mode selection via the Vernier effect",
+                  "source": "abstract",
+                  "locator": "器件结构描述"
+                },
+                {
+                  "quote": "Under non-resonant 1480 nm pumping, the laser operates at ~1556 nm at room temperature with a threshold of ~3.3 mW, a slope efficiency of 0.3%, and a side-mode suppression ratio of 53.5 dB",
+                  "source": "abstract",
+                  "locator": "激光性能参数"
+                }
+              ]
+            },
+            "innovations": [
+              {
+                "text": "采用优化的光子大马士革工艺替代直接有源薄膜干法刻蚀，将背景传播损耗降低至0.36 dB/cm（在Er³⁺吸收带外测量）。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "Using an optimized photonic Damascene process to bypass the scattering losses of direct active-film dry etching, the gain medium achieves a background propagation loss of 0.36 dB/cm (measured outside the Er³⁺ absorption band)",
+                    "source": "abstract",
+                    "locator": "工艺创新"
+                  }
+                ]
+              },
+              {
+                "text": "提出微环谐振腔与宏观U形反馈波导对称耦合的新型架构，利用游标效应实现严格的纵模选择，获得53.5 dB的高边模抑制比。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "The device comprises a microring resonator symmetrically coupled to a macroscopic U-shaped feedback waveguide, enabling strict longitudinal mode selection via the Vernier effect",
+                    "source": "abstract",
+                    "locator": "器件结构与选模机制"
+                  },
+                  {
+                    "quote": "side-mode suppression ratio of 53.5 dB",
+                    "source": "abstract",
+                    "locator": "激光性能"
+                  }
+                ]
+              }
+            ],
+            "limitations": [
+              {
+                "text": "斜率效率较低（0.3%），可能受限于泵浦方式（非共振泵浦）或材料体系的量子效率。",
+                "evidenceLevel": "inferred",
+                "evidenceReferences": [
+                  {
+                    "quote": "a slope efficiency of 0.3%",
+                    "source": "abstract",
+                    "locator": "效率参数"
+                  },
+                  {
+                    "quote": "Under non-resonant 1480 nm pumping",
+                    "source": "abstract",
+                    "locator": "泵浦条件"
+                  }
+                ]
+              },
+              {
+                "text": "温度范围限于18°C–68°C，更高温度或更宽温度范围内的长期稳定性未在摘要中报道。",
+                "evidenceLevel": "inferred",
+                "evidenceReferences": [
+                  {
+                    "quote": "Temperature-dependent measurements from 18°C to 68°C",
+                    "source": "abstract",
+                    "locator": "温度范围"
+                  }
+                ]
+              },
+              {
+                "text": "摘要未提供器件的具体尺寸（微环半径、U形波导长度等）、掺铒浓度、以及输出耦合效率等关键工艺参数。",
+                "evidenceLevel": "uncertain",
+                "evidenceReferences": [
+                  {
+                    "quote": "摘要未明确提及上述具体参数",
+                    "source": "abstract",
+                    "locator": "信息缺失"
+                  }
+                ]
+              },
+              {
+                "text": "基于摘要解读，无法评估该大马士革工艺在大规模制造中的重复性、良率及与CMOS工艺的兼容性细节。",
+                "evidenceLevel": "uncertain",
+                "evidenceReferences": [
+                  {
+                    "quote": "This architecture provides a scalable, low-loss platform",
+                    "source": "abstract",
+                    "locator": "可扩展性声明"
+                  }
+                ]
+              }
+            ],
+            "readingAdvice": [
+              "建议阅读全文以获取光子大马士革工艺的具体流程参数（如化学机械抛光条件、沟槽填充特性等）和详细的器件几何尺寸。",
+              "需关注传输矩阵法模型的具体构建方式及其对游标效应选模机制的定量描述，以理解模式跳变的物理机制。",
+              "建议进一步了解该激光器与氧化钽无源器件的集成方案，评估其在实际光通信或传感系统中的适用性。",
+              "由于斜率效率仅0.3%，建议关注全文是否讨论了效率优化的潜在途径（如共振泵浦、优化掺铒浓度或改进耦合结构）。",
+              "温度特性中的'宏观模式跳变'（macroscopic mode-hopping）可能影响实际应用，建议阅读全文了解其对波长稳定性的具体影响及抑制策略。"
+            ],
+            "researchQuestion": {
+              "text": "如何在氧化钽平台上实现低损耗、高纯度的单片集成单模稀土掺杂激光器，同时避免直接干法刻蚀有源薄膜带来的散射损耗？",
+              "evidenceLevel": "inferred",
+              "evidenceReferences": [
+                {
+                  "quote": "Using an optimized photonic Damascene process to bypass the scattering losses of direct active-film dry etching",
+                  "source": "abstract",
+                  "locator": "研究动机与方法"
+                },
+                {
+                  "quote": "This architecture provides a scalable, low-loss platform for high-purity rare-earth light sources and active-passive integration on tantalum oxide",
+                  "source": "abstract",
+                  "locator": "应用前景"
+                }
+              ]
+            },
+            "sourceDisclosure": "基于摘要解读",
+            "methodsAndEvidence": [
+              {
+                "text": "器件制备：采用光子大马士革工艺在氧化硅衬底上制备单片集成的掺铒氧化钽激光器。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "We demonstrate a monolithic singlemode erbium-doped tantalum oxide laser fabricated on an oxidized silicon substrate. Using an optimized photonic Damascene process",
+                    "source": "abstract",
+                    "locator": "制备方法"
+                  }
+                ]
+              },
+              {
+                "text": "损耗表征：在Er³⁺吸收带外测量得到背景传播损耗为0.36 dB/cm。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "the gain medium achieves a background propagation loss of 0.36 dB/cm (measured outside the Er³⁺ absorption band)",
+                    "source": "abstract",
+                    "locator": "损耗数据"
+                  }
+                ]
+              },
+              {
+                "text": "激光性能测试：在1480 nm非共振泵浦下，于室温测得激光波长~1556 nm，阈值~3.3 mW，斜率效率0.3%，边模抑制比53.5 dB。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "Under non-resonant 1480 nm pumping, the laser operates at ~1556 nm at room temperature with a threshold of ~3.3 mW, a slope efficiency of 0.3%, and a side-mode suppression ratio of 53.5 dB",
+                    "source": "abstract",
+                    "locator": "激光性能参数"
+                  }
+                ]
+              },
+              {
+                "text": "温度特性研究：在18°C至68°C范围内进行温度依赖测量，观察到稳定的单模调谐、连续带内红移和宏观模式跳变现象。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "Temperature-dependent measurements from 18°C to 68°C reveal stable single-mode tuning, continuous intra-band redshifts, and macroscopic mode-hopping",
+                    "source": "abstract",
+                    "locator": "温度特性"
+                  }
+                ]
+              },
+              {
+                "text": "理论建模：采用传输矩阵法（transfer matrix method）模型对温度依赖特性进行描述和验证。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "which are well described by a transfer matrix method model",
+                    "source": "abstract",
+                    "locator": "理论模型"
+                  }
+                ]
+              }
+            ]
+          },
+          "status": "COMPLETE",
+          "provider": "kimi",
+          "model": "kimi-k2.6",
+          "promptVersion": "interpret-v1",
+          "createdAt": "2026-09-01T15:33:15.407+00:00",
+          "updatedAt": "2026-09-01T15:33:15.407+00:00"
+        }
+      ],
+      "screenings": [
+        {
+          "id": "b2bac5fc-93b2-4d5b-a97e-1d359b7f9655",
+          "paperId": "0b7383b2-462e-4210-ae13-3644fda22a76",
+          "score": 0.75,
+          "directionSlug": "amo-optics",
+          "reason": "光子大马士革工艺实现片上铒掺杂单模激光器",
+          "selected": true,
+          "batchId": "screen-batch:2026-08-30T22:00:00.000Z|2026-08-31T22:00:00.000Z|0|15:kimi-k2.6:screen-v1",
+          "provider": "kimi",
+          "model": "kimi-k2.6",
+          "promptVersion": "screen-v1",
+          "createdAt": "2026-09-01T15:30:10.672+00:00"
+        }
+      ],
+      "sources": [
+        {
+          "sourceName": "openalex",
+          "sourceRecordId": "W7204760610"
+        }
+      ]
+    },
+    {
+      "id": "148eef49-6e0c-4ee4-b5a0-90aec1f4b484",
+      "doi": "10.1093/mnras/stag1623",
+      "title": "On the collimation properties of jets with finite Poynting flux launched from Keplerian accretion discs",
+      "abstract": "Abstract It is generally accepted that the launching of astrophysical jets requires a large-scale magnetic field threading a central object (black hole or star) and/or its surrounding accretion disc. However, the collimation mechanism far away from the central object has not yet been fully understood. In a previous work we investigated a mechanism in which the jet is self-collimated due to a dominant hoop stress. We ran numerical simulations in which a Jet-Emitting Disc (JED) spanned the entire lower computational boundary. Those were the first of their kind to showcase the steady recollimation shocks predicted by steady-state analytical studies of jets. However, as the jet filled the entire simulation domain, the influence of the outer medium could not be examined. Here, we perform a set of axisymmetric ideal magnetohydrodynamic (MHD) non-relativistic jet simulations where only the innermost region of the accretion disc is a jet-launching zone. The jets of finite radial extent in those simulations also produce steady recollimation shocks at large distances from the central object. Standing recollimation shocks are not a bias of self-similarity, but a generic feature of jets emitted from magnetized Keplerian accretion discs. They may produce observable features, such as standing emission knots, a decrease of the rotation rate or a change in polarisation. We also recover previous results on the influence of external pressure on jet confinement, such as the relation between pressure profile and jet shape, as well as jet acceleration efficiency.",
+      "journal": "Monthly Notices of the Royal Astronomical Society",
+      "publishedAt": "2026-08-31T00:00:00+00:00",
+      "originalUrl": "https://doi.org/10.1093/mnras/stag1623",
+      "accessStatus": "OPEN",
+      "classifications": [
+        {
+          "id": "3d5d760b-c71b-4f74-ad9e-570433fa4cb0",
+          "paperId": "148eef49-6e0c-4ee4-b5a0-90aec1f4b484",
+          "tagSlug": "astrophysics",
+          "relevance": 0.72,
+          "reason": "MNRAS期刊，喷流准直性与Poynting通量机制有理论新意",
+          "model": "kimi-k2.6",
+          "promptVersion": "classify-v1",
+          "createdAt": "2026-09-01T15:38:46.030045+00:00"
+        }
+      ],
+      "interpretations": [
+        {
+          "id": "ecb5c6f4-debb-4f58-baca-6f04b904360f",
+          "paperId": "148eef49-6e0c-4ee4-b5a0-90aec1f4b484",
+          "content": {
+            "basis": "abstract_only",
+            "overviewZh": {
+              "text": "本研究通过轴对称理想磁流体动力学（MHD）模拟，探讨了从开普勒吸积盘发射的具有有限坡印廷通量的喷流的准直特性。研究发现，稳态再准直激波是磁化开普勒吸积盘发射喷流的普遍特征，而非自相似性的偏置结果，这些激波可能产生可观测特征。",
+              "evidenceLevel": "direct",
+              "evidenceReferences": [
+                {
+                  "quote": "Here, we perform a set of axisymmetric ideal magnetohydrodynamic (MHD) non-relativistic jet simulations where only the innermost region of the accretion disc is a jet-launching zone.",
+                  "source": "abstract",
+                  "locator": "全文"
+                },
+                {
+                  "quote": "Standing recollimation shocks are not a bias of self-similarity, but a generic feature of jets emitted from magnetized Keplerian accretion discs.",
+                  "source": "abstract",
+                  "locator": "全文"
+                },
+                {
+                  "quote": "They may produce observable features, such as standing emission knots, a decrease of the rotation rate or a change in polarisation.",
+                  "source": "abstract",
+                  "locator": "全文"
+                }
+              ]
+            },
+            "innovations": [
+              {
+                "text": "首次在有限径向范围的喷流模拟中证实稳态再准直激波的存在，表明该现象不是自相似性假设的偏置结果，而是磁化开普勒吸积盘喷流的普遍特征。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "The jets of finite radial extent in those simulations also produce steady recollimation shocks at large distances from the central object.",
+                    "source": "abstract",
+                    "locator": "全文"
+                  },
+                  {
+                    "quote": "Standing recollimation shocks are not a bias of self-similarity, but a generic feature of jets emitted from magnetized Keplerian accretion discs.",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "将喷流发射区从整个吸积盘（JED）缩小至最内层区域，从而能够考察外部介质对喷流的影响。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "Those were the first of their kind to showcase the steady recollimation shocks predicted by steady-state analytical studies of jets. However, as the jet filled the entire simulation domain, the influence of the outer medium could not be examined.",
+                    "source": "abstract",
+                    "locator": "全文"
+                  },
+                  {
+                    "quote": "Here, we perform a set of axisymmetric ideal magnetohydrodynamic (MHD) non-relativistic jet simulations where only the innermost region of the accretion disc is a jet-launching zone.",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              }
+            ],
+            "limitations": [
+              {
+                "text": "模拟采用非相对论MHD框架，未考虑相对论效应，可能限制对极端相对论性喷流的适用性。",
+                "evidenceLevel": "inferred",
+                "evidenceReferences": [
+                  {
+                    "quote": "non-relativistic jet simulations",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "模拟为轴对称理想MHD，未包含耗散效应（如电阻、黏性）或非轴对称不稳定性。",
+                "evidenceLevel": "inferred",
+                "evidenceReferences": [
+                  {
+                    "quote": "axisymmetric ideal magnetohydrodynamic (MHD)",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "摘要未明确说明模拟的具体参数范围（如磁场强度、吸积盘参数等）和数值分辨率。",
+                "evidenceLevel": "uncertain",
+                "evidenceReferences": [
+                  {
+                    "quote": "摘要未提供具体参数细节",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "关于可观测特征（如发射结、旋转速率变化、偏振变化）的预测基于定性推断，未给出定量光度或偏振计算。",
+                "evidenceLevel": "inferred",
+                "evidenceReferences": [
+                  {
+                    "quote": "They may produce observable features, such as standing emission knots, a decrease of the rotation rate or a change in polarisation.",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              }
+            ],
+            "readingAdvice": [
+              "如需了解稳态再准直激波的详细物理机制和数值实现，需阅读全文及引用的先前工作。",
+              "如需将结果应用于具体观测解释（如活动星系核或年轻恒星天体中的喷流结），需关注全文中的定量预测和辐射转移计算。",
+              "若研究相对论性喷流，需注意本模拟的非相对论限制，并对比相关相对论MHD研究。"
+            ],
+            "researchQuestion": {
+              "text": "天体物理喷流在远离中心天体处的准直机制尚未被完全理解。本研究具体探讨：当喷流发射区仅为吸积盘最内层区域（而非整个盘面）时，有限径向范围的喷流是否仍能产生稳态再准直激波，以及外部介质对喷流的影响如何。",
+              "evidenceLevel": "direct",
+              "evidenceReferences": [
+                {
+                  "quote": "However, the collimation mechanism far away from the central object has not yet been fully understood.",
+                  "source": "abstract",
+                  "locator": "开头部分"
+                },
+                {
+                  "quote": "However, as the jet filled the entire simulation domain, the influence of the outer medium could not be examined.",
+                  "source": "abstract",
+                  "locator": "中间部分"
+                },
+                {
+                  "quote": "Here, we perform a set of axisymmetric ideal magnetohydrodynamic (MHD) non-relativistic jet simulations where only the innermost region of the accretion disc is a jet-launching zone.",
+                  "source": "abstract",
+                  "locator": "中间部分"
+                }
+              ]
+            },
+            "sourceDisclosure": "基于摘要解读",
+            "methodsAndEvidence": [
+              {
+                "text": "采用轴对称理想磁流体动力学（MHD）非相对论数值模拟方法。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "Here, we perform a set of axisymmetric ideal magnetohydrodynamic (MHD) non-relativistic jet simulations",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "模拟设置中，仅吸积盘最内层区域作为喷流发射区，喷流具有有限径向范围。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "where only the innermost region of the accretion disc is a jet-launching zone. The jets of finite radial extent in those simulations",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "模拟结果显示喷流在远离中心天体处产生稳态再准直激波。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "The jets of finite radial extent in those simulations also produce steady recollimation shocks at large distances from the central object.",
+                    "source": "abstract",
+                    "locator": "全文"
+                  }
+                ]
+              },
+              {
+                "text": "研究恢复了关于外部压力对喷流约束影响的先前结果，包括压力轮廓与喷流形状的关系，以及喷流加速效率。",
+                "evidenceLevel": "direct",
+                "evidenceReferences": [
+                  {
+                    "quote": "We also recover previous results on the influence of external pressure on jet confinement, such as the relation between pressure profile and jet shape, as well as jet acceleration efficiency.",
+                    "source": "abstract",
+                    "locator": "末尾"
+                  }
+                ]
+              }
+            ]
+          },
+          "status": "COMPLETE",
+          "provider": "kimi",
+          "model": "kimi-k2.6",
+          "promptVersion": "interpret-v1",
+          "createdAt": "2026-09-01T15:34:46.219+00:00",
+          "updatedAt": "2026-09-01T15:34:46.219+00:00"
+        }
+      ],
+      "screenings": [
+        {
+          "id": "7b66ef27-30cc-4ff7-9270-99782dc29353",
+          "paperId": "148eef49-6e0c-4ee4-b5a0-90aec1f4b484",
+          "score": 0.72,
+          "directionSlug": "astrophysics",
+          "reason": "MNRAS期刊，喷流准直性与Poynting通量机制有理论新意",
+          "selected": true,
+          "batchId": "screen-batch:2026-08-30T22:00:00.000Z|2026-08-31T22:00:00.000Z|1|9:kimi-k2.6:screen-v1",
+          "provider": "kimi",
+          "model": "kimi-k2.6",
+          "promptVersion": "screen-v1",
+          "createdAt": "2026-09-01T15:30:25.825+00:00"
+        }
+      ],
+      "sources": [
+        {
+          "sourceName": "openalex",
+          "sourceRecordId": "W7147564723"
+        }
+      ]
+    }
+  ]
+}

@@ -25,3 +25,10 @@ backups/
 # Local agent scratch state and Git worktrees
 /.superpowers/
 /.worktrees/
+/.workbuddy/
+/.tmp-*
+/fetch-test.mjs
+
+# Local evaluation scratch and raw API responses
+/docs/evaluation-runs/today-response-*.json
+/docs/evaluation-runs/scripts/
