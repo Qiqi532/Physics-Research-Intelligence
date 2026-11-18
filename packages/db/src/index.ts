@@ -1,4 +1,5 @@
 export { createPrismaClient, type DatabaseClient } from "./client";
+export { createDailyRepository, withDailyLock, type DailyRepository, type DailyRunInput, type DailyCheckpoint } from "./daily-repository";
 export {
   createModelSettingsCipher,
   defaultModelSettingsKeyPath,

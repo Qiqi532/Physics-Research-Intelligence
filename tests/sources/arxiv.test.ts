@@ -24,6 +24,14 @@ const atomFixture = `<?xml version="1.0" encoding="UTF-8"?>
 </feed>`;
 
 describe("arXiv connector", () => {
+  it("combines configured categories, topic phrases and the incremental date window", async () => {
+    const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(new Response(atomFixture));
+    await createArxivConnector({ fetchImpl, categories: ["physics.app-ph"], searchTerms: ["retinomorphic", "visual motion"], newestFirst: true })
+      .fetchPage({ from: new Date("2026-11-01"), until: new Date("2026-11-13"), pageSize: 50 });
+    const url = new URL(String(fetchImpl.mock.calls[0]?.[0]));
+    expect(url.searchParams.get("search_query")).toBe('(cat:physics.app-ph) AND (all:"retinomorphic" OR all:"visual motion") AND submittedDate:[202611010000 TO 202611130000]');
+    expect(url.searchParams.get("sortOrder")).toBe("descending");
+  });
   it("maps Atom metadata and advances an offset cursor", async () => {
     const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(
       new Response(atomFixture, { headers: { "Content-Type": "application/atom+xml" } }),

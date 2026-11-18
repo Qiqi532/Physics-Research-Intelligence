@@ -20,6 +20,8 @@ export type SourcePageRequest = {
 };
 
 export type SourcePage = {
+  limited?: boolean;
+  limitedReason?: "api_key_required_for_paging";
   records: PaperSourceInput[];
   nextCursor: string | null;
 };

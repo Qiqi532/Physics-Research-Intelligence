@@ -1,3 +1,4 @@
+import type { PublicResearchContext } from "@pri/domain/research-profile";
 import type {
   ClassificationOutput,
   InterpretationOutput,
@@ -53,6 +54,7 @@ export interface AiProvider {
   screenBatch(
     inputs: ScreenInput[],
     userInterests?: Record<string, number>,
+    researchContext?: PublicResearchContext,
   ): Promise<AiProviderResult<ScreenBatchOutput>>;
   healthCheck(): Promise<AiHealthResult>;
 }

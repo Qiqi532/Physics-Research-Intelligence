@@ -87,6 +87,45 @@ describe("health API service", () => {
     expect((result.body as any).components.worker).toEqual({ status: "disabled" });
     expect(dependencies.queue).not.toHaveBeenCalled();
   });
+
+  it("checks only PostgreSQL when Redis is disabled in local mode", async () => {
+    const dependencies = readyDependencies({
+      redis: vi.fn().mockRejectedValue(new Error("must not connect")),
+      queue: vi.fn().mockRejectedValue(new Error("must not inspect")),
+    });
+
+    const result = await createHealthApi(dependencies, {
+      redisRequired: false,
+      workerRequired: true,
+    }).ready();
+
+    expect(result.status).toBe(200);
+    expect(result.body).toEqual(expect.objectContaining({
+      components: {
+        postgres: { status: "ready" },
+        redis: { status: "disabled" },
+        queue: { status: "disabled" },
+        worker: { status: "disabled" },
+      },
+    }));
+    expect(dependencies.postgres).toHaveBeenCalledOnce();
+    expect(dependencies.redis).not.toHaveBeenCalled();
+    expect(dependencies.queue).not.toHaveBeenCalled();
+  });
+
+  it("still reports PostgreSQL failure without Redis in local mode", async () => {
+    const postgres = vi.fn().mockRejectedValue(new Error("private database detail"));
+    const result = await createHealthApi({ postgres }, { redisRequired: false }).ready();
+
+    expect(result.status).toBe(503);
+    expect(result.body).toEqual(expect.objectContaining({
+      components: expect.objectContaining({
+        postgres: { status: "not_ready", errorCode: "postgres_unavailable" },
+        redis: { status: "disabled" },
+      }),
+    }));
+    expect(JSON.stringify(result)).not.toContain("private database detail");
+  });
 });
 
 function readyDependencies(overrides: Record<string, unknown> = {}) {

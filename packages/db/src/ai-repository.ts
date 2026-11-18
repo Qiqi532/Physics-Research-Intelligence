@@ -38,6 +38,8 @@ export type ScreeningResultInput = {
   directionSlug: string;
   reason: string;
   selected: boolean;
+  evidenceSource?: "abstract" | "title";
+  evidenceQuote?: string;
 };
 
 export interface AiRepository {
@@ -60,6 +62,7 @@ export interface AiRepository {
     from: Date;
     until: Date;
     limit: number;
+    includeScreened?: boolean;
   }): Promise<SafePaperFacts[]>;
   listDailySelectionCandidates(input: {
     from: Date;
@@ -187,7 +190,7 @@ export function createAiRepository(client: DatabaseClient): AiRepository {
       const papers = await client.paper.findMany({
         where: {
           publishedAt: { gte: input.from, lte: input.until },
-          screenings: { none: {} },
+          ...(input.includeScreened ? {} : { screenings: { none: {} } }),
         },
         orderBy: [{ publishedAt: "asc" }, { id: "asc" }],
         take: input.limit,
@@ -505,6 +508,8 @@ export function createAiRepository(client: DatabaseClient): AiRepository {
             },
             create: {
               paperId: result.paperId,
+              evidenceSource: result.evidenceSource ?? null,
+              evidenceQuote: result.evidenceQuote ?? null,
               score: result.score,
               directionSlug: result.directionSlug,
               reason: result.reason,
@@ -515,6 +520,8 @@ export function createAiRepository(client: DatabaseClient): AiRepository {
               promptVersion: input.promptVersion,
             },
             update: {
+              evidenceSource: result.evidenceSource ?? null,
+              evidenceQuote: result.evidenceQuote ?? null,
               score: result.score,
               directionSlug: result.directionSlug,
               reason: result.reason,

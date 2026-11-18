@@ -1,132 +1,40 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ServerConfig } from "../../packages/domain/src/config";
-import type { RuntimeAiSnapshot } from "../../apps/worker/src/runtime-ai-config";
-
 const mocks = vi.hoisted(() => ({
-  screenPapers: vi.fn().mockResolvedValue({
-    status: "complete",
-    screened: 2,
-    selected: 1,
-    batches: 1,
-    failures: [],
-  }),
-  interpretPaper: vi.fn().mockResolvedValue({ status: "complete" }),
-  disconnect: vi.fn().mockResolvedValue(undefined),
-  runDailyPipeline: vi.fn(async (input: {
-    window: { key: string; from: Date; until: Date };
-    screen(window: { key: string; from: Date; until: Date }): Promise<unknown>;
-    listInterpretationPaperIds(window: { key: string; from: Date; until: Date }): Promise<string[]>;
-    interpret(id: string): Promise<unknown>;
-    prepareToday(window: { key: string; from: Date; until: Date }): Promise<unknown>;
-    markDelivered(window: { key: string; from: Date; until: Date }, paperIds: string[]): Promise<void>;
-  }) => {
-    await input.screen(input.window);
-    await input.interpret("paper-1");
-    return { status: "complete" };
-  }),
+  run: vi.fn(), disconnect: vi.fn(async () => undefined), client: {},
 }));
+vi.mock("../../packages/db/src/index", () => ({
+  createPrismaClient: vi.fn(() => ({ ...mocks.client, $disconnect: mocks.disconnect })),
+}));
+vi.mock("../../apps/worker/src/configured-research-daily", () => ({
+  runConfiguredResearchDaily: mocks.run,
+}));
+import { createConfiguredDailyProcessor, createTaskProviders, markDeliveredSelection, retentionCutoffAt }
+  from "../../apps/worker/src/configured-daily-processor";
 
-vi.mock("@pri/db", () => ({
-  createPrismaClient: vi.fn(() => ({
-    $disconnect: mocks.disconnect,
-    userInterest: { findMany: vi.fn().mockResolvedValue([]) },
-  })),
-  createPaperRepository: vi.fn(() => ({})),
-  createSourceSyncRepository: vi.fn(() => ({})),
-  createAiRepository: vi.fn(() => ({})),
-  createTodayRepository: vi.fn(() => ({})),
-}));
-vi.mock("@pri/sources", () => ({
-  createOpenAlexConnector: vi.fn(() => ({})),
-  createArxivConnector: vi.fn(() => ({})),
-  createCrossrefConnector: vi.fn(() => ({})),
-}));
-vi.mock("../../apps/worker/src/daily-pipeline", () => ({
-  runDailyPipeline: mocks.runDailyPipeline,
-}));
-vi.mock("../../apps/worker/src/jobs/screen-papers", () => ({
-  screenPapers: mocks.screenPapers,
-}));
-vi.mock("../../apps/worker/src/jobs/interpret-paper", () => ({
-  interpretPaper: mocks.interpretPaper,
-}));
-
-import {
-  createConfiguredDailyProcessor,
-  markDeliveredSelection,
-  retentionCutoffAt,
-} from "../../apps/worker/src/configured-daily-processor";
-
-describe("configured daily processor runtime routing", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it("resolves a fresh snapshot per batch and reuses providers within each batch", async () => {
-    const resolver = {
-      resolve: vi.fn()
-        .mockResolvedValueOnce(snapshot("model-a"))
-        .mockResolvedValueOnce(snapshot("model-b")),
-    };
-    const createProvider = vi.fn((input: { provider: string; model: string }) => ({
-      name: input.provider,
-      model: input.model,
-      classify: vi.fn(),
-      interpret: vi.fn(),
-      screenBatch: vi.fn(),
-      healthCheck: vi.fn(),
-    }));
-    const processor = createConfiguredDailyProcessor(config(), {
-      resolver,
-      createProvider,
-    });
-
-    await processor.process();
-    await processor.process();
+describe("configured daily processor lifecycle", () => {
+  beforeEach(() => vi.clearAllMocks());
+  it("exposes cleanup before fallible initialization and always delegates each execution", async () => {
+    mocks.run.mockRejectedValueOnce(new Error("initialization failed")).mockResolvedValueOnce({ recommendations: 1 });
+    const options = { now: () => new Date("2026-11-13T06:00:00Z") };
+    const processor = createConfiguredDailyProcessor(config(), options);
+    await expect(processor.process()).rejects.toThrow("initialization failed");
+    await expect(processor.process()).resolves.toEqual({ recommendations: 1 });
     await processor.close();
-
-    expect(resolver.resolve).toHaveBeenCalledTimes(2);
-    expect(createProvider.mock.calls.map(([value]) => value.model)).toEqual([
-      "model-a-classify",
-      "model-a-interpret",
-      "model-b-classify",
-      "model-b-interpret",
-    ]);
-    // Screening reuses the classify route.
-    const firstScreenCall = mocks.screenPapers.mock.calls[0]![0];
-    expect(firstScreenCall.primary.model).toBe("model-a-classify");
-    expect(mocks.screenPapers.mock.calls[1]![0].primary.model).toBe("model-b-classify");
-    expect(firstScreenCall).not.toHaveProperty("prices");
-    expect(mocks.interpretPaper.mock.calls[0]![0]).not.toHaveProperty("prices");
+    expect(mocks.disconnect).toHaveBeenCalledOnce();
+    expect(mocks.run).toHaveBeenCalledTimes(2);
+    expect(mocks.run.mock.calls[0]?.[2]).toBe(options);
   });
-
-  it("wires a retention-based pruneExpired step into the daily pipeline", async () => {
-    const processor = createConfiguredDailyProcessor(config(), {
-      resolver: {
-        resolve: vi.fn().mockResolvedValue(snapshot("model-a")),
-      },
-      createProvider: vi.fn(() => ({
-        name: "kimi",
-        model: "model-a",
-        classify: vi.fn(),
-        interpret: vi.fn(),
-        screenBatch: vi.fn(),
-        healthCheck: vi.fn(),
-      })),
-    });
-
-    const result = await processor.process();
-    await processor.close();
-
-    const deps = mocks.runDailyPipeline.mock.calls[0]![0];
-    expect(typeof deps.pruneExpired).toBe("function");
-    expect(typeof deps.prepareToday).toBe("function");
-    expect(typeof deps.markDelivered).toBe("function");
-    expect(typeof deps.listInterpretationPaperIds).toBe("function");
-    expect(typeof deps.screen).toBe("function");
-    expect(result).toEqual(expect.objectContaining({ status: "complete" }));
+  it("builds primary and fallback providers from one resolved route", () => {
+    const primary = { name: "main", provider: "deepseek" as const, model: "m1", apiKey: "fixture-only",
+      baseUrl: "https://fixture.invalid/v1", requestTimeoutMs: 30000 };
+    const createProvider = vi.fn((input) => ({ name: input.provider, model: input.model }));
+    const providers = createTaskProviders({ primary, fallback: { ...primary, model: "m2" }, maxOutputTokens: 2048 }, createProvider as never);
+    expect(providers.primary.model).toBe("m1");
+    expect(providers.fallback?.model).toBe("m2");
+    expect(createProvider).toHaveBeenCalledTimes(2);
+    expect(createProvider.mock.calls[0]?.[0]).toMatchObject({ maxOutputTokens: 2048, requestTimeoutMs: 30000 });
   });
-
   it("stamps selected papers at the explicit delivery boundary", async () => {
     const markScreeningsDelivered = vi.fn().mockResolvedValue({ count: 1 });
     const at = new Date("2026-08-30T06:00:00.000Z");
@@ -164,35 +72,10 @@ describe("configured daily processor runtime routing", () => {
   });
 });
 
-function snapshot(model: string): RuntimeAiSnapshot {
-  return {
-    source: "persisted",
-    classify: {
-      primary: connection(`${model}-classify`),
-      maxOutputTokens: 1_000,
-    },
-    interpret: {
-      primary: connection(`${model}-interpret`),
-      maxOutputTokens: 4_000,
-    },
-  };
-}
-
-function connection(model: string) {
-  return {
-    profileId: "11111111-1111-4111-8111-111111111111",
-    name: model,
-    provider: "kimi" as const,
-    model,
-    apiKey: ["batch", "test", "value"].join("-"),
-    baseUrl: "https://kimi.example.test/v1",
-    requestTimeoutMs: 30_000,
-  };
-}
-
 function config(deliveryRecencyDays = 30): ServerConfig {
   return {
     DATABASE_URL: "postgresql://fixture.invalid/pri",
+    RUNTIME_MODE: "local",
     REDIS_URL: "redis://fixture.invalid/0",
     PAPER_RETENTION_DAYS: 30,
     DAILY_PAPER_TARGET_MIN: 10,

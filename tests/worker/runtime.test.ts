@@ -15,7 +15,8 @@ describe("worker runtime", () => {
     const processDaily = vi.fn().mockResolvedValue({ windowKey: "2026-08-30" });
 
     const runtime = await startWorkerRuntime({
-      queue,
+      mode: "queue",
+      createQueue: () => queue,
       schedule: enabledConfig,
       createWorker: (nextProcessor) => {
         processor = nextProcessor;
@@ -42,7 +43,8 @@ describe("worker runtime", () => {
     const createWorker = vi.fn();
 
     const runtime = await startWorkerRuntime({
-      queue,
+      mode: "queue",
+      createQueue: () => queue,
       schedule: { ...enabledConfig, enabled: false },
       createWorker,
       processDaily: vi.fn(),
@@ -51,6 +53,56 @@ describe("worker runtime", () => {
     expect(queue.removeJobScheduler).toHaveBeenCalledOnce();
     expect(createWorker).not.toHaveBeenCalled();
     await runtime.close();
+    expect(queue.close).toHaveBeenCalledOnce();
+  });
+
+  it("does not create a queue, worker or daily processor in local mode", async () => {
+    const createQueue = vi.fn();
+    const createWorker = vi.fn();
+    const processDaily = vi.fn();
+
+    const runtime = await startWorkerRuntime({
+      mode: "local",
+      createQueue,
+      createWorker,
+      processDaily,
+      schedule: enabledConfig,
+    });
+    await runtime.close();
+
+    expect(createQueue).not.toHaveBeenCalled();
+    expect(createWorker).not.toHaveBeenCalled();
+    expect(processDaily).not.toHaveBeenCalled();
+  });
+
+  it("releases the queue if scheduler initialization fails", async () => {
+    const queue = fakeQueue();
+    queue.upsertJobScheduler.mockRejectedValueOnce(new Error("scheduler failed"));
+    const createWorker = vi.fn();
+
+    await expect(startWorkerRuntime({
+      mode: "queue",
+      createQueue: () => queue,
+      createWorker,
+      processDaily: vi.fn(),
+      schedule: enabledConfig,
+    })).rejects.toThrow("scheduler failed");
+
+    expect(queue.close).toHaveBeenCalledOnce();
+    expect(createWorker).not.toHaveBeenCalled();
+  });
+
+  it("releases the queue even if worker shutdown fails", async () => {
+    const queue = fakeQueue();
+    const runtime = await startWorkerRuntime({
+      mode: "queue",
+      createQueue: () => queue,
+      createWorker: () => ({ close: vi.fn().mockRejectedValue(new Error("close failed")) }),
+      processDaily: vi.fn(),
+      schedule: enabledConfig,
+    });
+
+    await expect(runtime.close()).rejects.toThrow("close failed");
     expect(queue.close).toHaveBeenCalledOnce();
   });
 });

@@ -15,7 +15,8 @@ type RuntimeWorker = {
 };
 
 type WorkerRuntimeInput = {
-  queue: RuntimeQueue;
+  mode: "local" | "queue";
+  createQueue(): RuntimeQueue;
   schedule: DailyPipelineConfig;
   createWorker(processor: (job: RuntimeJob) => Promise<unknown>): RuntimeWorker;
   processDaily(): Promise<unknown>;
@@ -24,24 +25,36 @@ type WorkerRuntimeInput = {
 export async function startWorkerRuntime(input: WorkerRuntimeInput): Promise<{
   close(): Promise<void>;
 }> {
-  await reconcileDailySchedule(input.queue, input.schedule);
-  if (!input.schedule.enabled) {
+  if (input.mode === "local") {
+    return { async close() {} };
+  }
+  const queue = input.createQueue();
+  try {
+    await reconcileDailySchedule(queue, input.schedule);
+    if (!input.schedule.enabled) {
+      return {
+        async close() {
+          await queue.close();
+        },
+      };
+    }
+    const worker = input.createWorker(async (job) => {
+      if (job.name !== "daily-pipeline") {
+        throw new Error("unknown_job_type");
+      }
+      return input.processDaily();
+    });
     return {
       async close() {
-        await input.queue.close();
+        try {
+          await worker.close();
+        } finally {
+          await queue.close();
+        }
       },
     };
+  } catch (error) {
+    await queue.close();
+    throw error;
   }
-  const worker = input.createWorker(async (job) => {
-    if (job.name !== "daily-pipeline") {
-      throw new Error("unknown_job_type");
-    }
-    return input.processDaily();
-  });
-  return {
-    async close() {
-      await worker.close();
-      await input.queue.close();
-    },
-  };
 }

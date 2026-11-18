@@ -15,7 +15,7 @@ import { buildInterpretationPrompt } from "../prompts/interpret";
 import { buildScreenPrompt } from "../prompts/screen";
 import {
   classificationOutputSchema,
-  interpretationOutputSchema,
+  publicInterpretationOutputSchema,
   parseClassificationOutput,
   parseInterpretationOutput,
   parseScreenBatchOutput,
@@ -66,18 +66,18 @@ export function createOpenAiCompatibleProvider(
         options,
         buildInterpretationPrompt(input),
         "interpretation_output",
-        z.toJSONSchema(interpretationOutputSchema),
+        z.toJSONSchema(publicInterpretationOutputSchema),
         parseInterpretationOutput,
       );
     },
-    screenBatch(inputs, userInterests) {
+    screenBatch(inputs, userInterests, researchContext) {
       const items = inputs.map((input) => ({
         paperId: input.paperId,
         title: input.title,
         journal: input.journal ?? null,
         abstractSnippet: input.abstract,
       }));
-      const prompt = buildScreenPrompt(items, userInterests);
+      const prompt = buildScreenPrompt(items, userInterests, researchContext);
       return generate(
         name,
         options,

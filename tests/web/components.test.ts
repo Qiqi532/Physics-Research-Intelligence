@@ -31,7 +31,7 @@ describe("Today Physics server components", () => {
       }),
     );
 
-    expect(output).toContain("今日新论文 12");
+    expect(output).toContain("日报推荐 12");
     expect(output).toContain("开放获取 8");
     expect(output).toContain("已有解读 5");
     expect(output).toContain("跨方向信号 3");

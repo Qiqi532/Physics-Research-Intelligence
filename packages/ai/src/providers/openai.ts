@@ -5,13 +5,13 @@ import {
   validateProviderOptions,
   type ProviderHttpOptions,
 } from "../http";
-import type { AiProvider, AiProviderResult, ScreenInput } from "../provider";
+import type { AiProvider, AiProviderResult } from "../provider";
 import { buildClassificationPrompt, type AiPrompt } from "../prompts/classify";
 import { buildInterpretationPrompt } from "../prompts/interpret";
 import { buildScreenPrompt } from "../prompts/screen";
 import {
   classificationOutputSchema,
-  interpretationOutputSchema,
+  publicInterpretationOutputSchema,
   parseClassificationOutput,
   parseInterpretationOutput,
   parseScreenBatchOutput,
@@ -55,11 +55,11 @@ export function createOpenAiProvider(rawOptions: ProviderHttpOptions): AiProvide
         options,
         "paper_interpretation",
         buildInterpretationPrompt(input),
-        z.toJSONSchema(interpretationOutputSchema),
+        z.toJSONSchema(publicInterpretationOutputSchema),
         parseInterpretationOutput,
       );
     },
-    screenBatch(inputs: ScreenInput[], userInterests?: Record<string, number>) {
+    screenBatch(inputs, userInterests, researchContext) {
       const items = inputs.map((input) => ({
         paperId: input.paperId,
         title: input.title,
@@ -69,7 +69,7 @@ export function createOpenAiProvider(rawOptions: ProviderHttpOptions): AiProvide
       return generate(
         options,
         "paper_screening_batch",
-        buildScreenPrompt(items, userInterests),
+        buildScreenPrompt(items, userInterests, researchContext),
         z.toJSONSchema(screenBatchOutputSchema),
         parseScreenBatchOutput,
       );

@@ -4,13 +4,16 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./daily-report": "./src/daily-report.ts",
     "./config": "./src/config.ts",
     "./interests": "./src/interests.ts",
     "./journal-whitelist": "./src/journal-whitelist.ts",
     "./model-settings": "./src/model-settings.ts",
     "./paper": "./src/paper.ts",
     "./physics-tags": "./src/physics-tags.ts",
-    "./queue": "./src/queue.ts"
+    "./queue": "./src/queue.ts",
+    "./research-profile": "./src/research-profile.ts",
+    "./research-profile-node": "./src/research-profile-node.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"

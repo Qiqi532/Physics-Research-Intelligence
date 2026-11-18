@@ -2,6 +2,17 @@ import { describe, expect, it, vi } from "vitest";
 import { createOpenAlexConnector } from "../../packages/sources/src/openalex";
 
 describe("OpenAlex connector", () => {
+  it("searches the public research topics and discloses anonymous cursor limits", async () => {
+    const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(Response.json({ meta: { next_cursor: "second-page" }, results: [] }));
+    const connector = createOpenAlexConnector({ fetchImpl, searchTerms: ["retinomorphic", "CFET"], newestFirst: true });
+    const page = await connector.fetchPage({ from: new Date("2026-11-01"), until: new Date("2026-11-13"), cursor: "previous-second-page", pageSize: 50 });
+    const url = new URL(String(fetchImpl.mock.calls[0]?.[0]));
+    expect(url.searchParams.get("search")).toBe('"retinomorphic" OR "CFET"');
+    expect(url.searchParams.get("filter")).not.toContain("topics.field");
+    expect(url.searchParams.get("sort")).toBe("publication_date:desc");
+    expect(url.searchParams.get("cursor")).toBe("*");
+    expect(page).toMatchObject({ limited: true, limitedReason: "api_key_required_for_paging" });
+  });
   it("filters Physics and Astronomy works and rebuilds abstracts", async () => {
     const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(Response.json({
       meta: { next_cursor: "next-openalex" },

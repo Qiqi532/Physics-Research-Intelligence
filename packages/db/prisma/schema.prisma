@@ -73,6 +73,7 @@ model Paper {
   screenings      PaperScreening[]
   userStates      UserPaperState[]
   aiRuns          AiRun[]
+  reportItems     DailyReportItem[]
 
   @@index([normalizedTitle])
   @@index([publishedAt])
@@ -136,6 +137,8 @@ model PaperScreening {
   directionSlug String
   reason        String
   selected      Boolean  @default(false)
+  evidenceSource String?
+  evidenceQuote  String?
   batchId       String
   provider      String
   model         String
@@ -250,6 +253,7 @@ model SourceSyncState {
   sourceName       String    @id
   windowFrom       DateTime? @db.Timestamptz(6)
   windowUntil      DateTime? @db.Timestamptz(6)
+  completedUntil   DateTime? @db.Timestamptz(6)
   cursor           String?
   lastSuccessAt    DateTime? @db.Timestamptz(6)
   lastFailureAt    DateTime? @db.Timestamptz(6)
@@ -257,6 +261,56 @@ model SourceSyncState {
   lastErrorMessage String?
   createdAt        DateTime  @default(now()) @db.Timestamptz(6)
   updatedAt        DateTime  @updatedAt @db.Timestamptz(6)
+}
+
+enum DailyRunStatus {
+  RUNNING
+  SUCCEEDED
+  PARTIAL
+  FAILED
+}
+
+model DailyRun {
+  id           String @id @default(uuid()) @db.Uuid
+  executionKey String @unique
+  dateKey      String
+  profileHash  String
+  profileLabel String
+  status       DailyRunStatus @default(RUNNING)
+  stage        String @default("ingest")
+  checkpoint   Json @default("{}")
+  errorCode    String?
+  createdAt    DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime @updatedAt @db.Timestamptz(6)
+  completedAt  DateTime? @db.Timestamptz(6)
+  report       DailyReport?
+
+  @@index([dateKey, createdAt])
+}
+
+model DailyReport {
+  id          String @id @default(uuid()) @db.Uuid
+  runId       String @unique @db.Uuid
+  dateKey     String
+  profileHash String
+  snapshot    Json
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  run         DailyRun @relation(fields: [runId], references: [id], onDelete: Restrict)
+  items       DailyReportItem[]
+
+  @@index([dateKey, createdAt])
+}
+
+model DailyReportItem {
+  reportId String @db.Uuid
+  position Int
+  paperId  String? @db.Uuid
+  report   DailyReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  paper    Paper? @relation(fields: [paperId], references: [id], onDelete: SetNull)
+
+  @@id([reportId, position])
+  @@unique([reportId, paperId])
+  @@index([paperId])
 }
 
 model AiConnectionProfile {

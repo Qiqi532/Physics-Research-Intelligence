@@ -70,6 +70,18 @@ export const interpretationOutputSchema = z.discriminatedUnion("basis", [
 
 // ---- Batch screening output ----
 
+// New public-only requests require quotes; the reader schema still supports older stored results.
+const publicReferenceSchema = evidenceReferenceSchema.extend({
+  source: z.enum(["metadata", "abstract"]), quote: z.string().trim().min(1),
+});
+const publicClaimSchema = evidenceClaimSchema.extend({ evidenceReferences: z.array(publicReferenceSchema).min(1) });
+export const publicInterpretationOutputSchema = z.object({
+  basis: z.literal("abstract_only"), sourceDisclosure: z.literal("基于摘要解读"),
+  overviewZh: publicClaimSchema, researchQuestion: publicClaimSchema,
+  innovations: z.array(publicClaimSchema).min(1), methodsAndEvidence: z.array(publicClaimSchema).min(1),
+  limitations: z.array(publicClaimSchema).min(1), readingAdvice: z.array(z.string().trim().min(1)).min(1),
+}).strict();
+
 export const screenPaperOutputSchema = z
   .object({
     paperId: z.string().trim().min(1),
@@ -77,6 +89,8 @@ export const screenPaperOutputSchema = z
     directionSlug: physicsTagSlugSchema,
     reason: z.string().trim().min(1),
     selected: z.boolean(),
+    evidenceSource: z.enum(["abstract", "title"]).optional(),
+    evidenceQuote: z.string().trim().min(1).max(500).optional(),
   })
   .strict();
 

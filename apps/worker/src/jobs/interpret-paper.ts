@@ -3,8 +3,9 @@ import {
   routeInterpretation,
   type AiErrorCode,
   type AiProvider,
+  type InterpretationOutput,
 } from "@pri/ai";
-import type { AiRepository } from "@pri/db";
+import type { AiRepository, SafePaperFacts } from "@pri/db";
 import {
   createIdempotencyKey,
   createInputHash,
@@ -29,6 +30,9 @@ type InterpretPaperInput = {
   primary: AiProvider;
   fallback?: AiProvider;
   now?: () => Date;
+  paper?: SafePaperFacts;
+  runScope?: string;
+  validateEvidence?: boolean;
 };
 
 export type InterpretPaperOutcome =
@@ -40,17 +44,19 @@ export type InterpretPaperOutcome =
 export async function interpretPaper(
   input: InterpretPaperInput,
 ): Promise<InterpretPaperOutcome> {
-  const paper = await input.repository.findPaperForAi(input.paperId);
+  const paper = input.paper ?? await input.repository.findPaperForAi(input.paperId);
   if (!paper) {
     return { status: "failed", errorCode: "business_validation" };
   }
   const paperInput = toPaperAiInput(paper);
-  const idempotencyKey = createIdempotencyKey({
+  const idempotencyKey = `${input.runScope ? `daily:${input.runScope}:` : ""}${createIdempotencyKey({
     paperId: paper.id,
+    provider: input.primary.name,
+    inputHash: createInputHash(paperInput),
     runType: "INTERPRET",
     model: input.primary.model,
     promptVersion: INTERPRET_PROMPT_VERSION,
-  });
+  })}`;
   const successful = await input.repository.findSuccessfulRun(idempotencyKey);
   if (successful) {
     return { status: "duplicate", runId: successful.id };
@@ -96,6 +102,7 @@ export async function interpretPaper(
   }
 
   try {
+    if (input.validateEvidence) validateInterpretationEvidence(outcome.result.output, paperInput);
     await input.repository.saveInterpretation({
       paperId: paper.id,
       provider: outcome.result.provider,
@@ -109,10 +116,11 @@ export async function interpretPaper(
       model: outcome.result.model,
       completedAt,
     });
-  } catch {
+  } catch (error) {
     await input.repository.failRun({
       runId: claim.run.id,
-      errorCode: "business_validation",
+      errorCode: error instanceof Error && ["interpretation_basis_invalid", "interpretation_evidence_invalid"].includes(error.message)
+        ? error.message : "business_validation",
       completedAt,
     });
     return {
@@ -122,4 +130,19 @@ export async function interpretPaper(
     };
   }
   return { status: "complete", runId: claim.run.id };
+}
+
+export function validateInterpretationEvidence(output: InterpretationOutput, paper: { title: string; abstract?: string | null; journal?: string | null; publishedAt?: string | null }) {
+  if (output.basis !== "abstract_only") throw new Error("interpretation_basis_invalid");
+  const claims = [output.overviewZh, output.researchQuestion, ...output.innovations,
+    ...output.methodsAndEvidence, ...output.limitations];
+  for (const claim of claims) {
+    for (const reference of claim.evidenceReferences) {
+      const sources = reference.source === "abstract" ? [paper.abstract] : reference.source === "metadata"
+        ? [paper.title, paper.journal, paper.publishedAt] : [];
+      if (!reference.quote || !sources.some((text) => text?.includes(reference.quote!))) {
+        throw new Error("interpretation_evidence_invalid");
+      }
+    }
+  }
 }

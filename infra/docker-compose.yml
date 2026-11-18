@@ -17,6 +17,7 @@ services:
     restart: unless-stopped
 
   redis:
+    profiles: ["queue"]
     image: redis:7-alpine
     ports:
       - "127.0.0.1:6379:6379"

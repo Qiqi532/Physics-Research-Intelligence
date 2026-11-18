@@ -10,7 +10,9 @@
   "scripts": {
     "prebuild": "pnpm --filter @pri/db prisma:generate",
     "build": "pnpm --recursive --if-present build",
-    "dev": "pnpm --parallel --filter @pri/web --filter @pri/worker dev",
+    "dev": "pnpm --filter @pri/web dev",
+    "dev:queue": "pnpm --parallel --filter @pri/web --filter @pri/worker dev",
+    "daily:run": "pnpm --filter @pri/worker daily:run",
     "lint": "pnpm --recursive --if-present lint",
     "pretest": "pnpm --filter @pri/db prisma:generate",
     "test": "vitest run",

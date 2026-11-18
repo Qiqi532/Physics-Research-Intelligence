@@ -51,6 +51,7 @@ export type DailyPipelineResult = {
     inProgress: number;
   };
   recommendations: number;
+  report?: { status: "complete" | "partial"; reused: boolean };
   cleanup: { status: "ok"; deleted: number } | { status: "failed"; errorCode: string };
 };
 

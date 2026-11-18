@@ -1,3 +1,4 @@
+import type { PublicResearchContext } from "@pri/domain/research-profile";
 import { AiProviderError, type AiErrorCode } from "./errors";
 import type {
   AiProvider,
@@ -44,6 +45,7 @@ type BatchRouteInput = {
   fallback?: AiProvider;
   inputs: ScreenInput[];
   userInterests?: Record<string, number>;
+  researchContext?: PublicResearchContext;
 };
 
 type ProviderCall<T> = (
@@ -72,7 +74,8 @@ export function routeScreenBatch(
   input: BatchRouteInput,
 ): Promise<AiRouteOutcome<ScreenBatchOutput>> {
   return routeBatch(input, (provider, papers) =>
-    provider.screenBatch(papers, input.userInterests),
+    input.researchContext ? provider.screenBatch(papers, input.userInterests, input.researchContext)
+      : provider.screenBatch(papers, input.userInterests),
   );
 }
 

@@ -2,14 +2,15 @@ import type { ApiResult } from "./papers";
 
 export type HealthDependencies = {
   postgres(): Promise<void>;
-  redis(): Promise<void>;
-  queue(): Promise<{ waiting: number; failed: number; workerCount: number }>;
+  redis?(): Promise<void>;
+  queue?(): Promise<{ waiting: number; failed: number; workerCount: number }>;
 };
 
 type HealthOptions = {
   now?: () => Date;
   backlogThreshold?: number;
   workerRequired?: boolean;
+  redisRequired?: boolean;
 };
 
 export function createHealthApi(
@@ -19,6 +20,7 @@ export function createHealthApi(
   const now = options.now ?? (() => new Date());
   const backlogThreshold = options.backlogThreshold ?? 100;
   const workerRequired = options.workerRequired ?? true;
+  const redisRequired = options.redisRequired ?? true;
   return {
     live(): ApiResult {
       return {
@@ -29,24 +31,32 @@ export function createHealthApi(
 
     async ready(): Promise<ApiResult> {
       const [postgres, redis] = await Promise.allSettled([
-        dependencies.postgres(),
-        dependencies.redis(),
+        Promise.resolve().then(() => dependencies.postgres()),
+        redisRequired
+          ? Promise.resolve().then(() => {
+              if (!dependencies.redis) throw new Error("redis_unconfigured");
+              return dependencies.redis();
+            })
+          : Promise.resolve(),
       ]);
       const components: Record<string, unknown> = {
         postgres: postgres.status === "fulfilled"
           ? { status: "ready" }
           : { status: "not_ready", errorCode: "postgres_unavailable" },
-        redis: redis.status === "fulfilled"
+        redis: !redisRequired
+          ? { status: "disabled" }
+          : redis.status === "fulfilled"
           ? { status: "ready" }
           : { status: "not_ready", errorCode: "redis_unavailable" },
       };
       let queueReady = true;
       let workerReady = true;
-      if (!workerRequired) {
+      if (!redisRequired || !workerRequired) {
         components.queue = { status: "disabled" };
         components.worker = { status: "disabled" };
       } else {
         try {
+          if (!dependencies.queue) throw new Error("queue_unconfigured");
           const state = await dependencies.queue();
           queueReady = state.waiting <= backlogThreshold;
           workerReady = state.workerCount > 0;

@@ -21,6 +21,9 @@ const arxivCategories = [
 ] as const;
 
 type ArxivOptions = {
+  categories?: readonly string[];
+  searchTerms?: readonly string[];
+  newestFirst?: boolean;
   fetchImpl?: SourceFetch;
   userAgent?: string;
   now?: () => Date;
@@ -47,11 +50,11 @@ export function createArxivConnector(options: ArxivOptions = {}): SourceConnecto
       await throttle();
 
       const url = new URL("https://export.arxiv.org/api/query");
-      url.searchParams.set("search_query", buildSearchQuery(pageRequest.from, pageRequest.until));
+      url.searchParams.set("search_query", buildSearchQuery(pageRequest.from, pageRequest.until, options));
       url.searchParams.set("start", String(start));
       url.searchParams.set("max_results", String(pageSize));
       url.searchParams.set("sortBy", "submittedDate");
-      url.searchParams.set("sortOrder", "ascending");
+      url.searchParams.set("sortOrder", options.newestFirst ? "descending" : "ascending");
 
       const response = await request(url, {
         headers: { "User-Agent": options.userAgent ?? "PhysicsResearchIntelligence/0.1" },
@@ -95,13 +98,17 @@ function parseCursor(cursor: string | null | undefined): number {
   return Number(cursor);
 }
 
-function buildSearchQuery(from: Date, until: Date): string {
-  const categories = arxivCategories.map((category) => `cat:${category}`).join(" OR ");
-  return `(${categories}) AND submittedDate:[${arxivDate(from)} TO ${arxivDate(until)}]`;
+function buildSearchQuery(from: Date, until: Date, options: ArxivOptions): string {
+  const categories = (options.categories ?? arxivCategories).map((category) => {
+    if (!/^[a-zA-Z][a-zA-Z0-9.*-]*$/u.test(category)) throw new Error("arxiv_category_invalid");
+    return `cat:${category}`;
+  }).join(" OR ");
+  const terms = options.searchTerms?.map((term) => `all:"${term.replace(/["\\]/gu, " ")}"`).join(" OR ");
+  return `(${categories})${terms ? ` AND (${terms})` : ""} AND submittedDate:[${arxivDate(from)} TO ${arxivDate(until)}]`;
 }
 
 function arxivDate(value: Date): string {
-  return value.toISOString().replace(/[-:]/gu, "").slice(0, 12);
+  return value.toISOString().replace(/[-:T]/gu, "").slice(0, 12);
 }
 
 function parseAtom(xml: string): AtomEntry {

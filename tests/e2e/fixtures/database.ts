@@ -4,11 +4,32 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createPrismaClient } from "../../../packages/db/src/client";
 import { syncPhysicsTags } from "../../../packages/db/src/paper-repository";
+import { expectedReportDate } from "../../../packages/domain/src/daily-report";
+import { createDailyRepository } from "../../../packages/db/src/daily-repository";
+import { dailyReportSchema } from "../../../packages/domain/src/daily-report";
 
 const E2E_SCHEMA = "pri_stage5_e2e";
 
 export function e2eMasterKeyPath(): string {
   return join(tmpdir(), "pri-stage8-e2e-model-settings.key");
+}
+
+export async function seedPartialReport(): Promise<void> {
+  const client = createPrismaClient(e2eDatabaseUrl());
+  try {
+    const previous = await client.dailyReport.findFirstOrThrow({ orderBy: { createdAt: "desc" } });
+    const snapshot = dailyReportSchema.parse(previous.snapshot);
+    snapshot.items = snapshot.items.slice(0, -1);
+    snapshot.items[0]!.interpretation = null;
+    snapshot.items[0]!.reasons.push("缺少公开摘要，仅列题录，未生成解读");
+    snapshot.validation.unavailableInterpretations = 1;
+    snapshot.validation.titleOnly = 1;
+    snapshot.validation.unscreenedCandidates = 5;
+    const store = createDailyRepository(client);
+    const run = await store.open({ executionKey: "partial-fixture", dateKey: snapshot.dateKey,
+      profileHash: snapshot.profileHash, profileLabel: snapshot.profileLabel });
+    await store.publish(run.id, snapshot, new Date());
+  } finally { await client.$disconnect(); }
 }
 
 export async function removeE2eMasterKey(): Promise<void> {
@@ -61,6 +82,8 @@ export async function clearE2eBusinessData(): Promise<void> {
       ) AS "exists"
     `;
     if (!table[0]?.exists) return;
+    await client.dailyReport.deleteMany();
+    await client.dailyRun.deleteMany();
     await client.aiRuntimeRouting.deleteMany();
     await client.aiConnectionProfile.deleteMany();
     await client.userInterest.deleteMany();
@@ -76,6 +99,8 @@ export async function resetE2eData(): Promise<void> {
   const now = new Date();
   const createdAt = yesterdayShanghaiFixtureDate(now);
   try {
+    await client.dailyReport.deleteMany();
+    await client.dailyRun.deleteMany();
     await client.aiRuntimeRouting.deleteMany();
     await client.aiConnectionProfile.deleteMany();
     await client.userInterest.deleteMany();
@@ -158,6 +183,24 @@ export async function resetE2eData(): Promise<void> {
       },
     });
     void astro;
+    const reportPapers = await client.paper.findMany({ orderBy: [{ title: "asc" }] });
+    reportPapers.sort((a, b) => Number(b.id === amo.id) - Number(a.id === amo.id));
+    const dateKey = expectedReportDate(now);
+    const store = createDailyRepository(client);
+    const run = await store.open({ executionKey: `fixture-${dateKey}`, dateKey, profileHash: "fixture-profile", profileLabel: "Fixture research" });
+    const provenance = { provider: "fixture-provider", model: "fixture-model", promptVersion: "fixture-v1", inputHash: "fixture-hash" };
+    await store.publish(run.id, { schemaVersion: 1, dateKey, profileHash: "fixture-profile", profileLabel: "Fixture research",
+      sourceCoverage: [{ name: "arxiv", status: "complete", records: reportPapers.length }],
+      validation: { mode: "single_model", semanticSupport: "unverified" },
+      items: reportPapers.map((paper) => ({ paperId: paper.id, doi: paper.doi, title: paper.title, journal: paper.journal,
+        publishedAt: paper.publishedAt?.toISOString() ?? null, createdAt: paper.createdAt.toISOString(), originalUrl: paper.originalUrl,
+        accessStatus: paper.accessStatus, sourceName: "arxiv", score: 0.8,
+        topicId: paper.title.startsWith("Cross-") ? "cross-disciplinary" : "amo-optics",
+        topicLabel: paper.title.startsWith("Cross-") ? "交叉物理" : "原子、分子与光学",
+        topicKind: paper.title.startsWith("Cross-") ? "adjacent" : "core", reasons: ["Deterministic fixed report reason"],
+        evidence: { source: "title", quote: paper.title, verification: "exact_substring" },
+        screening: provenance, interpretation: { ...provenance, content: interpretationFixture() } })),
+    }, now);
   } finally {
     await client.$disconnect();
   }

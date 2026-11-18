@@ -15,7 +15,7 @@ test.beforeEach(async () => {
 test("empty data and dependency failure remain recoverable", async ({ page }) => {
   await clearE2eBusinessData();
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "今天的论文池还是空的" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "暂无推荐条目" })).toBeVisible();
 
   await dropE2eSchemaForFailureTest();
   try {
@@ -42,7 +42,7 @@ test("liveness and readiness expose safe dependency status", async ({ request })
     status: "ready",
     components: expect.objectContaining({
       postgres: { status: "ready" },
-      redis: { status: "ready" },
+      redis: { status: "disabled" },
       queue: { status: "disabled" },
       worker: { status: "disabled" },
     }),

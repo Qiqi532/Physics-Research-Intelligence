@@ -7,6 +7,7 @@ import {
 } from "@pri/ai";
 import type { AiRepository, SafePaperFacts } from "@pri/db";
 import { isHighQualityJournal } from "@pri/domain/journal-whitelist";
+import { matchResearch, publicResearchContext, type ResearchProfile } from "@pri/domain/research-profile";
 import {
   createBatchIdempotencyKey,
   createBatchInputHash,
@@ -38,6 +39,9 @@ type ScreenPapersInput = {
   repository: ScreenPapersRepository;
   primary: AiProvider;
   fallback?: AiProvider;
+  research?: { profile: ResearchProfile; hash: string };
+  papers?: SafePaperFacts[];
+  runScope?: string;
   /** Optional user interests: tagSlug -> weight. Boosts matching directions. */
   userInterests?: Record<string, number>;
   now?: () => Date;
@@ -59,6 +63,7 @@ export type ScreenPapersOutcome = {
   batches: number;
   /** Per-batch failure details (does not stop other batches). */
   failures: Array<{ batchIndex: number; errorCode: AiErrorCode }>;
+  batchIds?: string[];
 };
 
 export async function screenPapers(
@@ -69,10 +74,11 @@ export async function screenPapers(
   }
 
   const now = input.now ?? (() => new Date());
-  const allPapers = await input.repository.listPapersForScreening({
+  const allPapers = input.papers ?? await input.repository.listPapersForScreening({
     from: input.from,
     until: input.until,
     limit: input.limit,
+    ...(input.research ? { includeScreened: true } : {}),
   });
 
   // Load user interests if available (optional, for test mock compatibility).
@@ -85,9 +91,11 @@ export async function screenPapers(
   }
 
   // Stage 1: deterministic journal quality filter (no LLM call).
-  const journalFiltered = allPapers.filter((paper) =>
-    isHighQualityJournal(paper.journal),
-  );
+  const journalFiltered = input.research
+    ? allPapers.filter((paper) => matchResearch(input.research!.profile, paper).kind !== "none")
+    : allPapers.filter((paper) => isHighQualityJournal(paper.journal));
+  const context = input.research ? publicResearchContext(input.research.profile, input.research.hash) : undefined;
+  const batchIds: string[] = [];
 
   if (journalFiltered.length === 0) {
     return {
@@ -107,13 +115,14 @@ export async function screenPapers(
   for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
     const batch = batches[batchIndex]!;
     const screenInputs = batch.map(toScreenInput);
-    const inputHash = createBatchInputHash(screenInputs);
-    const batchKey = `${input.from.toISOString()}|${input.until.toISOString()}|${inputHash}`;
-    const idempotencyKey = createBatchIdempotencyKey({
+    const inputHash = createBatchInputHash(screenInputs, { context, userInterests: userInterests ?? null });
+    const batchKey = `${input.primary.name}|${input.from.toISOString()}|${input.until.toISOString()}|${inputHash}`;
+    const idempotencyKey = `${input.runScope ? `daily:${input.runScope}:` : ""}${createBatchIdempotencyKey({
       batchKey,
       model: input.primary.model,
       promptVersion: SCREEN_PROMPT_VERSION,
-    });
+    })}`;
+    batchIds.push(idempotencyKey);
 
     const successful = await input.repository.findSuccessfulRun(idempotencyKey);
     if (successful) {
@@ -138,6 +147,7 @@ export async function screenPapers(
     });
 
     if (claim.status === "complete" || claim.status === "in_progress") {
+      if (claim.status === "in_progress") failures.push({ batchIndex, errorCode: "business_validation" });
       input.onBatchComplete?.({
         index: batchIndex,
         total: batches.length,
@@ -153,6 +163,7 @@ export async function screenPapers(
       fallback: input.fallback,
       inputs: screenInputs,
       userInterests: Object.keys(userInterests ?? {}).length > 0 ? userInterests : undefined,
+      researchContext: context,
     });
 
     await input.repository.appendAttempts(
@@ -186,12 +197,25 @@ export async function screenPapers(
         .map((paper) => {
           const original = batch.find((p) => p.id === paper.paperId);
           if (!original) return null;
+          let evidenceSource = paper.evidenceSource;
+          let evidenceQuote = paper.evidenceQuote;
+          if (context) {
+            const evidenceText = paper.evidenceSource === "abstract"
+              ? original.abstract?.trim().slice(0, context.abstractMaxChars) : original.title;
+            if (!paper.evidenceSource || !paper.evidenceQuote || !evidenceText?.includes(paper.evidenceQuote)) {
+              if (paper.selected) throw new Error("screen_evidence_invalid");
+              // Rejected papers do not enter the report. Preserve a verifiable metadata anchor.
+              evidenceSource = "title";
+              evidenceQuote = original.title.slice(0, 500);
+            }
+          }
           return {
             paperId: original.id,
             score: paper.score,
             directionSlug: paper.directionSlug,
             reason: paper.reason,
             selected: paper.selected,
+            ...(evidenceSource ? { evidenceSource, evidenceQuote } : {}),
           };
         })
         .filter((result): result is NonNullable<typeof result> => result !== null);
@@ -237,10 +261,11 @@ export async function screenPapers(
         screened: batch.length,
         selected: selectedInBatch,
       });
-    } catch {
+    } catch (error) {
       await input.repository.failRun({
         runId: claim.run.id,
-        errorCode: "business_validation",
+        errorCode: error instanceof Error && ["screen_output_paper_ids_invalid", "screen_evidence_invalid"].includes(error.message)
+          ? error.message : "screen_persistence_failed",
         completedAt,
       });
       failures.push({ batchIndex, errorCode: "business_validation" });
@@ -253,6 +278,7 @@ export async function screenPapers(
     selected: totalSelected,
     batches: batches.length,
     failures,
+    batchIds,
   };
 }
 

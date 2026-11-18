@@ -1,4 +1,7 @@
 import { normalizeDoi } from "@pri/domain/paper";
+import type { InterpretationOutput } from "@pri/ai";
+import type { DailyReportItem, DailyReportState } from "@pri/domain/daily-report";
+import { loadDailyToday } from "./daily-today";
 import {
   rankRecommendations,
   type ReadingStatus,
@@ -36,10 +39,14 @@ export type TodayRecommendation = {
   scoreBreakdown: RecommendationBreakdown;
   reasons: string[];
   stateUpdatedAt: Date | null;
+  evidence?: DailyReportItem["evidence"];
+  reportInterpretation?: InterpretationOutput;
+  provenance?: { screening: DailyReportItem["screening"]; interpretation: Omit<NonNullable<DailyReportItem["interpretation"]>, "content"> | null };
 };
 
 export type TodayData = {
   generatedAt: Date;
+  report?: DailyReportState;
   stats: {
     newPapers: number;
     openPapers: number;
@@ -78,6 +85,8 @@ export interface TodayRepository {
     userId: string;
     now: Date;
     candidateLimit: number;
+    reportOnly?: boolean;
+    schedule?: { time: string; timezone: string };
   }): Promise<TodayData>;
   setPaperStateByDoi(input: PaperStateInput): Promise<
     | { status: "updated"; state: StoredPaperState }
@@ -87,7 +96,8 @@ export interface TodayRepository {
 
 export function createTodayRepository(client: DatabaseClient): TodayRepository {
   return {
-    async getToday({ userId, now, candidateLimit }) {
+    async getToday({ userId, now, candidateLimit, reportOnly, schedule }) {
+      if (reportOnly) return loadDailyToday(client, { userId, now, schedule });
       const candidateFrom = new Date(now.getTime() - CANDIDATE_WINDOW_MS);
       const [interestRows, paperRows] = await Promise.all([
         client.userInterest.findMany({

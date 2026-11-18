@@ -25,9 +25,15 @@ export function createInputHash(input: PaperAiInput): string {
   return createHash("sha256").update(JSON.stringify(input)).digest("hex");
 }
 
-export function createBatchInputHash(inputs: readonly ScreenInput[]): string {
+export function createBatchInputHash(inputs: readonly ScreenInput[], context?: unknown): string {
   return createHash("sha256")
-    .update(JSON.stringify(inputs.map((input) => input.paperId).sort()))
+    .update(JSON.stringify({
+      papers: [...inputs].sort((a, b) => a.paperId.localeCompare(b.paperId)).map((input) => ({
+        paperId: input.paperId, title: input.title, abstract: input.abstract ?? null,
+        journal: input.journal ?? null, publishedAt: input.publishedAt ?? null,
+      })),
+      context: context ?? null,
+    }))
     .digest("hex");
 }
 
@@ -36,12 +42,16 @@ export function createIdempotencyKey(input: {
   runType: "CLASSIFY" | "INTERPRET" | "SCREEN";
   model: string;
   promptVersion: string;
+  inputHash?: string;
+  provider?: string;
 }): string {
   return [
     input.paperId,
     input.runType,
     input.model,
     input.promptVersion,
+    ...(input.provider ? [input.provider] : []),
+    ...(input.inputHash ? [input.inputHash] : []),
   ].join(":");
 }
 

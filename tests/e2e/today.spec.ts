@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { resetE2eData } from "./fixtures/database";
+import { resetE2eData, seedPartialReport } from "./fixtures/database";
 
 test.describe.configure({ mode: "serial" });
 
@@ -8,7 +8,7 @@ test.beforeEach(async ({ page }) => {
   await blockExternalNetwork(page);
 });
 
-test("interpreted papers stay first and saved interests add a personal reason", async ({ page }) => {
+test("published report order stays fixed after interest changes", async ({ page }) => {
   await page.goto("/");
   const headings = page.locator(".recommendation-list article h3");
   const coldTitles = await headings.allTextContents();
@@ -24,8 +24,8 @@ test("interpreted papers stay first and saved interests add a personal reason", 
   await page.getByRole("link", { name: "返回 Today Physics" }).click();
   await expect(page.locator(".recommendation-list article h3").first())
     .toHaveText("AMO precision fixture");
-  const amoCard = page.getByRole("article").filter({ hasText: "AMO precision fixture" });
-  await expect(amoCard.getByText(/匹配你的「原子、分子与光学」兴趣/)).toBeVisible();
+  expect(await headings.allTextContents()).toEqual(coldTitles);
+  await expect(page.getByRole("region", { name: "日报状态" })).toContainText("单模型判断");
 });
 
 async function blockExternalNetwork(page: import("@playwright/test").Page) {
@@ -44,7 +44,7 @@ test("Today shows statistics, cross-field signal, reasons and reading queue", as
 
   await expect(page.getByRole("heading", { name: "Today Physics" })).toBeVisible();
   const stats = page.getByRole("region", { name: "今日统计" });
-  const newPaperStat = stats.getByText("今日新论文").locator("..");
+  const newPaperStat = stats.getByText("日报推荐").locator("..");
   await expect(newPaperStat.getByRole("definition")).toHaveText("5");
   const crossSignals = page.getByRole("region", { name: "跨方向信号" });
   await expect(crossSignals.getByRole("heading", { name: "跨方向信号" })).toBeVisible();
@@ -54,6 +54,20 @@ test("Today shows statistics, cross-field signal, reasons and reading queue", as
   const queue = page.getByRole("region", { name: "阅读队列" });
   await expect(queue.getByRole("heading", { name: "阅读队列" })).toBeVisible();
   await expect(queue.getByText("AMO precision fixture")).toBeVisible();
+});
+
+test("partial report discloses excluded interpretations and metadata-only cards", async ({ page }) => {
+  await seedPartialReport();
+  await page.goto("/");
+  const status = page.getByRole("region", { name: "日报状态" });
+  await expect(status).toContainText("1 篇解读未通过检查，未投递");
+  await expect(status).toContainText("1 篇缺少公开摘要，仅展示题录");
+  await expect(status).toContainText("5 篇候选所在筛选批次未完成，本次未纳入");
+  const first = page.locator(".recommendation-list > article").first();
+  await expect(first).toContainText("缺少公开摘要，仅列题录，未生成解读");
+  await expect(first.getByRole("button", { name: "AI 解读", exact: true })).toHaveCount(0);
+  await expect(first.getByText("本次日报解读（基于摘要）")).toHaveCount(0);
+  await expect(page.locator(".recommendation-list > article")).toHaveCount(4);
 });
 
 test.describe("personal collection", () => {

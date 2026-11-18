@@ -98,6 +98,30 @@ export function RecommendationCard({ paper }: { paper: TodayRecommendationDto })
           ))}
         </ul>
       </div>
+      {paper.evidence ? (
+        <div className="reason-box">
+          <p className="reason-title">{paper.evidence.source === "abstract" ? "摘要依据" : "标题依据"}</p>
+          <blockquote>{paper.evidence.quote}</blockquote>
+          <p className="muted-label">摘录已与输入逐字核对；不代表结论获独立验证。</p>
+        </div>
+      ) : null}
+      {paper.reportInterpretation ? (
+        <details className="reason-box">
+          <summary>本次日报解读（基于摘要）</summary>
+          <p>{paper.reportInterpretation.overviewZh.text}</p>
+          {[{ label: "研究问题", claims: [paper.reportInterpretation.researchQuestion] },
+            { label: "创新", claims: paper.reportInterpretation.innovations },
+            { label: "方法与证据", claims: paper.reportInterpretation.methodsAndEvidence },
+            { label: "局限", claims: paper.reportInterpretation.limitations }].map((section) => (
+              <div key={section.label}><h4>{section.label}</h4><ul>{section.claims.map((claim, index) => (
+                <li key={index}>{claim.text} <span className="muted-label">（{claim.evidenceLevel === "direct" ? "直接信息" : claim.evidenceLevel === "inferred" ? "推断" : "不确定"}）</span>
+                  {claim.evidenceReferences.map((reference, position) => <blockquote key={position}>{reference.quote}</blockquote>)}
+                </li>
+              ))}</ul></div>
+            ))}
+          <p className="muted-label">{paper.provenance?.interpretation?.provider} / {paper.provenance?.interpretation?.model} · {paper.provenance?.interpretation?.promptVersion}</p>
+        </details>
+      ) : null}
       <div className="paper-card-actions">
         {detailHref ? (
           <a className="text-link" href={detailHref}>
@@ -106,7 +130,7 @@ export function RecommendationCard({ paper }: { paper: TodayRecommendationDto })
         ) : (
           <span className="muted-label">暂无 DOI 详情页</span>
         )}
-        {!paper.hasInterpretation && paper.doi && (
+        {!paper.hasInterpretation && paper.doi && !paper.evidence && (
           <button
             type="button"
             className="text-link interpret-button"

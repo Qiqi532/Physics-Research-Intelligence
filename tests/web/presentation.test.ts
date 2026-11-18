@@ -38,7 +38,7 @@ describe("Today presentation states", () => {
       expect.objectContaining({
         kind: "empty",
         data: expect.objectContaining({ stats: expect.objectContaining({ newPapers: 0 }) }),
-        emptyMessage: "今天还没有可展示的论文，采集完成后会出现在这里。",
+        emptyMessage: "尚未生成日报，请先配置模型并运行每日推荐任务。",
       }),
     );
   });

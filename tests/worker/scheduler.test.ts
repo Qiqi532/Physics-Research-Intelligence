@@ -120,6 +120,22 @@ describe("daily pipeline scheduler", () => {
     });
   });
 
+  it("switches the local daily window at 12:15 Shanghai time", () => {
+    expect(dailyWindowAt(
+      new Date("2026-11-13T04:14:00.000Z"), "Asia/Shanghai", "12:15",
+    ).key).toBe("2026-11-12");
+    expect(dailyWindowAt(
+      new Date("2026-11-13T04:15:00.000Z"), "Asia/Shanghai", "12:15",
+    )).toEqual({
+      key: "2026-11-13",
+      from: new Date("2026-11-12T04:15:00.000Z"),
+      until: new Date("2026-11-13T04:15:00.000Z"),
+    });
+    expect(dailyWindowAt(
+      new Date("2026-11-13T05:30:00.000Z"), "Asia/Shanghai", "12:15",
+    ).key).toBe("2026-11-13");
+  });
+
   it("keeps local schedule boundaries across daylight-saving changes", () => {
     expect(dailyWindowAt(
       new Date("2026-03-08T12:00:00.000Z"),

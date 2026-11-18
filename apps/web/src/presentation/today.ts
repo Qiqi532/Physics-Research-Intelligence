@@ -1,3 +1,6 @@
+import type { TodayRecommendation } from "@pri/db";
+import type { DailyReportState } from "@pri/domain/daily-report";
+
 export type TodayStatsDto = {
   newPapers: number;
   openPapers: number;
@@ -33,10 +36,14 @@ export type TodayRecommendationDto = {
     readingState: number;
   };
   reasons: string[];
+  evidence?: TodayRecommendation["evidence"];
+  provenance?: TodayRecommendation["provenance"];
+  reportInterpretation?: TodayRecommendation["reportInterpretation"];
 };
 
 export type TodayDto = {
   generatedAt: string;
+  report?: DailyReportState;
   stats: TodayStatsDto;
   crossSignals: Array<{
     tagSlug: string;
@@ -74,7 +81,8 @@ export function presentToday(state: TodayLoadState):
     return {
       kind: "empty",
       data: state.data,
-      emptyMessage: "今天还没有可展示的论文，采集完成后会出现在这里。",
+      emptyMessage: state.data.report?.id ? "本次日报没有符合条件的新论文；系统不会为凑数补入旧候选。"
+        : "尚未生成日报，请先配置模型并运行每日推荐任务。",
     };
   }
   return { kind: "ready", data: state.data, emptyMessage: null };

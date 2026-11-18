@@ -267,8 +267,8 @@ describeDatabase("PostgreSQL paper repository", () => {
         userStates: {
           create: {
             userId: "default",
-            status: "READING",
-            feedback: "LIKE",
+            status: "UNREAD",
+            feedback: "NONE",
           },
         },
       },
@@ -336,6 +336,15 @@ describeDatabase("PostgreSQL paper repository", () => {
 
     expect(outcome).toEqual({ deleted: 1 });
     expect(await client.paper.findUnique({ where: { id: paper.id } })).toBeNull();
+  });
+  it("preserves reading assets and private notes even when they are not favorited", async () => {
+    const cutoff = new Date("2026-08-30T00:00:00.000Z");
+    const reading = await client.paper.create({ data: { title: "Reading asset", normalizedTitle: "reading asset",
+      createdAt: new Date("2026-07-01"), userStates: { create: { userId: "default", status: "READING" } } } });
+    const note = await client.paper.create({ data: { title: "Noted asset", normalizedTitle: "noted asset",
+      createdAt: new Date("2026-07-01"), userStates: { create: { userId: "default", note: "local private note" } } } });
+    expect((await repository.pruneExpiredPapers({ cutoff })).deleted).toBe(0);
+    expect(await client.paper.count({ where: { id: { in: [reading.id, note.id] } } })).toBe(2);
   });
 
   it("converges across two cleanup executions in the same window", async () => {

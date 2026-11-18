@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "optoelectronic-vision",
+  "label": "二维光电与类视网膜感知",
+  "topics": [
+    {"id":"retinomorphic","label":"类视网膜与感内计算","kind":"core","weight":1,"keywords":["retinomorphic","in-sensor computing","in sensor processing","neuromorphic vision"]},
+    {"id":"optoelectronic","label":"二维光电器件","kind":"core","weight":1,"keywords":["van der Waals","two-dimensional optoelectronic","phototransistor","photodetector"]},
+    {"id":"motion","label":"运动感知与光敏存储","kind":"core","weight":1,"keywords":["light-tunable memory","visual motion perception","photosensitive memory","optoelectronic memory"]},
+    {"id":"neuromorphic","label":"神经形态器件与系统","kind":"adjacent","weight":0.7,"keywords":["optoelectronic synapse","memristive crossbar","neuromorphic sensor"]},
+    {"id":"cfet","label":"CFET与垂直集成","kind":"adjacent","weight":0.7,"keywords":["CFET","complementary field-effect transistor","monolithic 3D integration"]}
+  ],
+  "seeds": [
+    {"title":"Networking retinomorphic sensor with memristive crossbar for brain-inspired visual perception","doi":"10.1093/nsr/nwaa172","topicId":"retinomorphic","sourceUrl":"https://academic.oup.com/nsr/article/8/2/nwaa172/5876368","verifiedAt":"2026-11-13"},
+    {"title":"Parallel perception of visual motion using light-tunable memory matrix","doi":"10.1126/sciadv.adi4083","topicId":"motion","sourceUrl":"https://pubmed.ncbi.nlm.nih.gov/37774015/","verifiedAt":"2026-11-13"},
+    {"title":"In-Pixel Dual-Band Intercorrelated Compressive Sensing Based on MoS2/h-BN/PdSe2 Vertical Heterostructure","doi":"10.1021/acsnano.4c15453","topicId":"optoelectronic","sourceUrl":"https://pubmed.ncbi.nlm.nih.gov/39912488/","verifiedAt":"2026-11-13"},
+    {"title":"Bioinspired Target Detection Pipeline Based on Two-Dimensional Optoelectronic van der Waals Heterostructures","doi":"10.1021/acsnano.5c05791","topicId":"optoelectronic","sourceUrl":"https://pubmed.ncbi.nlm.nih.gov/40479021/","verifiedAt":"2026-11-13"},
+    {"title":"From Planar to 3D: The Evolution of Complementary Field-Effect Transistor for Next-Generation Semiconductor Nodes","doi":"10.1002/adma.73226","topicId":"cfet","sourceUrl":"https://pubmed.ncbi.nlm.nih.gov/42059536/","verifiedAt":"2026-11-13"}
+  ],
+  "sources": {"enabled":["arxiv","openalex"],"arxivCategories":["cond-mat.mtrl-sci","physics.app-ph","physics.optics","cs.NE"],"maxPages":3,"pageSize":50},
+  "screening": {"candidateLimit":40,"batchSize":5,"abstractMaxChars":4000,"adjacentMax":2}
+}

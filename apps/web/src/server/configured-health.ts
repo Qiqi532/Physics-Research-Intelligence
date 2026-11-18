@@ -13,13 +13,19 @@ export async function withConfiguredHealthApi(
   try {
     const config = parseConfig(process.env);
     client = createPrismaClient(config.DATABASE_URL);
+    const redisUrl = config.RUNTIME_MODE === "queue" ? config.REDIS_URL : undefined;
     const api = createHealthApi({
       async postgres() {
         await client!.$queryRaw`SELECT 1`;
       },
-      redis: () => pingRedis(config.REDIS_URL),
-      queue: () => inspectQueue(config.REDIS_URL),
-    }, { workerRequired: config.DAILY_PIPELINE.enabled });
+      ...(redisUrl ? {
+        redis: () => pingRedis(redisUrl),
+        queue: () => inspectQueue(redisUrl),
+      } : {}),
+    }, {
+      redisRequired: config.RUNTIME_MODE === "queue",
+      workerRequired: config.DAILY_PIPELINE.enabled,
+    });
     return await operation(api);
   } catch (error) {
     console.error(

@@ -315,7 +315,7 @@ describe("screenPapers", () => {
     expect(repo.completeRun).not.toHaveBeenCalled();
     expect(repo.failRun).toHaveBeenCalledWith({
       runId: "run-1",
-      errorCode: "business_validation",
+      errorCode: "screen_output_paper_ids_invalid",
       completedAt: new Date("2026-09-02T00:00:00.000Z"),
     });
   });

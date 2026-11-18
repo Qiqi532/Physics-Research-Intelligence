@@ -17,6 +17,8 @@ export type IngestionSummary = {
   pages: number;
   records: number;
   candidateDuplicates: number;
+  limited?: boolean;
+  limitedReason?: string;
 };
 
 type IngestSourceInput = {
@@ -28,6 +30,8 @@ type IngestSourceInput = {
   cursor?: string | null;
   pageSize?: number;
   maxPages?: number;
+  stateKey?: string;
+  bounded?: boolean;
   now?: () => Date;
 };
 
@@ -37,9 +41,10 @@ export async function ingestSource(input: IngestSourceInput): Promise<IngestionS
   let pages = 0;
   let records = 0;
   let candidateDuplicates = 0;
+  const stateKey = input.stateKey ?? input.connector.name;
 
   try {
-    const priorState = await input.stateRepository.find(input.connector.name);
+    const priorState = await input.stateRepository.find(stateKey);
     if (input.cursor === undefined && completedWindow(priorState, input.from, input.until)) {
       return {
         source: input.connector.name,
@@ -66,19 +71,21 @@ export async function ingestSource(input: IngestSourceInput): Promise<IngestionS
       }
       pages += 1;
 
-      if (page.nextCursor && seenCursors.has(page.nextCursor)) {
+      if (page.nextCursor && seenCursors.has(page.nextCursor) && !page.limited) {
         throw new SourceConnectorError("invalid_cursor", "Source returned a repeated cursor");
       }
 
       await input.stateRepository.markProgress({
-        sourceName: input.connector.name,
+        sourceName: stateKey,
         windowFrom: input.from,
         windowUntil: input.until,
         cursor: page.nextCursor,
       });
 
+      if (page.limited) return { source: input.connector.name, pages, records, candidateDuplicates, limited: true, limitedReason: page.limitedReason };
+
       if (!page.nextCursor) {
-        await input.stateRepository.markSuccess(input.connector.name, now());
+        await input.stateRepository.markSuccess(stateKey, now());
         return { source: input.connector.name, pages, records, candidateDuplicates };
       }
 
@@ -86,6 +93,7 @@ export async function ingestSource(input: IngestSourceInput): Promise<IngestionS
       cursor = page.nextCursor;
     }
 
+    if (input.bounded) return { source: input.connector.name, pages, records, candidateDuplicates, limited: true };
     throw new SourceConnectorError(
       "invalid_cursor",
       `Source exceeded the ${maximumPages} page safety limit`,
@@ -93,7 +101,7 @@ export async function ingestSource(input: IngestSourceInput): Promise<IngestionS
   } catch (error) {
     const errorCode = connectorErrorCode(error);
     await input.stateRepository.markFailure({
-      sourceName: input.connector.name,
+      sourceName: stateKey,
       failedAt: now(),
       errorCode,
       errorMessage: `${input.connector.name} ingestion failed (${errorCode})`,

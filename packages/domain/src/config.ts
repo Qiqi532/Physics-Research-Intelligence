@@ -2,7 +2,8 @@ import { z } from "zod";
 
 export type ServerConfig = {
   DATABASE_URL: string;
-  REDIS_URL: string;
+  RUNTIME_MODE: "local" | "queue";
+  REDIS_URL?: string;
   PAPER_RETENTION_DAYS: number;
   DAILY_PAPER_TARGET_MIN: number;
   DAILY_PAPER_TARGET_MAX: number;
@@ -106,7 +107,8 @@ const optionalSecret = z.preprocess(
 
 const configSchema = z.object({
   DATABASE_URL: requiredString("DATABASE_URL"),
-  REDIS_URL: requiredString("REDIS_URL"),
+  RUNTIME_MODE: z.string().trim().optional(),
+  REDIS_URL: optionalSecret,
   DAILY_PIPELINE_ENABLED: z.string().trim().optional(),
   DAILY_PIPELINE_TIME: z.string().trim().optional(),
   DAILY_PIPELINE_TIMEZONE: z.string().trim().optional(),
@@ -144,6 +146,7 @@ export function parseConfig(environment: NodeJS.ProcessEnv): ServerConfig {
   }
 
   const {
+    RUNTIME_MODE: _runtimeMode,
     DAILY_PIPELINE_ENABLED: _enabled,
     DAILY_PIPELINE_TIME: _time,
     DAILY_PIPELINE_TIMEZONE: _timezone,
@@ -152,6 +155,13 @@ export function parseConfig(environment: NodeJS.ProcessEnv): ServerConfig {
     AI_SETTINGS_MASTER_KEY_FILE: masterKeyFile,
     ...serviceConfig
   } = result.data;
+  const runtimeMode = optionalEnvironmentValue(environment, "RUNTIME_MODE") ?? "local";
+  if (runtimeMode !== "local" && runtimeMode !== "queue") {
+    throw new Error("RUNTIME_MODE must be local or queue");
+  }
+  if (runtimeMode === "queue" && !serviceConfig.REDIS_URL) {
+    throw new Error("Missing required environment variable: REDIS_URL");
+  }
   const ai = parseAiConfig(environment);
   const dailyPipeline = parseDailyPipelineConfig(environment);
   const configuredServices = masterKeyFile
@@ -167,13 +177,13 @@ export function parseConfig(environment: NodeJS.ProcessEnv): ServerConfig {
     DAILY_PAPER_TARGET_MIN: parseOptionalBoundedPositiveInteger(
       environment,
       "DAILY_PAPER_TARGET_MIN",
-      10,
+      5,
       500,
     ),
     DAILY_PAPER_TARGET_MAX: parseOptionalBoundedPositiveInteger(
       environment,
       "DAILY_PAPER_TARGET_MAX",
-      15,
+      8,
       500,
     ),
   };
@@ -181,8 +191,8 @@ export function parseConfig(environment: NodeJS.ProcessEnv): ServerConfig {
     throw new Error("DAILY_PAPER_TARGET_MIN must not exceed DAILY_PAPER_TARGET_MAX");
   }
   return ai
-    ? { ...configuredServices, ...retention, DAILY_PIPELINE: dailyPipeline, AI: ai }
-    : { ...configuredServices, ...retention, DAILY_PIPELINE: dailyPipeline };
+    ? { ...configuredServices, RUNTIME_MODE: runtimeMode, ...retention, DAILY_PIPELINE: dailyPipeline, AI: ai }
+    : { ...configuredServices, RUNTIME_MODE: runtimeMode, ...retention, DAILY_PIPELINE: dailyPipeline };
 }
 
 function parseDailyPipelineConfig(environment: NodeJS.ProcessEnv): DailyPipelineConfig {
@@ -190,7 +200,7 @@ function parseDailyPipelineConfig(environment: NodeJS.ProcessEnv): DailyPipeline
   if (enabledValue !== "true" && enabledValue !== "false") {
     throw new Error("DAILY_PIPELINE_ENABLED must be true or false");
   }
-  const time = optionalEnvironmentValue(environment, "DAILY_PIPELINE_TIME") ?? "00:00";
+  const time = optionalEnvironmentValue(environment, "DAILY_PIPELINE_TIME") ?? "12:15";
   if (!/^(?:[01]\d|2[0-3]):[0-5]\d$/u.test(time)) {
     throw new Error("DAILY_PIPELINE_TIME must use 24-hour HH:mm format");
   }

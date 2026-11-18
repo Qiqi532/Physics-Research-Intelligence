@@ -5,6 +5,7 @@ import { join } from "node:path";
 const testDatabaseUrl = requireDedicatedTestDatabase();
 const baseEnvironment = {
   DATABASE_URL: testDatabaseUrl,
+  RUNTIME_MODE: "local",
   REDIS_URL: "redis://127.0.0.1:6379/15",
   DAILY_PIPELINE_ENABLED: "false",
   AI_SETTINGS_MASTER_KEY_FILE: join(tmpdir(), "pri-stage8-e2e-model-settings.key"),

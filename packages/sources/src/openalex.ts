@@ -33,6 +33,8 @@ const openAlexResponseSchema = z.object({
 });
 
 type OpenAlexOptions = {
+  searchTerms?: readonly string[];
+  newestFirst?: boolean;
   fetchImpl?: SourceFetch;
   apiKey?: string;
   userAgent?: string;
@@ -50,9 +52,14 @@ export function createOpenAlexConnector(options: OpenAlexOptions = {}): SourceCo
       const url = new URL("https://api.openalex.org/works");
       url.searchParams.set(
         "filter",
-        `topics.field.id:31,from_publication_date:${dateOnly(pageRequest.from)},to_publication_date:${dateOnly(pageRequest.until)}`,
+        `${options.searchTerms?.length ? "" : "topics.field.id:31,"}from_publication_date:${dateOnly(pageRequest.from)},to_publication_date:${dateOnly(pageRequest.until)}`,
       );
-      url.searchParams.set("cursor", pageRequest.cursor ?? "*");
+      if (options.searchTerms?.length) {
+        url.searchParams.set("search", options.searchTerms.map((term) => `"${term.replace(/["\\]/gu, " ")}"`).join(" OR "));
+      }
+      if (options.newestFirst) url.searchParams.set("sort", "publication_date:desc");
+      // Anonymous access permits only the first cursor page. Keep coverage explicitly partial.
+      url.searchParams.set("cursor", options.apiKey?.trim() ? pageRequest.cursor ?? "*" : "*");
       url.searchParams.set("per_page", String(pageSize));
 
       const headers = new Headers({
@@ -69,7 +76,8 @@ export function createOpenAlexConnector(options: OpenAlexOptions = {}): SourceCo
         return record ? [record] : [];
       });
 
-      return { records, nextCursor: payload.meta.next_cursor ?? null };
+      return { records, nextCursor: payload.meta.next_cursor ?? null,
+        ...(!options.apiKey?.trim() && payload.meta.next_cursor ? { limited: true, limitedReason: "api_key_required_for_paging" as const } : {}) };
     },
   };
 }

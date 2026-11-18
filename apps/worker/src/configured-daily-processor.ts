@@ -2,37 +2,11 @@ import {
   createConnectionProvider,
   type ConnectionProviderInput,
 } from "@pri/ai";
-import {
-  createAiRepository,
-  createModelSettingsCipher,
-  createModelSettingsRepository,
-  createPaperRepository,
-  createPrismaClient,
-  createSourceSyncRepository,
-  createTodayRepository,
-} from "@pri/db";
+import { createPrismaClient } from "@pri/db";
 import type { ServerConfig } from "@pri/domain/config";
-import {
-  rankRecommendations,
-  selectDailyPapers,
-} from "@pri/recommendation/score";
-import {
-  createArxivConnector,
-  createCrossrefConnector,
-  createOpenAlexConnector,
-  type SourceConnector,
-} from "@pri/sources";
-import { runDailyPipeline } from "./daily-pipeline";
-import { ingestSources } from "./jobs/ingest-source";
-import { interpretPaper } from "./jobs/interpret-paper";
-import { screenPapers } from "./jobs/screen-papers";
-import { dailyWindowAt } from "./scheduler";
-import {
-  createRuntimeAiConfigResolver,
-  type ResolvedAiConnection,
-  type RuntimeAiConfigResolver,
-  type RuntimeAiTaskRoute,
-} from "./runtime-ai-config";
+import { rankRecommendations, selectDailyPapers } from "@pri/recommendation/score";
+import { runConfiguredResearchDaily, type ResearchDailyOptions } from "./configured-research-daily";
+import type { ResolvedAiConnection, RuntimeAiTaskRoute } from "./runtime-ai-config";
 
 export type ScreenedSelectionPool = {
   interests: Record<string, number>;
@@ -180,160 +154,10 @@ export async function markDeliveredSelection(input: {
   });
 }
 
-export function createConfiguredDailyProcessor(
-  config: ServerConfig,
-  options: {
-    resolver?: RuntimeAiConfigResolver;
-    createProvider?: typeof createConnectionProvider;
-  } = {},
-) {
+export function createConfiguredDailyProcessor(config: ServerConfig, options: ResearchDailyOptions = {}) {
   const client = createPrismaClient(config.DATABASE_URL);
-  const paperRepository = createPaperRepository(client);
-  const stateRepository = createSourceSyncRepository(client);
-  const aiRepository = createAiRepository(client);
-  const todayRepository = createTodayRepository(client);
-  const resolver = options.resolver ?? createRuntimeAiConfigResolver({
-    repository: createModelSettingsRepository(client),
-    cipher: createModelSettingsCipher({ keyFilePath: config.AI_SETTINGS_MASTER_KEY_FILE }),
-    environmentConfig: config.AI,
-    classifyMaxOutputTokens: config.AI?.classify.maxOutputTokens,
-    interpretMaxOutputTokens: config.AI?.interpret.maxOutputTokens,
-  });
-  const createProvider = options.createProvider ?? createConnectionProvider;
-  const connectors: SourceConnector[] = [
-    createOpenAlexConnector({ apiKey: config.OPENALEX_API_KEY }),
-    createArxivConnector(),
-  ];
-  if (config.CROSSREF_ISSN) {
-    connectors.unshift(createCrossrefConnector({
-      issn: config.CROSSREF_ISSN,
-      contactEmail: config.SOURCE_CONTACT_EMAIL,
-    }));
-  }
-
   return {
-    async process() {
-      const snapshot = await resolver.resolve();
-      // Screening reuses the classification route (same Kimi connection).
-      const screeningProviders = createTaskProviders(
-        snapshot.classify,
-        createProvider,
-      );
-      const interpretationProviders = createTaskProviders(
-        snapshot.interpret,
-        createProvider,
-      );
-      const window = dailyWindowAt(
-        new Date(),
-        config.DAILY_PIPELINE.timezone,
-        config.DAILY_PIPELINE.time,
-        config.DAILY_PIPELINE.ingestWindowDays,
-      );
-      return runDailyPipeline({
-        window,
-        async ingest(input) {
-          const outcomes = await ingestSources({
-            connectors,
-            paperRepository,
-            stateRepository,
-            from: input.from,
-            until: input.until,
-          });
-          if (outcomes.every((outcome) => !outcome.ok)) {
-            return { status: "failed", errorCode: "all_sources_failed" };
-          }
-          return {
-            status: "complete",
-            records: outcomes.reduce(
-              (total, outcome) => total + (outcome.ok ? outcome.summary.records : 0),
-              0,
-            ),
-          };
-        },
-        async screen(input) {
-          // Load user interests to guide LLM screening (safe for test mocks).
-          let userInterests: Record<string, number> | undefined;
-          try {
-            if (client.userInterest) {
-              const interestRows = await client.userInterest.findMany({
-                where: { userId: "default" },
-                select: { tagSlug: true, weight: true },
-              });
-              userInterests = Object.fromEntries(
-                interestRows.map(({ tagSlug, weight }) => [tagSlug, weight]),
-              );
-            }
-          } catch {
-            // In test environments without a real database, skip interest loading.
-            userInterests = undefined;
-          }
-          return screenPapers({
-            from: input.from,
-            until: input.until,
-            limit: 1000,
-            batchSize: 15,
-            repository: aiRepository,
-            primary: screeningProviders.primary,
-            fallback: screeningProviders.fallback,
-            userInterests,
-          });
-        },
-        async listInterpretationPaperIds(input) {
-          const pool = await aiRepository.listScreenedSelectionCandidates({
-            from: input.from,
-            until: input.until,
-            limit: 500,
-            excludeDeliveredWithinDays:
-              config.DAILY_PIPELINE.deliveryRecencyDays > 0
-                ? config.DAILY_PIPELINE.deliveryRecencyDays
-                : undefined,
-          });
-          const selection = buildDailySelectionFromScreening({
-            pool,
-            now: input.until,
-            minCount: config.DAILY_PAPER_TARGET_MIN,
-            maxCount: config.DAILY_PAPER_TARGET_MAX,
-            perDirectionCap: perDirectionCapFor(config.DAILY_PAPER_TARGET_MAX),
-          });
-          return selection.paperIds;
-        },
-        async interpret(paperId) {
-          const outcome = await interpretPaper({
-            paperId,
-            repository: aiRepository,
-            primary: interpretationProviders.primary,
-            fallback: interpretationProviders.fallback,
-          });
-          return outcome.status;
-        },
-        async prepareToday() {
-          const today = await todayRepository.getToday({
-            userId: "default",
-            now: new Date(),
-            candidateLimit: 500,
-          });
-          return { recommendations: today.recommendations.length };
-        },
-        async markDelivered(input, paperIds) {
-          await markDeliveredSelection({
-            repository: aiRepository,
-            paperIds,
-            at: input.until,
-            deliveryRecencyDays: config.DAILY_PIPELINE.deliveryRecencyDays,
-          });
-        },
-        async pruneExpired(input) {
-          try {
-            const cutoff = retentionCutoffAt(input.until, config.PAPER_RETENTION_DAYS);
-            const outcome = await paperRepository.pruneExpiredPapers({ cutoff });
-            return { status: "ok", deleted: outcome.deleted };
-          } catch {
-            return { status: "failed", errorCode: "retention_cleanup_failed" };
-          }
-        },
-
-      });
-    },
+    process: () => runConfiguredResearchDaily(client, config, options),
     close: () => client.$disconnect(),
   };
 }

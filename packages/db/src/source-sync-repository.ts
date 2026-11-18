@@ -4,6 +4,7 @@ export type SourceSyncState = {
   sourceName: string;
   windowFrom: Date | null;
   windowUntil: Date | null;
+  completedUntil?: Date | null;
   cursor: string | null;
   lastSuccessAt: Date | null;
   lastFailureAt: Date | null;
@@ -47,11 +48,13 @@ export function createSourceSyncRepository(client: DatabaseClient): SourceSyncRe
     },
 
     async markSuccess(sourceName, completedAt) {
+      const state = await client.sourceSyncState.findUnique({ where: { sourceName }, select: { windowUntil: true } });
       await client.sourceSyncState.upsert({
         where: { sourceName },
         create: { sourceName, lastSuccessAt: completedAt },
         update: {
           cursor: null,
+          completedUntil: state?.windowUntil ?? undefined,
           lastSuccessAt: completedAt,
           lastErrorCode: null,
           lastErrorMessage: null,

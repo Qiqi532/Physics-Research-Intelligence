@@ -47,6 +47,8 @@ export async function classifyPaper(
   const paperInput = toPaperAiInput(paper);
   const idempotencyKey = createIdempotencyKey({
     paperId: paper.id,
+    provider: input.primary.name,
+    inputHash: createInputHash(paperInput),
     runType: "CLASSIFY",
     model: input.primary.model,
     promptVersion: CLASSIFY_PROMPT_VERSION,

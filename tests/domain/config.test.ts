@@ -7,6 +7,37 @@ const validEnvironment = {
 };
 
 describe("server configuration", () => {
+  it("defaults to local mode without requiring Redis", () => {
+    const config = parseConfig({ DATABASE_URL: validEnvironment.DATABASE_URL });
+
+    expect(config.RUNTIME_MODE).toBe("local");
+    expect(config.REDIS_URL).toBeUndefined();
+    expect(config.DAILY_PIPELINE).toEqual(expect.objectContaining({
+      enabled: false,
+      time: "12:15",
+      timezone: "Asia/Shanghai",
+    }));
+  });
+
+  it("requires Redis only in explicitly selected queue mode", () => {
+    expect(() => parseConfig({
+      DATABASE_URL: validEnvironment.DATABASE_URL,
+      RUNTIME_MODE: "queue",
+    })).toThrow("Missing required environment variable: REDIS_URL");
+    expect(() => parseConfig({
+      DATABASE_URL: validEnvironment.DATABASE_URL,
+      RUNTIME_MODE: "queue",
+      REDIS_URL: " ",
+    })).toThrow("Missing required environment variable: REDIS_URL");
+    expect(parseConfig({ ...validEnvironment, RUNTIME_MODE: "queue" }).RUNTIME_MODE)
+      .toBe("queue");
+  });
+
+  it("rejects unknown runtime modes", () => {
+    expect(() => parseConfig({ ...validEnvironment, RUNTIME_MODE: "other" }))
+      .toThrow("RUNTIME_MODE must be local or queue");
+  });
+
   it("returns a clear error when DATABASE_URL is missing", () => {
     expect(() => parseConfig({ ...validEnvironment, DATABASE_URL: "" })).toThrow(
       "Missing required environment variable: DATABASE_URL",
@@ -84,12 +115,12 @@ describe("server configuration", () => {
     }
   });
 
-  it("defaults retention to 30 days and the daily target to 10–15 papers", () => {
+  it("defaults retention to 30 days and the daily target to 5–8 papers", () => {
     const config = parseConfig(validEnvironment);
 
     expect(config.PAPER_RETENTION_DAYS).toBe(30);
-    expect(config.DAILY_PAPER_TARGET_MIN).toBe(10);
-    expect(config.DAILY_PAPER_TARGET_MAX).toBe(15);
+    expect(config.DAILY_PAPER_TARGET_MIN).toBe(5);
+    expect(config.DAILY_PAPER_TARGET_MAX).toBe(8);
   });
 
   it("accepts explicit bounded retention and daily-target values", () => {
@@ -181,8 +212,8 @@ describe("server configuration", () => {
     });
 
     expect(config.PAPER_RETENTION_DAYS).toBe(30);
-    expect(config.DAILY_PAPER_TARGET_MIN).toBe(10);
-    expect(config.DAILY_PAPER_TARGET_MAX).toBe(15);
+    expect(config.DAILY_PAPER_TARGET_MIN).toBe(5);
+    expect(config.DAILY_PAPER_TARGET_MAX).toBe(8);
   });
 
   it("rejects a daily target where min exceeds max", () => {

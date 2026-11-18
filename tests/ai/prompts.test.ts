@@ -59,7 +59,7 @@ describe("AI prompts", () => {
   });
 
   it("builds a compact screening prompt with bounded public abstract text", () => {
-    const longAbstract = "x".repeat(250);
+    const longAbstract = "x".repeat(4500);
     const prompt = buildScreenPrompt([{
       paperId: "paper-1",
       title: paper.title,
@@ -79,10 +79,15 @@ describe("AI prompts", () => {
       paperId: "paper-1",
       title: paper.title,
       journal: paper.journal,
-      abstractSnippet: `${"x".repeat(200)}…`,
+      abstractSnippet: "x".repeat(4000),
+      abstractMissing: false,
+      abstractTruncated: true,
     }]);
     expect(prompt.system).toContain("amo-optics(2.00)");
     expect(prompt.system).not.toContain("astrophysics(0.00)");
+    expect(prompt.system).toContain("5-8");
+    expect(prompt.system).not.toContain("10-15");
+    expect(prompt.system).toContain("Do not fill a quota");
     expect(prompt.user).not.toContain("apiKey");
     expect(prompt.user).not.toContain("fullText");
   });

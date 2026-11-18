@@ -10,14 +10,19 @@ const log = createStructuredLogger();
 
 async function main(): Promise<void> {
   const config = parseConfig(process.env);
-  const dailyProcessor = config.DAILY_PIPELINE.enabled
-    ? createConfiguredDailyProcessor(config)
-    : undefined;
+  let dailyProcessor: ReturnType<typeof createConfiguredDailyProcessor> | undefined;
+  const redisUrl = () => {
+    if (!config.REDIS_URL) {
+      throw new Error("Missing required environment variable: REDIS_URL");
+    }
+    return config.REDIS_URL;
+  };
   const runtime = await startWorkerRuntime({
-    queue: createDailyQueue(config.REDIS_URL),
+    mode: config.RUNTIME_MODE,
+    createQueue: () => createDailyQueue(redisUrl()),
     schedule: config.DAILY_PIPELINE,
     createWorker: (processor) => createDailyWorker(
-      config.REDIS_URL,
+      redisUrl(),
       processor,
       (error) => log({
         event: "worker.queue.error",
@@ -32,22 +37,30 @@ async function main(): Promise<void> {
         ? error.code
         : "daily_pipeline_failed",
       logger: log,
-      operation: () => dailyProcessor!.process(),
+      operation: () => {
+        dailyProcessor ??= createConfiguredDailyProcessor(config);
+        return dailyProcessor.process();
+      },
     }),
   });
-  log({ event: "worker.started", status: "ready", details: {
-    status: "ready",
+  log({ event: "worker.started", status: config.RUNTIME_MODE === "local" ? "skipped" : "ready", details: {
+    status: config.RUNTIME_MODE === "local" ? "disabled" : "ready",
+    runtimeMode: config.RUNTIME_MODE,
     dailyPipelineEnabled: config.DAILY_PIPELINE.enabled,
     scheduleTime: config.DAILY_PIPELINE.time,
     scheduleTimezone: config.DAILY_PIPELINE.timezone,
   } });
+  if (config.RUNTIME_MODE === "local") return;
 
   let closing = false;
   const close = async () => {
     if (closing) return;
     closing = true;
-    await runtime.close();
-    await dailyProcessor?.close();
+    try {
+      await runtime.close();
+    } finally {
+      await dailyProcessor?.close();
+    }
   };
   process.once("SIGINT", () => void close());
   process.once("SIGTERM", () => void close());

@@ -21,6 +21,8 @@ const FEEDBACK_VALUES = new Set(["NONE", "LIKE", "DISLIKE"]);
 const STATE_KEYS = new Set(["status", "feedback", "note", "isFavorite"]);
 
 type TodayApiOptions = {
+  reportOnly?: boolean;
+  schedule?: { time: string; timezone: string };
   logError?: (error: unknown) => void;
   now?: () => Date;
 };
@@ -39,6 +41,7 @@ export function createTodayApi(
           userId: "default",
           now: now(),
           candidateLimit: 500,
+          ...(options.reportOnly ? { reportOnly: true, schedule: options.schedule } : {}),
         });
         return { status: 200, body: toTodayDto(today) };
       } catch (error) {
@@ -96,6 +99,8 @@ export async function withConfiguredTodayApi(
     client = createPrismaClient(config.DATABASE_URL);
     const repository = createTodayRepository(client);
     const api = createTodayApi(repository, {
+      reportOnly: true,
+      schedule: config.DAILY_PIPELINE,
       logError: (error) => {
         console.error(
           "Today repository request failed",
@@ -156,6 +161,7 @@ function parseStateInput(body: unknown): {
 function toTodayDto(today: TodayData): TodayDto {
   return {
     generatedAt: today.generatedAt.toISOString(),
+    ...(today.report ? { report: today.report } : {}),
     stats: today.stats,
     crossSignals: today.crossSignals,
     recommendations: today.recommendations.map(toRecommendationDto),
@@ -181,6 +187,8 @@ function toRecommendationDto(paper: TodayRecommendation) {
     score: paper.score,
     scoreBreakdown: paper.scoreBreakdown,
     reasons: paper.reasons,
+    ...(paper.evidence ? { evidence: paper.evidence, provenance: paper.provenance,
+      reportInterpretation: paper.reportInterpretation } : {}),
   };
 }
 
