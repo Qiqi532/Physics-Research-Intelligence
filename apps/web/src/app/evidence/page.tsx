@@ -2,6 +2,7 @@ import Link from "next/link";
 import { headers } from "next/headers";
 import { EvidenceSearch } from "@/components/evidence-search";
 import { allowEvidence, withEvidence } from "@/server/evidence";
+import { zoteroOnline } from "@pri/domain/zotero-local";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "本地证据检索 · PRI", referrer: "no-referrer" as const };
@@ -12,6 +13,7 @@ const labels: Record<string, string> = { ready: "已索引", missing: "源文件
 export default async function EvidencePage() {
   const allowed = allowEvidence(await headers());
   const data = allowed ? await withEvidence((repo) => repo.inventory()).catch(() => null) : null;
+  const online = data?.zotero.length ? await zoteroOnline() : null;
   return <><a className="skip-link" href="#main-content">跳到主要内容</a>
     <header className="site-header"><Link className="brand" href="/">PRI <span>Physics Research Intelligence</span></Link>
       <nav className="site-nav" aria-label="主要导航"><Link className="header-link" href="/">Today Physics</Link>
@@ -26,6 +28,20 @@ export default async function EvidencePage() {
           <ul>{data.files.map((file, index) => <li key={index}>{file.name} · {file.role} · {labels[file.status] ?? file.status}
             {file.document && ` · ${file.document.pageCount} 页`}
             {file.documentId && file.status === "ready" && <> · <Link prefetch={false} href={`/evidence/${file.documentId}/1`}>打开原文</Link></>}</li>)}</ul>
+        </details>
+        <details className="evidence-panel" open={!!data.zotero.length}><summary>Zotero 只读收藏夹</summary>
+          <p>用 <code>pnpm evidence:zotero --list</code> 查看收藏夹键，用 <code>pnpm evidence:zotero --collection KEY</code> 同步选定收藏夹。</p>
+          {online === false && <p role="status">Zotero 本地接口离线，显示上次成功同步的索引。</p>}
+          {data.zotero.map((collection) => <section key={collection.id}>
+            <h2>{collection.title}</h2>
+            <p>{collection.collectionKey} · {collection._count.attachments} 份 PDF 附件 · 最近成功同步 {collection.syncedAt.toLocaleString("zh-CN", { timeZone: "Asia/Shanghai" })}</p>
+            {collection.lastError && <p>上次同步未完成，已保留最近成功的索引。</p>}
+            <ul>{collection.attachments.map((file) => <li key={file.attachmentKey}>
+              {file.title} · {file.role} · {labels[file.status] ?? file.status}
+              {file.document && ` · ${file.document.pageCount} 页`}
+              {file.documentId && file.status === "ready" && <> · <Link prefetch={false} href={`/evidence/${file.documentId}/1`}>打开原文</Link></>}
+            </li>)}</ul>
+          </section>)}
         </details></>}
     </main></>;
 }

@@ -110,6 +110,7 @@ model LocalEvidenceDocument {
   paperId       String?  @db.Uuid
   paper         Paper?   @relation(fields: [paperId], references: [id], onDelete: Restrict)
   locations     LocalEvidenceLocation[]
+  zoteroLocations ZoteroAttachmentLocation[]
   pages         LocalEvidencePage[]
 }
 
@@ -136,6 +137,41 @@ model LocalEvidencePage {
   document   LocalEvidenceDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
 
   @@id([documentId, number])
+}
+
+model ZoteroCollectionSnapshot {
+  id            String   @id @default(uuid()) @db.Uuid
+  sourceScope   String
+  libraryKey    String
+  collectionKey String
+  title         String
+  syncedAt      DateTime @db.Timestamptz(6)
+  lastError     String?
+  attachments   ZoteroAttachmentLocation[]
+
+  @@unique([libraryKey, collectionKey])
+  @@index([sourceScope, collectionKey])
+}
+
+model ZoteroAttachmentLocation {
+  collectionId  String @db.Uuid
+  attachmentKey String
+  itemKey       String
+  title         String
+  name          String
+  creators      String?
+  date          String?
+  doi           String?
+  role          String
+  status        String
+  root          String?
+  relativePath  String?
+  documentId    String? @db.VarChar(64)
+  collection    ZoteroCollectionSnapshot @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  document      LocalEvidenceDocument? @relation(fields: [documentId], references: [id], onDelete: Restrict)
+
+  @@id([collectionId, attachmentKey])
+  @@index([documentId])
 }
 
 model PhysicsTag {

@@ -11,7 +11,7 @@ export default async function EvidenceReader({ params }: { params: Promise<{ id:
   const number = Number(page);
   const result = await withEvidence((repo) => repo.page(id, number));
   if (!result) notFound();
-  const title = result.document.title ?? result.document.locations[0]?.name ?? "历史文件版本";
+  const title = result.document.zoteroLocations[0]?.title ?? result.document.title ?? result.document.locations[0]?.name ?? "历史文件版本";
   return <main className="today-shell evidence-shell">
     <Link href="/evidence">返回本地证据检索</Link><h1>{title}</h1>
     <nav className="evidence-pagination" aria-label="原文翻页">

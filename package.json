@@ -9,6 +9,7 @@
   },
   "scripts": {
     "evidence:index": "pnpm --filter @pri/worker evidence:index",
+    "evidence:zotero": "pnpm --filter @pri/worker evidence:zotero",
     "prebuild": "pnpm --filter @pri/db prisma:generate",
     "build": "pnpm --recursive --if-present build",
     "dev": "pnpm --filter @pri/web dev",

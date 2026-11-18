@@ -1,5 +1,5 @@
 export { createPrismaClient, type DatabaseClient } from "./client";
-export { createEvidenceRepository, withEvidenceScanLock, type EvidenceRepository } from "./evidence-repository";
+export { createEvidenceRepository, withEvidenceScanLock, type EvidenceRepository, type ZoteroEvidenceLocation } from "./evidence-repository";
 export { createDailyRepository, withDailyLock, type DailyRepository, type DailyRunInput, type DailyCheckpoint } from "./daily-repository";
 export {
   createModelSettingsCipher,

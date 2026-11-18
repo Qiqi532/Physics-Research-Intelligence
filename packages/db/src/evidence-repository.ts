@@ -2,6 +2,7 @@ import { Client } from "pg";
 import { Prisma } from "./generated/prisma/client";
 import type { DatabaseClient } from "./client";
 import { evidenceQuery, evidenceQuote, normalizeEvidence, type EvidenceDocument, type EvidenceHit } from "@pri/domain/evidence";
+import type { ZoteroAttachment, ZoteroCollection } from "@pri/domain/zotero-local";
 
 function schemaName(url: string) {
   const schema = new URL(url).searchParams.get("schema") ?? "public";
@@ -27,26 +28,37 @@ export async function withEvidenceScanLock<T>(databaseUrl: string, scan: (assert
 }
 
 export type EvidenceLocation = { root: string; relativePath: string; name: string; role: string };
+export type ZoteroEvidenceLocation = ZoteroAttachment & {
+  role: string; status: string; root?: string; relativePath?: string; documentId?: string;
+};
+
+async function saveDocument(tx: Prisma.TransactionClient, id: string, parserVersion: string, parsed: EvidenceDocument) {
+  const fields = { parserVersion, title: parsed.title, pageCount: parsed.pages.length };
+  await tx.localEvidenceDocument.upsert({ where: { id }, create: { id, ...fields }, update: fields });
+  await tx.localEvidencePage.deleteMany({ where: { documentId: id } });
+  for (let start = 0; start < parsed.pages.length; start += 64) {
+    await tx.localEvidencePage.createMany({ data: parsed.pages.slice(start, start + 64).map((page) => ({
+      ...page, documentId: id, normalized: normalizeEvidence(page.text),
+    })) });
+  }
+}
 
 export function createEvidenceRepository(db: DatabaseClient, databaseUrl: string) {
   // Prisma qualifies ORM queries with the adapter schema. Raw SQL must use it explicitly.
   const table = (name: string) => Prisma.raw(`"${schemaName(databaseUrl)}"."${name}"`);
+  const hasReadySource = { OR: [
+    { locations: { some: { status: "ready" } } }, { zoteroLocations: { some: { status: "ready" } } },
+  ] };
   return {
     async indexed(id: string, parserVersion: string) {
       return (await db.localEvidenceDocument.count({ where: { id, parserVersion } })) > 0;
     },
+    async recordDocument(id: string, parserVersion: string, parsed: EvidenceDocument) {
+      await db.$transaction((tx) => saveDocument(tx, id, parserVersion, parsed), { timeout: 60_000 });
+    },
     async record(location: EvidenceLocation, id: string, parserVersion: string, parsed?: EvidenceDocument) {
       await db.$transaction(async (tx) => {
-        if (parsed) {
-          const fields = { parserVersion, title: parsed.title, pageCount: parsed.pages.length };
-          await tx.localEvidenceDocument.upsert({ where: { id }, create: { id, ...fields }, update: fields });
-          await tx.localEvidencePage.deleteMany({ where: { documentId: id } });
-          for (let start = 0; start < parsed.pages.length; start += 64) {
-            await tx.localEvidencePage.createMany({ data: parsed.pages.slice(start, start + 64).map((page) => ({
-              ...page, documentId: id, normalized: normalizeEvidence(page.text),
-            })) });
-          }
-        }
+        if (parsed) await saveDocument(tx, id, parserVersion, parsed);
         const fields = { name: location.name, role: location.role, documentId: id, status: "ready" };
         const identity = { root: location.root, relativePath: location.relativePath };
         await tx.localEvidenceLocation.upsert({ where: { root_relativePath: identity }, create: { ...identity, ...fields }, update: fields });
@@ -63,14 +75,41 @@ export function createEvidenceRepository(db: DatabaseClient, databaseUrl: string
         data: { status: "missing" },
       })).count;
     },
+    async publishZotero(collection: ZoteroCollection, attachments: ZoteroEvidenceLocation[], syncedAt: Date) {
+      return db.$transaction(async (tx) => {
+        const snapshot = await tx.zoteroCollectionSnapshot.upsert({
+          where: { libraryKey_collectionKey: { libraryKey: collection.libraryKey, collectionKey: collection.collectionKey } },
+          create: { ...collection, syncedAt },
+          update: { title: collection.title, sourceScope: collection.sourceScope, syncedAt, lastError: null },
+        });
+        await tx.zoteroAttachmentLocation.deleteMany({ where: { collectionId: snapshot.id } });
+        for (let start = 0; start < attachments.length; start += 200) {
+          await tx.zoteroAttachmentLocation.createMany({ data: attachments.slice(start, start + 200).map((attachment) => ({
+            ...attachment, collectionId: snapshot.id,
+          })) });
+        }
+      }, { timeout: 60_000 });
+    },
+    async zoteroError(sourceScope: string, collectionKey: string, lastError: string) {
+      await db.zoteroCollectionSnapshot.updateMany({ where: { sourceScope, collectionKey }, data: { lastError } });
+    },
     async inventory() {
-      const [files, indexed, issues] = await Promise.all([
+      const [files, indexed, issues, zotero] = await Promise.all([
         db.localEvidenceLocation.findMany({ orderBy: [{ name: "asc" }, { id: "asc" }], take: 200,
           select: { name: true, role: true, status: true, documentId: true, document: { select: { pageCount: true } } } }),
-        db.localEvidenceDocument.count({ where: { locations: { some: { status: "ready" } } } }),
-        db.localEvidencePage.groupBy({ by: ["status"], where: { status: { not: "text" }, document: { locations: { some: { status: "ready" } } } }, _count: true }),
+        db.localEvidenceDocument.count({ where: hasReadySource }),
+        db.localEvidencePage.groupBy({ by: ["status"], where: { status: { not: "text" }, document: hasReadySource }, _count: true }),
+        db.zoteroCollectionSnapshot.findMany({
+          orderBy: [{ syncedAt: "desc" }, { id: "asc" }],
+          select: { id: true, collectionKey: true, sourceScope: true, title: true, syncedAt: true, lastError: true,
+            _count: { select: { attachments: true } },
+            attachments: { orderBy: [{ title: "asc" }, { attachmentKey: "asc" }], take: 200,
+              select: { title: true, name: true, role: true, status: true, documentId: true, attachmentKey: true, itemKey: true,
+                creators: true, date: true, doi: true, document: { select: { pageCount: true } } } },
+          },
+        }),
       ]);
-      return { files, indexed, issues };
+      return { files, indexed, issues, zotero };
     },
     async search(query: string, limit = 5): Promise<EvidenceHit[]> {
       const groups = evidenceQuery(query);
@@ -80,11 +119,18 @@ export function createEvidenceRepository(db: DatabaseClient, databaseUrl: string
       const vector = Prisma.sql`to_tsvector('simple'::regconfig, p."normalized")`;
       const combined = queries.join(" | ");
       const rows = await db.$queryRaw<Array<Omit<EvidenceHit, "quote"> & { text: string }>>(Prisma.sql`
-        SELECT d.id, COALESCE(d.title,f.name) AS title, f.role, p.number AS page, d."pageCount",
+        SELECT d.id, COALESCE(f.title,d.title,f.name) AS title, f.role, p.number AS page, d."pageCount",
           p.text, p.status, d."parserVersion"
         FROM ${table("LocalEvidencePage")} p JOIN ${table("LocalEvidenceDocument")} d ON d.id=p."documentId"
-        JOIN LATERAL (SELECT name,role FROM ${table("LocalEvidenceLocation")} l
-          WHERE l."documentId"=d.id AND l.status IN ('ready','unavailable','changed') ORDER BY name,id LIMIT 1) f ON true
+        JOIN LATERAL (
+          SELECT title,name,role FROM (
+            SELECT NULL AS title,name,role,1 AS priority FROM ${table("LocalEvidenceLocation")}
+              WHERE "documentId"=d.id AND status IN ('ready','unavailable','changed')
+            UNION ALL
+            SELECT title,name,role,0 AS priority FROM ${table("ZoteroAttachmentLocation")}
+              WHERE "documentId"=d.id AND status='ready'
+          ) sources ORDER BY priority,name,title,role LIMIT 1
+        ) f ON true
         CROSS JOIN LATERAL (SELECT count(*)::int AS n FROM jsonb_array_elements_text(${JSON.stringify(queries)}::jsonb) g(q)
           WHERE ${vector} @@ to_tsquery('simple',g.q)) matches
         WHERE ${vector} @@ to_tsquery('simple',${combined})
@@ -96,11 +142,18 @@ export function createEvidenceRepository(db: DatabaseClient, databaseUrl: string
     page(id: string, number: number) {
       return db.localEvidencePage.findUnique({ where: { documentId_number: { documentId: id, number } },
         select: { text: true, status: true, document: { select: { title: true, pageCount: true,
-          locations: { orderBy: { name: "asc" }, take: 1, select: { name: true } } } } } });
+          locations: { orderBy: { name: "asc" }, take: 1, select: { name: true } },
+          zoteroLocations: { orderBy: [{ title: "asc" }, { attachmentKey: "asc" }], take: 1, select: { title: true } },
+        } } } });
     },
-    locations(id: string) {
-      return db.localEvidenceLocation.findMany({ where: { documentId: id, status: { not: "missing" } },
-        select: { root: true, relativePath: true } });
+    async locations(id: string) {
+      const [files, attachments] = await Promise.all([
+        db.localEvidenceLocation.findMany({ where: { documentId: id, status: { not: "missing" } },
+          select: { root: true, relativePath: true } }),
+        db.zoteroAttachmentLocation.findMany({ where: { documentId: id, status: "ready" },
+          select: { root: true, relativePath: true } }),
+      ]);
+      return files.concat(attachments.flatMap(({ root, relativePath }) => root && relativePath ? [{ root, relativePath }] : []));
     },
   };
 }
