@@ -9,6 +9,7 @@ import {
   type UserFeedback,
 } from "@pri/recommendation/score";
 import type { DatabaseClient } from "./client";
+import { patchPaperState } from "./paper-state-repository";
 
 const CANDIDATE_WINDOW_MS = 30 * 24 * 60 * 60 * 1_000;
 const SHANGHAI_OFFSET_MINUTES = 8 * 60;
@@ -280,54 +281,7 @@ export function createTodayRepository(client: DatabaseClient): TodayRepository {
         return { status: "not_found" as const };
       }
 
-      const existing = input.isFavorite === undefined
-        ? null
-        : await client.userPaperState.findUnique({
-            where: {
-              userId_paperId: { userId: input.userId, paperId: paper.id },
-            },
-            select: { isFavorite: true, favoritedAt: true },
-          });
-      const createFavorite = input.isFavorite ?? false;
-      const createFavoritedAt = createFavorite ? new Date() : null;
-      const favoriteUpdate = input.isFavorite === undefined
-        ? {}
-        : {
-            isFavorite: input.isFavorite,
-            favoritedAt: input.isFavorite
-              ? existing?.isFavorite ? existing.favoritedAt : new Date()
-              : null,
-          };
-
-      const state = await client.userPaperState.upsert({
-        where: {
-          userId_paperId: { userId: input.userId, paperId: paper.id },
-        },
-        create: {
-          userId: input.userId,
-          paperId: paper.id,
-          status: input.status,
-          feedback: input.feedback,
-          note: input.note,
-          isFavorite: createFavorite,
-          favoritedAt: createFavoritedAt,
-        },
-        update: {
-          status: input.status,
-          feedback: input.feedback,
-          note: input.note,
-          ...favoriteUpdate,
-        },
-        select: {
-          status: true,
-          feedback: true,
-          note: true,
-          isFavorite: true,
-          favoritedAt: true,
-          updatedAt: true,
-        },
-      });
-      return { status: "updated" as const, state };
+      return patchPaperState(client, paper.id, input.userId, input);
     },
   };
 }

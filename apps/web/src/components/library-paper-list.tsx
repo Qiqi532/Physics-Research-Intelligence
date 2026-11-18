@@ -53,14 +53,8 @@ export function LibraryPaperList({ papers }: { papers: FavoritePaperDto[] }) {
               <p className="paper-favorite-date">
                 {`收藏于 ${dateFormatter.format(new Date(paper.favoritedAt))}`}
               </p>
-              {paper.doi ? (
-                <PaperStateControls
-                  doi={paper.doi}
-                  currentStatus={paper.readingStatus}
-                  currentFeedback={paper.feedback}
-                  currentFavorite
-                />
-              ) : null}
+              <PaperStateControls paperId={paper.id} currentStatus={paper.readingStatus}
+                currentFeedback={paper.feedback} currentFavorite />
             </article>
           </li>
         );

@@ -14,6 +14,8 @@ packages/db/src/generated/prisma/
 
 *.log
 /logs/stage01-*/
+/data/research-seed-abstracts.local.json
+/data/research-seed-abstracts.local.json
 /apps/web/public/pri-pdfjs/
 .DS_Store
 Thumbs.db

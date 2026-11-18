@@ -1,6 +1,6 @@
 # 本地科研工作台开发路线与技术栈
 
-2026 年 11 月 18 日确认阶段 0–1。[实施与验收记录](../../changes/2026-11-18-local-evidence-search.md)
+2026 年 11 月 18 日确认阶段 0–3。[阶段 0–1](../../changes/2026-11-18-local-evidence-search.md) · [阶段 2–3](../../changes/2026-11-18-zotero-ranking-review.md)
 
 **建议首版先解决写综述时的一个问题。** 在本机输入“哪些器件在改变栅压后发生光电流符号翻转”，得到论文、逐字摘录和页码，点击即可回到正确版本的 PDF。先让这个动作比手动翻文献更快，再用同一批证据做器件对照表或带引用的问答。
 
@@ -61,4 +61,4 @@
 | 数据兼容 | `pnpm --filter @pri/db prisma:validate` 检查 schema；在独立测试数据库运行 `pnpm exec vitest run tests/db/paper-repository.test.ts tests/db/daily-repository.test.ts`。实施时补资产保留、重复扫描、页码版本切换和断点重建用例。 |
 | 用户路径 | `pnpm typecheck`、`pnpm lint`、`pnpm build`。用专用测试库运行 `pnpm test:e2e`，补中文查询到正确页、无 DOI 本地文献、Zotero 离线场景。用 Mock Provider 核查私人测试标记没有出现在任何模型请求中。 |
 
-**已确认的首版范围为阶段 0 和 1。** 交付边界是一套有版本依据、可以在自己的电脑上查到原文页的工具。阶段 2 至 5 按实际查页耗时、日报反馈和制表需求评估。
+阶段 0–3 已交付功能。真实日报的七日评价由后续使用积累。阶段 4–5 按查页耗时、日报反馈和制表需求评估。

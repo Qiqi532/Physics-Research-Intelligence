@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { isHighQualityJournal } from "@pri/domain/journal-whitelist";
 import { matchResearch, type ResearchProfile } from "@pri/domain/research-profile";
+import { keywordOrder } from "@pri/domain/ranking-review";
 import { dailyReportSchema, type DailyReportSnapshot, type DailyReportItem, type SourceCoverage } from "@pri/domain/daily-report";
 import type { DailyRepository } from "@pri/db";
 import type { DailyWindow } from "./scheduler";
@@ -29,6 +30,7 @@ export type ResearchDailyDependencies = {
   store: Pick<DailyRepository, "open" | "checkpoint" | "fail" | "publish">;
   ingest(): Promise<SourceCoverage[]>;
   candidates(): Promise<DailyCandidate[]>;
+  freezeCandidates?(runId: string, checkpoint: Record<string, unknown>, pool: DailyCandidate[]): Promise<void>;
   screen(papers: DailyCandidate[], scope: string): Promise<ScreenPapersOutcome>;
   screeningResults(batchIds: string[]): Promise<DailyScreening[]>;
   interpret(paper: DailyCandidate, scope: string): Promise<Interpretation | null>;
@@ -85,13 +87,13 @@ export async function runResearchDaily(deps: ResearchDailyDependencies, maxCount
     stage = "screen";
     await save();
     if (!state.candidates) {
-      state.candidates = (await deps.candidates()).filter((paper) => matchResearch(deps.research.profile, paper).kind !== "none")
-        .sort((a, b) => {
-          const left = matchResearch(deps.research.profile, a), right = matchResearch(deps.research.profile, b);
-          return Number(right.kind === "core") - Number(left.kind === "core") || right.score - left.score ||
-            (b.publishedAt ?? "").localeCompare(a.publishedAt ?? "") || a.id.localeCompare(b.id);
-        }).slice(0, deps.research.profile.screening.candidateLimit);
-      await save();
+      const pool = await deps.candidates();
+      state.candidates = keywordOrder(deps.research.profile, pool).slice(0, deps.research.profile.screening.candidateLimit);
+      if (deps.freezeCandidates) {
+        deps.assertLock?.();
+        state.version = 1;
+        await deps.freezeCandidates(run.id, state, pool);
+      } else await save();
     }
     if (!state.screening) {
       state.screening = await deps.screen(state.candidates, executionKey);

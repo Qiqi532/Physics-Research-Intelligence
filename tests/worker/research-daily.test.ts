@@ -38,6 +38,20 @@ function fixture() {
 }
 
 describe("durable research daily loop", () => {
+  it("freezes the pre-keyword pool once and sends only the original filtered candidates to screening", async () => {
+    const f = fixture();
+    const unmatched = { ...paper, id: "22222222-2222-4222-8222-222222222222",
+      title: "Unrelated paper", abstract: "A study of eclipses." };
+    f.deps.candidates.mockResolvedValue([unmatched, paper]);
+    const freezeCandidates = vi.fn(async (id: string, state: Record<string, unknown>) => f.deps.store.checkpoint(id, "screen", state));
+    const deps = { ...f.deps, freezeCandidates } as unknown as ResearchDailyDependencies;
+    await runResearchDaily(deps, 8);
+    await runResearchDaily(deps, 8);
+    expect(freezeCandidates).toHaveBeenCalledExactlyOnceWith("run", expect.objectContaining({ candidates: [paper] }), [unmatched, paper]);
+    expect(f.deps.screen).toHaveBeenCalledExactlyOnceWith([paper], expect.any(String));
+    expect(f.snapshot()?.items.map((item) => item.paperId)).toEqual([paper.id]);
+  });
+
   it("publishes the selected order once and reuses an immutable same-day report", async () => {
     const f = fixture();
     expect((await f.run()).recommendations).toBe(1);

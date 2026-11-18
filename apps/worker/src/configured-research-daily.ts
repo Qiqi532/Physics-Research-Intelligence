@@ -5,6 +5,7 @@ import type { ServerConfig } from "@pri/domain/config";
 import type { SourceCoverage } from "@pri/domain/daily-report";
 import { loadResearchProfile } from "@pri/domain/research-profile-node";
 import { researchQueryTerms } from "@pri/domain/research-profile";
+import { freezeRanking } from "@pri/domain/ranking-review";
 import { createArxivConnector, createOpenAlexConnector, SourceConnectorError, type SourceConnector } from "@pri/sources";
 import { createTaskProviders, retentionCutoffAt } from "./configured-daily-processor";
 import { dailyWindowAt } from "./scheduler";
@@ -15,6 +16,7 @@ import { screenPapers } from "./jobs/screen-papers";
 import { interpretPaper } from "./jobs/interpret-paper";
 import { createInputHash, toPaperAiInput } from "./jobs/ai-job";
 import { withModelRetry } from "./jobs/model-retry";
+import { rankingSeeds } from "./ranking-seeds";
 
 export type ResearchDailyOptions = {
   resolver?: RuntimeAiConfigResolver; createProvider?: typeof createConnectionProvider;
@@ -96,6 +98,12 @@ export async function runConfiguredResearchDaily(client: DatabaseClient, config:
             publishedAt: paper.publishedAt?.toISOString() ?? null, createdAt: paper.createdAt.toISOString(),
             originalUrl: paper.originalUrl, accessStatus: paper.accessStatus, sourceName: paper.sources[0]?.sourceName ?? null,
           }));
+      },
+      async freezeCandidates(runId, checkpoint, pool) {
+        const cache = await rankingSeeds(client, research.profile);
+        const sample = freezeRanking(research.profile, pool, cache.seeds, cache.status);
+        assertLock();
+        await store.freezeCandidates(runId, checkpoint, sample);
       },
       screen(candidates, scope) {
         return withModelRetry(() => screenPapers({ from: window.from, until: window.until, limit: research.profile.screening.candidateLimit,

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import type { PaperDetailDto } from "@/presentation/paper";
+import { PaperFeedbackButtons, updatePaperState } from "./paper-feedback-buttons";
 
 type ReadingStatus = NonNullable<PaperDetailDto["userState"]>["status"];
 type UserFeedback = NonNullable<PaperDetailDto["userState"]>["feedback"];
@@ -14,55 +15,22 @@ const ACTIONS: Array<{
   { status: "SAVED", label: "稍后读" },
   { status: "READING", label: "正在阅读" },
   { status: "COMPLETE", label: "已完成" },
-  { status: "SKIPPED", label: "不感兴趣" },
+  { status: "SKIPPED", label: "跳过阅读" },
 ];
 
-export function readingStatePayloadForAction(
-  status: ReadingStatus,
-  currentFeedback: UserFeedback,
-): {
-  status: ReadingStatus;
-  feedback: UserFeedback;
-} {
-  if (status === "SKIPPED") {
-    return { status, feedback: "DISLIKE" };
-  }
-  return {
-    status,
-    feedback: currentFeedback === "DISLIKE" ? "NONE" : currentFeedback,
-  };
-}
-
-export function favoritePayloadForToggle(
-  currentStatus: ReadingStatus,
-  currentFeedback: UserFeedback,
-  currentFavorite: boolean,
-): {
-  status: ReadingStatus;
-  feedback: UserFeedback;
-  isFavorite: boolean;
-} {
-  return {
-    status: currentStatus,
-    feedback: currentFeedback,
-    isFavorite: !currentFavorite,
-  };
-}
-
 export function PaperStateControls({
-  doi,
+  paperId,
   currentStatus,
   currentFeedback,
   currentFavorite,
 }: {
-  doi: string;
+  paperId: string;
   currentStatus: ReadingStatus;
   currentFeedback: UserFeedback;
   currentFavorite: boolean;
 }) {
   const router = useRouter();
   const [status, setStatus] = useState(currentStatus);
-  const [feedback, setFeedback] = useState(currentFeedback);
   const [favorite, setFavorite] = useState(currentFavorite);
   const [message, setMessage] = useState("");
   const [isPending, startTransition] = useTransition();
@@ -70,22 +38,10 @@ export function PaperStateControls({
   function updateState(nextStatus: ReadingStatus) {
     setMessage("");
     startTransition(async () => {
-      const payload = readingStatePayloadForAction(nextStatus, feedback);
       try {
-        const response = await fetch(
-          `/api/papers/${encodeURIComponent(doi)}/state`,
-          {
-            method: "PATCH",
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify(payload),
-          },
-        );
-        if (!response.ok) {
-          throw new Error("state_update_failed");
-        }
+        await updatePaperState(paperId, { status: nextStatus });
         setStatus(nextStatus);
-        setFeedback(payload.feedback);
-        setMessage("阅读状态已更新。推荐与队列已刷新。");
+        setMessage("阅读状态已更新。");
         router.refresh();
       } catch {
         setMessage("状态更新失败，请稍后重试。");
@@ -96,21 +52,11 @@ export function PaperStateControls({
   function toggleFavorite() {
     setMessage("");
     startTransition(async () => {
-      const payload = favoritePayloadForToggle(status, feedback, favorite);
       try {
-        const response = await fetch(
-          `/api/papers/${encodeURIComponent(doi)}/state`,
-          {
-            method: "PATCH",
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify(payload),
-          },
-        );
-        if (!response.ok) {
-          throw new Error("state_update_failed");
-        }
-        setFavorite(payload.isFavorite);
-        setMessage(payload.isFavorite ? "已加入收藏。" : "已取消收藏。");
+        const nextFavorite = !favorite;
+        await updatePaperState(paperId, { isFavorite: nextFavorite });
+        setFavorite(nextFavorite);
+        setMessage(nextFavorite ? "已加入收藏。" : "已取消收藏。");
         router.refresh();
       } catch {
         setMessage("收藏更新失败，请稍后重试。");
@@ -146,6 +92,7 @@ export function PaperStateControls({
           {favorite ? "已收藏" : "收藏"}
         </button>
       </div>
+      <PaperFeedbackButtons paperId={paperId} feedback={currentFeedback} />
       <p aria-live="polite" className="state-message">
         {isPending ? "正在更新…" : message}
       </p>

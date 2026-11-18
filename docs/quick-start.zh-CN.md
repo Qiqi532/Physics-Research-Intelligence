@@ -41,6 +41,31 @@ pnpm evidence:index --root "D:\资料\毕设\文献"
 - 证据入口在本机模式提供。目录扫描仅打开指定根目录内的 PDF，题录和页文本写入本地 PostgreSQL。
 - 使用已运行的原生 PostgreSQL 时，在同一 PowerShell 中通过 `DATABASE_URL` 指定本地库，依次运行迁移、索引和 `pnpm dev`。双击入口用于 Docker Compose 启动路径。
 
+## 同步 Zotero 选定收藏夹
+
+打开 Zotero 桌面端，启用设置中的本地 API，应用数据库迁移后运行下面的命令。把 `KEY` 换成第一条命令显示的收藏夹键。
+
+```powershell
+pnpm evidence:zotero --list
+pnpm evidence:zotero --collection KEY
+```
+
+群组库的两个命令都可加 `--group ID`。子收藏夹用自己的键同步。题录、附件版本和上次成功时间在“本地证据检索”显示。目录与 Zotero 中的相同 PDF 复用页索引。Zotero 离线时仍可以检索上次成功同步的索引，原件留在磁盘上时可以直接打开对应页。[Zotero 本地 API](https://www.zotero.org/support/dev/web_api/v3/local_api)
+
+## 回放日报排序
+
+在日报卡片、论文详情或排序回放中点“值得精读”或“与课题无关”。再次点击已选项可清除。阅读状态、收藏和课题反馈可分别编辑。
+
+新日报进入筛选时冻结过滤前的公开候选，同一研究画像最多回放最近七个不同日报日。页面展示前五的已评、值得精读、未评与样本中漏选，并显示实际日报审计记录的模型尝试数。命令行可按日期留出或回放仓库现有公开期刊语料。
+
+```powershell
+pnpm ranking:replay
+pnpm ranking:replay --before YYYY-MM-DD
+pnpm ranking:replay --journal-corpus
+```
+
+种子摘要优先从本地 `data/research-seed-abstracts.local.json` 读取，可用已有 arXiv、OpenAlex 或 Crossref 的同 DOI 摘要补齐。缓存是 `doi`、`abstract`、`sourceUrl` 对象数组，只放核对过 DOI 的公开摘要。缺少种子时页面标明摘要相似度和混合排序不可用。回放的模型调用为零，已发布日报仍按原快照呈现。
+
 ## 日报现在怎样工作
 
 - 公开画像位于 `data/research-profile.json`：主方向、相邻方向、5 篇公开种子、来源、候选上限和摘要长度均可编辑。不要把私人笔记、路径或稿件内容放入公开画像。

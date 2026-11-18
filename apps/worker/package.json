@@ -6,6 +6,7 @@
   "scripts": {
     "evidence:index": "tsx src/evidence-index.ts",
     "evidence:zotero": "tsx src/zotero-evidence.ts",
+    "ranking:replay": "tsx src/ranking-replay.ts",
     "dev": "tsx watch src/index.ts",
     "daily:run": "tsx src/manual-daily-run.ts",
     "ingest": "tsx src/ingest.ts",

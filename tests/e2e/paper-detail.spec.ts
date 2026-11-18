@@ -53,18 +53,26 @@ test("missing and corrupt interpretations preserve public paper facts", async ({
   await expect(page.getByRole("heading", { name: "尚无 AI 解读" })).toBeVisible();
 });
 
-test("reader can move through saved, reading, complete and not-interested states", async ({ page }) => {
+test("reader can change reading state and give independent relevance feedback", async ({ page }) => {
   await page.goto("/papers/10.5555%2Famo-fixture");
   const status = page.locator(".state-message");
   const saved = page.getByRole("button", { name: "稍后读" });
   const reading = page.getByRole("button", { name: "正在阅读" });
   const complete = page.getByRole("button", { name: "已完成" });
-  const skipped = page.getByRole("button", { name: "不感兴趣" });
+  const skipped = page.getByRole("button", { name: "跳过阅读" });
+  const liked = page.getByRole("button", { name: "值得精读" });
 
   await expect(saved).toHaveAttribute("aria-pressed", "true");
+  await liked.click();
+  await expect(liked).toHaveAttribute("aria-pressed", "true");
   for (const button of [reading, complete, skipped, saved]) {
     await button.click();
     await expect(status).toContainText("阅读状态已更新");
     await expect(button).toHaveAttribute("aria-pressed", "true");
   }
+  await page.reload();
+  await expect(saved).toHaveAttribute("aria-pressed", "true");
+  await expect(liked).toHaveAttribute("aria-pressed", "true");
+  await liked.click();
+  await expect(liked).toHaveAttribute("aria-pressed", "false");
 });

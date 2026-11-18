@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { Client } from "pg";
 import { dailyReportSchema, type DailyReportSnapshot } from "@pri/domain/daily-report";
+import { rankingSnapshotSchema, type RankingSnapshot } from "@pri/domain/ranking-review";
 import type { Prisma } from "./generated/prisma/client";
 import type { DatabaseClient } from "./client";
 
@@ -18,6 +19,17 @@ export function createDailyRepository(client: DatabaseClient) {
     async checkpoint(id: string, stage: string, checkpoint: DailyCheckpoint) {
       await client.dailyRun.update({ where: { id }, data: { stage, status: "RUNNING", errorCode: null,
         checkpoint: json(checkpoint) } });
+    },
+    async freezeCandidates(id: string, checkpoint: DailyCheckpoint, sample: RankingSnapshot) {
+      const snapshot = rankingSnapshotSchema.parse(sample);
+      await client.$transaction(async (tx) => {
+        const run = await tx.dailyRun.update({ where: { id }, data: {
+          stage: "screen", status: "RUNNING", errorCode: null, checkpoint: json(checkpoint),
+        }, select: { id: true, dateKey: true, profileHash: true } });
+        await tx.dailyRankingSample.create({ data: {
+          runId: run.id, dateKey: run.dateKey, profileHash: run.profileHash, snapshot: json(snapshot),
+        } });
+      });
     },
     async fail(id: string, stage: string, errorCode: string, partial: boolean) {
       await client.dailyRun.update({ where: { id }, data: { stage, errorCode,

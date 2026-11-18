@@ -357,8 +357,20 @@ model DailyRun {
   updatedAt    DateTime @updatedAt @db.Timestamptz(6)
   completedAt  DateTime? @db.Timestamptz(6)
   report       DailyReport?
+  rankingSample DailyRankingSample?
 
   @@index([dateKey, createdAt])
+}
+
+model DailyRankingSample {
+  runId       String   @id @db.Uuid
+  dateKey     String
+  profileHash String
+  capturedAt  DateTime @default(now()) @db.Timestamptz(6)
+  snapshot    Json
+  run         DailyRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  @@index([profileHash, dateKey, capturedAt])
 }
 
 model DailyReport {

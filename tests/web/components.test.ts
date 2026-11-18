@@ -1,13 +1,11 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { createElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
+import { renderToStaticMarkup as renderMarkup } from "react-dom/server";
+import { AppRouterContext } from "../../apps/web/node_modules/next/dist/shared/lib/app-router-context.shared-runtime";
 import { LibraryPaperList } from "../../apps/web/src/components/library-paper-list";
 import { PaperInterpretation } from "../../apps/web/src/components/paper-interpretation";
 import { PaperPublicAbstract } from "../../apps/web/src/components/paper-public-abstract";
-import {
-  favoritePayloadForToggle,
-  readingStatePayloadForAction,
-} from "../../apps/web/src/components/paper-state-controls";
+import { PaperFeedbackButtons } from "../../apps/web/src/components/paper-feedback-buttons";
 import { ReadingQueue } from "../../apps/web/src/components/reading-queue";
 import {
   interpretUiOutcome,
@@ -122,40 +120,17 @@ describe("paper interpretation component", () => {
   });
 });
 
-describe("paper state controls", () => {
-  it("clears a previous dislike when the reader chooses an active reading state", () => {
-    expect(readingStatePayloadForAction("SAVED", "DISLIKE")).toEqual({
-      status: "SAVED",
-      feedback: "NONE",
-    });
-    expect(readingStatePayloadForAction("READING", "LIKE")).toEqual({
-      status: "READING",
-      feedback: "LIKE",
-    });
-    expect(readingStatePayloadForAction("SKIPPED", "NONE")).toEqual({
-      status: "SKIPPED",
-      feedback: "DISLIKE",
-    });
-  });
-});
+function renderToStaticMarkup(node: Parameters<typeof renderMarkup>[0]) {
+  const route = vi.fn();
+  return renderMarkup(createElement(AppRouterContext.Provider,
+    { value: { back: route, forward: route, refresh: route, hmrRefresh: route, push: route, replace: route, prefetch: route } }, node));
+}
 
-describe("paper favorite control", () => {
-  it("toggles an explicit favorite boolean while preserving reading state and feedback", () => {
-    expect(favoritePayloadForToggle("READING", "LIKE", false)).toEqual({
-      status: "READING",
-      feedback: "LIKE",
-      isFavorite: true,
-    });
-    expect(favoritePayloadForToggle("SAVED", "NONE", true)).toEqual({
-      status: "SAVED",
-      feedback: "NONE",
-      isFavorite: false,
-    });
-    expect(favoritePayloadForToggle("COMPLETE", "DISLIKE", false)).toEqual({
-      status: "COMPLETE",
-      feedback: "DISLIKE",
-      isFavorite: true,
-    });
+describe("paper relevance controls", () => {
+  it("renders explicit positive and negative feedback for a paper without a DOI", () => {
+    const markup = renderToStaticMarkup(createElement(PaperFeedbackButtons, { paperId: "fixture", feedback: "LIKE" }));
+    expect(markup).toMatch(/aria-pressed="true"[^>]*>值得精读/);
+    expect(markup).toMatch(/aria-pressed="false"[^>]*>与课题无关/);
   });
 });
 

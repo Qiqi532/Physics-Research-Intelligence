@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 import type { TodayRecommendationDto } from "@/presentation/today";
+import { PaperFeedbackButtons } from "./paper-feedback-buttons";
 
 const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
   year: "numeric",
@@ -168,6 +169,7 @@ export function RecommendationCard({ paper }: { paper: TodayRecommendationDto })
           <span className="muted-label">暂无原文链接</span>
         )}
       </div>
+      <PaperFeedbackButtons paperId={paper.id} feedback={paper.feedback} />
     </article>
   );
 }
