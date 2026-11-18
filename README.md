@@ -4,6 +4,21 @@
 
 Physics Research Intelligence 将公开论文元数据、可审计的 AI 解读和个人阅读状态组织在同一个本地应用中。它不是自动写综述的黑箱，而是一套帮助研究者筛选、核验和持续跟踪论文的单用户 MVP。
 
+## 现在怎样使用
+
+Windows 用户可双击根目录 **Start-PRI.cmd**，打开本地 PostgreSQL 和网页。
+
+```powershell
+.\Start-PRI.cmd check       # 只读检查
+.\Start-PRI.cmd             # 打开平台
+.\Start-PRI.cmd daily       # 生成或恢复固定日报，会调用已配置的模型
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\daily-task.ps1 status
+```
+
+公开研究画像在 `data/research-profile.json`。日报默认 5–8 篇、允许不足；预印本可入选。失败可恢复、发布名单固定，重复运行复用结果。Windows 午间任务提供 install/status/disable/remove 脚本；本地 PDF 与 RAG 尚未接入。
+
+详细操作见[使用说明](docs/quick-start.zh-CN.md)，本阶段实现与验收见[开发记录](docs/changes/2026-11-13-research-daily-loop.md)。
+
 ## 项目状态
 
 | 项目 | 当前状态 |
@@ -12,8 +27,8 @@ Physics Research Intelligence 将公开论文元数据、可审计的 AI 解读�
 | 论文来源 | Crossref、OpenAlex、arXiv，以及本地公开元数据清单 |
 | AI 能力 | 保守分类、中文结构化解读、主备模型路由、调用审计 |
 | 个人工作流 | Today、兴趣权重、阅读状态、收藏库、30 天普通论文清理 |
-| 每日流水线 | 支持滚动窗口、10–15 篇多样化选择和论文级投递去重；自动调度默认关闭 |
-| 质量验证 | Kimi 三论文摘要基线已完成；30 篇 AI 初评已产出，第二位人工评审未完成 |
+| 每日流水线 | 课题画像、定向采集、持久检查点、原子发布、固定日报与 Windows 午间任务 |
+| 质量验证 | 输入身份、结构与摘录来源自动检查；当前单模型，不宣称学术真实性或真实准确率获验证 |
 
 当前重点是把本地试运行做可靠，而不是公开部署。来源事实、AI 生成内容和用户状态分层保存；当摘要、证据或模型调用失败时，界面应如实呈现，不用生成内容覆盖事实。
 
@@ -33,7 +48,7 @@ Physics Research Intelligence 将公开论文元数据、可审计的 AI 解读�
 | 采集与事实层 | 公开来源连接器、游标与有界重试、DOI/来源标识保守去重、PostgreSQL/Prisma 持久化 |
 | AI 流水线 | 物理方向分类、中文概述、创新点、局限、证据等级、来源披露和幂等审计 |
 | 模型管理 | OpenAI、DeepSeek、Gemini、Qwen、GLM、Kimi、混元及通用 OpenAI-compatible 端点；分类/解读独立主备路由 |
-| Today Physics | 兴趣加权、跨方向信号、确定性排序、10–15 篇多样化选择和推荐理由 |
+| Today Physics | 已发布快照、报告日期与覆盖状态、课题理由、摘录和摘要解读；阅读状态独立更新 |
 | 个人论文库 | 收藏与阅读状态正交；普通论文按保留期清理，收藏论文长期保留 |
 | 运维与验证 | 存活/就绪检查、脱敏日志、Vitest、PostgreSQL 集成测试和 Playwright 桌面/移动端 E2E |
 
@@ -45,8 +60,8 @@ Physics Research Intelligence 将公开论文元数据、可审计的 AI 解读�
 Crossref / OpenAlex / arXiv / 本地公开元数据
                        │
                        ▼
-             Worker 采集与 AI 任务 ───── Redis / BullMQ
-                       │                   可重建的队列状态
+             一次性采集与 AI 任务 ───── Redis / BullMQ
+                       │                   仅可选旧队列模式
                        ▼
                  PostgreSQL / Prisma
        论文事实、AI 结果、审计、兴趣与阅读状态
@@ -56,7 +71,7 @@ Crossref / OpenAlex / arXiv / 本地公开元数据
           Today · 详情 · 收藏库 · 设置
 ```
 
-PostgreSQL 是业务事实来源，Redis/BullMQ 只承载可重建的运行状态。Web 与 worker 共用数据库和模型设置，但职责保持分离。
+PostgreSQL 是业务事实来源。默认 `RUNTIME_MODE=local`，Web 与一次性任务分开运行，不连接 Redis；旧队列模式保留为显式选项。Web 与任务共用数据库和模型设置。
 
 ## 快速开始
 
@@ -64,7 +79,7 @@ PostgreSQL 是业务事实来源，Redis/BullMQ 只承载可重建的运行状�
 
 - Node.js 22 或更高版本
 - pnpm 11.19.0
-- PostgreSQL 17 与 Redis 7，或 Docker Compose
+- PostgreSQL 17，或 Docker Compose；仅旧队列模式需要 Redis 7
 - 仅在真实 AI 分类/解读时需要模型供应商 API Key
 
 ### 本地启动
@@ -72,8 +87,8 @@ PostgreSQL 是业务事实来源，Redis/BullMQ 只承载可重建的运行状�
 在 Windows PowerShell 中从仓库根目录运行：
 
 ```powershell
-Copy-Item .env.example .env
-docker compose -f infra/docker-compose.yml up -d postgres redis
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
+docker compose -f infra/docker-compose.yml up -d postgres
 pnpm install --frozen-lockfile
 pnpm --filter @pri/db prisma:generate
 pnpm --filter @pri/db prisma:deploy
@@ -81,6 +96,8 @@ pnpm dev
 ```
 
 迁移前请检查 `.env`，确保 `DATABASE_URL` 指向专用本地数据库，而不是个人生产数据。`.env` 已被 Git 忽略，不应提交。
+
+Web 沿用 Next.js 的 `apps/web/.env*` 或继承的环境变量；一次性任务读取仓库根目录 `.env`。通过便捷入口启动时根目录配置会传给 Web；直接使用 pnpm dev 时，两者的数据库、运行模式及主密钥设置应保持一致。
 
 启动后可访问：
 
@@ -91,7 +108,7 @@ pnpm dev
 - 存活检查：`http://127.0.0.1:3000/api/health/live`
 - 就绪检查：`http://127.0.0.1:3000/api/health/ready`
 
-使用 `Ctrl+C` 停止 Web 与 worker。需要保留本地 PostgreSQL 数据时，请停止服务而不要删除 Compose volume。完整启动、备份、恢复和排障步骤见[个人部署与运维](docs/operations.md)。
+`pnpm dev` 只启动 Web，使用 `Ctrl+C` 停止。Compose 默认只启用 PostgreSQL，Redis 位于可选的 `queue` profile；现有容器和数据卷不会被这次配置修改删除。需要保留本地数据时停止服务即可。完整启动、备份、恢复和排障步骤见[个人部署与运维](docs/operations.md)。
 
 ## 模型与密钥配置
 
@@ -113,15 +130,18 @@ pnpm --filter @pri/worker corpus:journal:trial -- 2504.21524v1 2410.10611v2 2408
 
 ## 每日流水线
 
-worker 已具备按时区运行的每日流程：滚动采集窗口、筛选、兴趣与多样性选择、逐篇解读、Today 准备、投递标记和过期清理。
+本地流程从公开研究画像收窄来源，通过持久化 run ledger（运行台账）保存阶段检查点、固定候选和逐篇解读结果。模型调用在事务外；日报、条目身份和投递标记通过短事务原子发布。
 
-- `DAILY_INGEST_WINDOW_DAYS` 默认 30，用较宽候选窗口适配期刊低频发布。
-- `DAILY_DELIVERY_RECENCY_DAYS` 默认跟随采集窗口；设为 `0` 可关闭投递去重。
-- 去重作用于整篇论文：只要任一已选筛选记录在近期投递过，该论文就不会再次入选。
-- 只有 Today 成功准备后才写入投递时间；写入失败会让运行失败并暴露给调度器。
-- 自动调度默认关闭。当前还没有跨进程锁、持久化 run ledger、陈旧运行恢复和主动告警；启用时应保持单 worker。
+- 手动运行 `pnpm daily:run` 或 `Start-PRI.cmd daily`。两者读取根目录 `.env`；默认 12:15、Asia/Shanghai、目标 5–8 篇，允许不足。
+- 同一日期、画像和模型/Prompt 配置重复执行复用已发布结果，未发布的失败任务可恢复。独立 PostgreSQL 会话锁覆盖手动与自动并发。
+- Today 只展示已发布报告；阅读状态独立更新。来源失败、覆盖有限、过期报告与未投递的解读失败均明确显示。
+- 无公开摘要时展示题录卡，不编造方法或创新。解读部分失败时仅投递已校验条目；没有可展示结果则保留旧日报。发布后的名单不再补写。
+- Windows 午间任务脚本为 `scripts/daily-task.ps1`，支持 install/status/disable/remove/preview；安装过程、日志与截止策略见[使用说明](docs/quick-start.zh-CN.md)。
+- 旧队列自动调度默认关闭，`DAILY_PIPELINE_ENABLED=false` 仅控制旧队列排程。Windows 本地任务通过操作系统触发一次性入口。
+- 已发布报告即使有覆盖缺口也可以正常结束；未发布失败或资源/清理失败返回非零状态。日志输出稳定错误码和汇总。
+- 近期投递的论文默认 30 天内不重复；公开候选清理保留收藏、笔记、阅读资产与近期日报引用，不处理本地 PDF。
 
-无人值守门禁与后续可靠性要求见[每日全自动流程开发、验收与部署规范](docs/daily-automation-development-and-deployment.md)。
+如需保留旧队列流程，在环境中显式设置 `RUNTIME_MODE=queue` 并配置 `REDIS_URL`，启动 `docker compose -f infra/docker-compose.yml --profile queue up -d`，再运行 `pnpm dev:queue`。自动调度开关仍默认关闭；本地模式即使设置了该开关也不会创建队列。
 
 ## 数据、安全与隐私
 
@@ -163,20 +183,14 @@ infra/             本地 PostgreSQL / Redis 编排
 
 - 30 篇人工评审尚未完成：30 篇 AI 输出与第一轮 AI 初评已经生成，但第二位人工评审仍需逐篇裁决，D5/D6 也缺少完整流水线证据。
 - 浏览器 PDF 上传、全文解析、段落定位、单篇问答和跨论文 RAG 尚未实现。
-- 每日流水线没有持久化 run ledger、跨进程锁/租约、陈旧运行恢复与主动告警，因此不应按生产级无人值守服务宣传。
+- 已有持久台账、跨进程锁、断点恢复与本地状态提示；尚未验证长期连续运行，也没有主动消息告警。
 - 这是无登录的单用户 MVP；公开部署前必须增加认证或可靠的外部访问控制。
 - 仓库尚未提供完整生产容器、自动发布、回滚和灾难恢复编排。
 - 仓库尚未提供开源许可证；在许可证明确前，不应推断代码或数据拥有任何特定的再分发许可。
 
 ## 路线图与项目文档
 
-建议按以下顺序继续：
-
-1. 完成 30 篇人工双评，建立可重复的 Prompt/模型质量基线；
-2. 增加每日运行台账、跨进程锁、失败恢复、告警和连续影子运行；
-3. 实现按许可证控制的本地 PDF 获取与手动导入；
-4. 构建带段落证据定位的单篇阅读助手；
-5. 在收藏论文上建立可重建、可评估的 RAG 索引与跨论文问答。
+研究画像、固定日报和 Windows 排程入口已有实现。11 月 18 日版路线建议先保全本地成果，再交付只读目录检索，让中文课题问题能直接定位到本地 PDF 原文页。后续按使用效果接入 Zotero、验证日报排序、生成器件证据对照表，并评估带引用的问答。当前为待确认方案。[开发路线、技术栈与验收标准](docs/superpowers/plans/2026-11-18-local-research-workbench-roadmap.md)
 
 文档入口：
 
@@ -193,15 +207,15 @@ infra/             本地 PostgreSQL / Redis 编排
 
 Physics Research Intelligence is a local-first, single-user paper intelligence workspace for experimental AMO physics research. It collects public paper metadata, keeps source facts separate from AI-generated interpretations, and provides explainable Today recommendations, interest weighting, reading states, and a favorites library.
 
-Implemented components include Crossref/OpenAlex/arXiv ingestion, PostgreSQL/Prisma persistence, BullMQ worker jobs, conservative classification, structured Chinese interpretations, encrypted provider connections, deterministic daily selection, paper-level delivery deduplication, retention cleanup, and Vitest/Playwright verification.
+Implemented components include Crossref/OpenAlex/arXiv ingestion, PostgreSQL/Prisma persistence, conservative classification, structured Chinese interpretations, encrypted provider connections, deterministic daily selection, paper-level delivery deduplication, retention cleanup, and Vitest/Playwright verification. Local mode is the default: `pnpm dev` starts only Web, while `pnpm daily:run` explicitly runs the real pipeline once. Redis/BullMQ remain optional in queue mode.
 
-The project is ready for local trials, not public production. Scheduling is disabled by default; authentication, a persistent run ledger, a distributed lock, production deployment automation, full-text reading, and RAG remain future work. The 30-paper AI first pass exists, but the second human review is still incomplete.
+The local pipeline includes a persistent run ledger, PostgreSQL advisory locking, immutable reports and recoverable stages. Windows scheduling is explicitly installed; legacy queue scheduling stays disabled by default. Public hosting, full-text reading, RAG and proactive alerts remain outside this stage. Historical human review is not a prerequisite for using the personal tool.
 
 Quick start:
 
 ```powershell
-Copy-Item .env.example .env
-docker compose -f infra/docker-compose.yml up -d postgres redis
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
+docker compose -f infra/docker-compose.yml up -d postgres
 pnpm install --frozen-lockfile
 pnpm --filter @pri/db prisma:generate
 pnpm --filter @pri/db prisma:deploy

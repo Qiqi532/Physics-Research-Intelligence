@@ -1,6 +1,6 @@
 # Personal deployment and operations
 
-This guide covers one personal deployment of the Web and worker with PostgreSQL and Redis. It does not create cloud resources, accounts, DNS, TLS certificates, or provider keys.
+This guide covers the default local Web plus one-shot daily task with PostgreSQL. Redis/BullMQ remain an optional legacy queue mode. It does not create cloud resources, accounts, DNS, TLS certificates, or provider keys.
 
 ## Safety boundary
 
@@ -13,7 +13,7 @@ This guide covers one personal deployment of the Web and worker with PostgreSQL 
 ## Prerequisites
 
 - Node.js 22 or newer and pnpm 11.19.0.
-- PostgreSQL 17 and Redis 7, or Docker with Compose for the local services in `infra/docker-compose.yml`.
+- PostgreSQL 17, or Docker with Compose for the local database in `infra/docker-compose.yml`. Redis 7 is required only for explicit queue mode.
 - One supported AI provider key if daily classification and interpretation are enabled.
 
 ## First start
@@ -21,8 +21,8 @@ This guide covers one personal deployment of the Web and worker with PostgreSQL 
 From the repository root:
 
 ```powershell
-Copy-Item .env.example .env
-docker compose -f infra/docker-compose.yml up -d postgres redis
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
+docker compose -f infra/docker-compose.yml up -d postgres
 pnpm install --frozen-lockfile
 pnpm --filter @pri/db prisma:generate
 pnpm --filter @pri/db prisma:deploy
@@ -31,15 +31,17 @@ pnpm dev
 
 Edit `.env` before migration. For the checked-in local Compose services, replace `CHANGE_ME` with the local-only password declared in the Compose file. For any real deployment, create a separate strong password and do not reuse the example.
 
-The development command runs Web and worker together. Stop it with `Ctrl+C`; stop local dependencies with:
+The development command starts only Web. `RUNTIME_MODE=local` is the default even if an old `REDIS_URL` remains configured; local readiness and the worker entry point never connect to Redis. Stop Web with `Ctrl+C`; stop the local database with:
 
 ```powershell
-docker compose -f infra/docker-compose.yml stop postgres redis
+docker compose -f infra/docker-compose.yml stop postgres
 ```
+
+Web runs from `apps/web` and uses its existing Next.js environment loading (`apps/web/.env*` or inherited variables). The new CLI uses the repository-root `.env`. Keep their database, runtime-mode and master-key settings consistent; this change does not overwrite either existing environment file. For a new checkout, also configure Web's environment before starting it.
 
 ## Local real-data trial
 
-This is the recommended zero-cost personal deployment. PostgreSQL and Redis in the checked-in Compose file bind to loopback. Before starting, inspect active container port bindings: old containers must not show `0.0.0.0:5432` or `0.0.0.0:6379`. Back up personal data before recreating an old container.
+PostgreSQL in the checked-in Compose file binds to loopback. Redis is behind the optional `queue` profile; enabling it still binds to loopback. Before starting, inspect active container port bindings: old containers must not show `0.0.0.0:5432` or `0.0.0.0:6379`. Back up personal data before recreating an old container. The configuration change does not stop old containers or delete their volumes.
 
 With `.env` configured for the dedicated local database, run existing migrations, verify the nine local open PDFs, and import their public metadata:
 
@@ -50,7 +52,7 @@ pnpm --filter @pri/worker corpus:import
 pnpm dev
 ```
 
-Open `http://127.0.0.1:3000`. No AI provider key is required for public facts, Today cold-start ordering, paper detail, interests, or reading state. Missing interpretation remains visible as a truthful unavailable state. Stop Web and worker with `Ctrl+C`; preserve PostgreSQL data by stopping rather than removing its Compose volume.
+Open `http://127.0.0.1:3000`. No AI provider key is required for public facts, Today cold-start ordering, paper detail, interests, or reading state. Missing interpretation remains visible as a truthful unavailable state. Stop Web with `Ctrl+C`; preserve PostgreSQL data by stopping rather than removing its Compose volume.
 
 ### Optional trusted LAN
 
@@ -78,21 +80,55 @@ Provider billing and balances are managed in the provider console. The applicati
 
 ## Daily automation
 
-The scheduler exists, but unattended production reliability is not complete. Keep `DAILY_PIPELINE_ENABLED=false` until the persistent run ledger, cross-process run lock/lease, stale-run recovery, alerting, and three consecutive shadow runs pass the gates in [每日全自动流程：开发、验收与部署规范](daily-automation-development-and-deployment.md).
+The local workflow provides a one-shot entry point and Windows task management in `scripts/daily-task.ps1`. See [中文使用说明](quick-start.zh-CN.md) for installation and current local status. From the repository root:
 
-Set:
+```powershell
+pnpm daily:run
+```
+
+The CLI explicitly loads the repository-root `.env` regardless of its working directory, without overriding inherited environment variables. Importing the entry module does not load that file or start work. This is a real run: it fetches public sources, calls configured model APIs, writes paper/AI/delivery records, and runs the existing expired public-candidate cleanup (favorites, notes, reading assets and recent report references are protected). Do not use it as a development smoke test against personal data. No PDF directory ingestion or upload is added in this stage.
+
+The CLI releases its database connection on success, initialization failure and pipeline failure. Exit code `0` means a usable report was published or reused and shutdown completed, including reports with explicit source/model coverage gaps. Code `1` covers unpublished failures and cleanup/shutdown failures. Look for `daily.run` structured events: `daily_configuration_invalid`, `daily_initialization_failed`, `daily_pipeline_failed`, `daily_pipeline_partial`, or `daily_close_failed`. Raw provider errors and stacks are omitted, since they may contain database-stored credentials.
+
+Local defaults are:
 
 ```dotenv
-DAILY_PIPELINE_ENABLED=true
-DAILY_PIPELINE_TIME=00:00
+RUNTIME_MODE=local
+DAILY_PIPELINE_ENABLED=false
+DAILY_PIPELINE_TIME=12:15
 DAILY_PIPELINE_TIMEZONE=Asia/Shanghai
 PAPER_RETENTION_DAYS=30
-DAILY_PAPER_TARGET_MIN=10
-DAILY_PAPER_TARGET_MAX=15
+DAILY_PAPER_TARGET_MIN=5
+DAILY_PAPER_TARGET_MAX=8
+```
+
+The 12:15 Asia/Shanghai setting determines the stable local-day window; it does not register an OS task. An explicit one-shot run still executes when automatic scheduling is disabled. Before 12:15 it uses the previous scheduled window. Existing explicit `.env` values take precedence: update only the runtime/time/target settings when adopting these defaults, preserving all keys and connection settings. The target is a goal, so a short candidate pool may produce fewer than five papers. Today reads immutable report snapshots. The daily run ledger stores frozen candidates and checkpoints; repeated published runs make no model calls. A dedicated PostgreSQL session lock excludes concurrent manual/automatic execution.
+
+### Optional legacy queue mode
+
+The BullMQ scheduler remains available only in explicit queue mode. Its historical deployment gates are separate from the user-approved local Windows task; do not run both schedulers. Long-term unattended reliability has not been established. Keep `DAILY_PIPELINE_ENABLED=false` until the persistent run ledger, cross-process run lock/lease, stale-run recovery, alerting, and three consecutive shadow runs pass the gates in [每日全自动流程：开发、验收与部署规范](daily-automation-development-and-deployment.md).
+
+Only after those gates, set the queue-specific configuration and enable scheduling:
+
+```dotenv
+RUNTIME_MODE=queue
+DAILY_PIPELINE_ENABLED=true
+DAILY_PIPELINE_TIME=12:15
+DAILY_PIPELINE_TIMEZONE=Asia/Shanghai
+PAPER_RETENTION_DAYS=30
+DAILY_PAPER_TARGET_MIN=5
+DAILY_PAPER_TARGET_MAX=8
+```
+
+Queue mode additionally requires `REDIS_URL`. Start its services and development processes explicitly:
+
+```powershell
+docker compose -f infra/docker-compose.yml --profile queue up -d
+pnpm dev:queue
 ```
 
 The worker upserts one stable BullMQ scheduler. Each daily run executes public-source ingestion, deterministic journal screening, LLM batch screening, selected-paper interpretation, Today preparation, and retention cleanup. The schedule has two bounded attempts with exponential backoff. Source cursors, screening input hashes, AI idempotency keys, and stage claims reduce duplicate work, but they are not a cross-process run lock; run exactly one worker and keep automation disabled until the reliability gates above are complete.
-Papers published inside the current stable daily window form the candidate pool. Journal screening removes records outside the curated physics whitelist, then LLM screening selects a diverse 10–15 paper daily set (bounded by `DAILY_PAPER_TARGET_MIN` and `DAILY_PAPER_TARGET_MAX`) for interpretation. After Today preparation, papers older than `PAPER_RETENTION_DAYS` that have never been favorited are pruned with their dependent records. A recoverable cleanup failure must remain visible as a warning or partial failure rather than being reported as a complete success.
+Papers published inside the current stable daily window form the candidate pool. Journal screening removes records outside the curated physics whitelist, then LLM screening supplies candidates for the deterministic 5–8 paper target (bounded by `DAILY_PAPER_TARGET_MIN` and `DAILY_PAPER_TARGET_MAX`). The screening prompt's default target is advisory; the local selector enforces configured counts and does not fill a quota. After Today preparation, papers older than `PAPER_RETENTION_DAYS` that have never been favorited are pruned with their dependent records. A recoverable cleanup failure must remain visible as a warning or partial failure rather than being reported as a complete success.
 Favorited papers appear in the personal library at `http://127.0.0.1:3000/library`, linked from the home site navigation. Favorites survive the 30-day cleanup; removing the favorite makes the paper eligible for normal retention cleanup again without deleting an unexpired record.
 
 ## Production build and processes
@@ -104,7 +140,7 @@ pnpm build
 pnpm --filter @pri/web start
 ```
 
-Run the worker in a second supervised process:
+Only in configured legacy queue mode, run the worker in a second supervised process:
 
 ```powershell
 pnpm --filter @pri/worker start
@@ -124,8 +160,9 @@ Both commands must return `True`.
 ## Health checks
 
 - `GET /api/health/live`: process liveness only; expected HTTP 200 and `status=alive`.
-- `GET /api/health/ready`: PostgreSQL, Redis, queue backlog, and worker readiness. Expected HTTP 200 when ready and 503 otherwise.
-- `queue_backlog` means waiting jobs exceeded 100. `worker_unavailable` means no BullMQ worker is registered. Disabled scheduling reports queue and worker as `disabled`.
+- `GET /api/health/ready`: PostgreSQL only in local mode; Redis, queue backlog, and worker readiness are additional checks in queue mode. Expected HTTP 200 when enabled components are ready and 503 otherwise.
+- Local mode reports Redis, queue, and worker as `disabled` without creating their clients. PostgreSQL failure still returns 503.
+- In queue mode, `queue_backlog` means waiting jobs exceeded 100 and `worker_unavailable` means no BullMQ worker is registered. Disabled scheduling reports queue and worker as `disabled` while Redis is still checked.
 
 Do not publish readiness endpoints through an unauthenticated diagnostics dashboard. The response itself is safe for a load balancer or local operator check.
 
@@ -166,7 +203,11 @@ If the master key is lost, existing ciphertext is intentionally unrecoverable. S
 
 ### Daily job did not run
 
-1. Confirm `DAILY_PIPELINE_ENABLED=true`, a valid `HH:mm` time, and an IANA timezone.
+In local mode, no OS task is installed yet: 12:15 is a window parameter, not an automatic trigger. Review the one-shot command's exit code and `daily.run` event. Do not repeatedly execute it against personal data to diagnose scheduling.
+
+For legacy queue mode:
+
+1. Confirm `RUNTIME_MODE=queue`, `DAILY_PIPELINE_ENABLED=true`, a valid `HH:mm` time, and an IANA timezone.
 2. Call readiness and confirm Redis/worker are ready.
 3. Check structured events `worker.started`, `worker.queue.error`, and the daily job result around the scheduled time.
 4. Restart one worker; scheduler reconciliation is an idempotent upsert.
