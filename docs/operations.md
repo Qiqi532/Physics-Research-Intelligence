@@ -12,7 +12,7 @@ This guide covers the default local Web plus one-shot daily task with PostgreSQL
 
 ## Prerequisites
 
-- Node.js 22 or newer and pnpm 11.19.0.
+- Node.js 22.13.0 or newer and pnpm 11.19.0.
 - PostgreSQL 17, or Docker with Compose for the local database in `infra/docker-compose.yml`. Redis 7 is required only for explicit queue mode.
 - One supported AI provider key if daily classification and interpretation are enabled.
 

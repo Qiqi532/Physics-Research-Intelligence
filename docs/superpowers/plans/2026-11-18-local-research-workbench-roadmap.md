@@ -1,6 +1,6 @@
 # 本地科研工作台开发路线与技术栈
 
-2026 年 11 月 18 日评审稿，待确认后再安排当日开发。
+2026 年 11 月 18 日确认阶段 0–1。[实施与验收记录](../../changes/2026-11-18-local-evidence-search.md)
 
 **建议首版先解决写综述时的一个问题。** 在本机输入“哪些器件在改变栅压后发生光电流符号翻转”，得到论文、逐字摘录和页码，点击即可回到正确版本的 PDF。先让这个动作比手动翻文献更快，再用同一批证据做器件对照表或带引用的问答。
 
@@ -27,7 +27,7 @@
 
 | 层次 | 采用的方案 | 在 PRI 中的职责 |
 |---|---|---|
-| 界面与运行 | 沿用 TypeScript、pnpm 11.19、Next.js 16 App Router、React 19。仓库声明 Node ≥22，本机核查为 24.15。 | 在现有 Web 中增加检索、原文跳页和证据选择。保留现有 DOI 链接，通过内部标识打开无 DOI 资产。 |
+| 界面与运行 | 沿用 TypeScript、pnpm 11.19、Next.js 16 App Router、React 19。引入 PDF.js 后最低 Node 版本为 22.13，本机核查为 24.15。 | 在现有 Web 中增加检索、原文跳页和证据选择。保留现有 DOI 链接，通过内部标识打开无 DOI 资产。 |
 | 任务与存储 | 沿用一次性 Node worker、PostgreSQL 17、Prisma 7。Windows 任务计划程序承载可选日报排程，Redis/BullMQ 仅在显式队列模式启用。 | 扫描与增量索引可单独按需运行。沿用现有连接、迁移和测试设施，小型个人库共用一个数据库。 |
 | PDF 提取与展示 | 首选试验 Mozilla PDF.js 的 `pdfjs-dist`。Node 端按页取文本，浏览器按相同物理页码渲染原件。先在目标 Node 版本和 Windows 构建上验证，再锁定依赖版本。 | 索引保存原文和页号，印刷页码可另记。双栏、扫描、表格与公式分别抽查，提取失败的页显示原因。精确框选和 OCR 由实际失败样本决定。[官方 Node 示例](https://github.com/mozilla/pdf.js/blob/master/examples/node/getinfo.mjs) |
 | 检索 | 首版使用 PostgreSQL 的 `tsvector`、GIN 索引和 `ts_rank_cd`，配合材料名、缩写和中英术语别名。原文与归一化检索文本分开保存。 | 保留 MoS₂/MoS2 等写法的原始出处。若同义表达仍明显漏检，再试本地多语 embedding，例如 Transformers.js 加兼容的多语 E5 小模型，在同一组问题上比较命中率和 CPU 耗时。小库先做精确相似度计算，规模或延迟实测需要时再评估 pgvector。[PostgreSQL 索引](https://www.postgresql.org/docs/17/textsearch-indexes.html) · [排名函数](https://www.postgresql.org/docs/17/textsearch-controls.html) · [离线模型配置](https://huggingface.co/docs/transformers.js/en/custom_usage) |
@@ -61,4 +61,4 @@
 | 数据兼容 | `pnpm --filter @pri/db prisma:validate` 检查 schema；在独立测试数据库运行 `pnpm exec vitest run tests/db/paper-repository.test.ts tests/db/daily-repository.test.ts`。实施时补资产保留、重复扫描、页码版本切换和断点重建用例。 |
 | 用户路径 | `pnpm typecheck`、`pnpm lint`、`pnpm build`。用专用测试库运行 `pnpm test:e2e`，补中文查询到正确页、无 DOI 本地文献、Zotero 离线场景。用 Mock Provider 核查私人测试标记没有出现在任何模型请求中。 |
 
-**本次建议确认的首版范围为阶段 0 和 1。** 交付边界是一套有版本依据、可以在自己的电脑上查到原文页的工具。阶段 2 至 5 保留优先顺序，根据实际查页耗时、日报反馈和制表需求继续取舍。
+**已确认的首版范围为阶段 0 和 1。** 交付边界是一套有版本依据、可以在自己的电脑上查到原文页的工具。阶段 2 至 5 按实际查页耗时、日报反馈和制表需求评估。

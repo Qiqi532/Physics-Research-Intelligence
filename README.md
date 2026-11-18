@@ -15,7 +15,9 @@ Windows 用户可双击根目录 **Start-PRI.cmd**，打开本地 PostgreSQL 和
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\daily-task.ps1 status
 ```
 
-公开研究画像在 `data/research-profile.json`。日报默认 5–8 篇、允许不足；预印本可入选。失败可恢复、发布名单固定，重复运行复用结果。Windows 午间任务提供 install/status/disable/remove 脚本；本地 PDF 与 RAG 尚未接入。
+公开研究画像在 `data/research-profile.json`。日报默认 5–8 篇，允许不足，预印本可入选。失败可恢复，发布名单固定，重复运行复用结果。Windows 午间任务提供 install/status/disable/remove 脚本。
+
+应用数据库迁移后，运行 `pnpm evidence:index --root "文献目录"`，从首页进入“本地证据检索”。它从选定目录只读提取 PDF 文字，支持中文术语查页、原文摘录和打开对应物理页。
 
 详细操作见[使用说明](docs/quick-start.zh-CN.md)，本阶段实现与验收见[开发记录](docs/changes/2026-11-13-research-daily-loop.md)。
 
@@ -28,6 +30,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\daily-task.ps1
 | AI 能力 | 保守分类、中文结构化解读、主备模型路由、调用审计 |
 | 个人工作流 | Today、兴趣权重、阅读状态、收藏库、30 天普通论文清理 |
 | 每日流水线 | 课题画像、定向采集、持久检查点、原子发布、固定日报与 Windows 午间任务 |
+| 本地证据检索 | 按 SHA-256 对 PDF 去重，支持无 DOI 文稿、补充材料、逐页检索和版本校验 |
 | 质量验证 | 输入身份、结构与摘录来源自动检查；当前单模型，不宣称学术真实性或真实准确率获验证 |
 
 当前重点是把本地试运行做可靠，而不是公开部署。来源事实、AI 生成内容和用户状态分层保存；当摘要、证据或模型调用失败时，界面应如实呈现，不用生成内容覆盖事实。
@@ -77,7 +80,7 @@ PostgreSQL 是业务事实来源。默认 `RUNTIME_MODE=local`，Web 与一次�
 
 ### 前置要求
 
-- Node.js 22 或更高版本
+- Node.js 22.13.0 或更高版本
 - pnpm 11.19.0
 - PostgreSQL 17，或 Docker Compose；仅旧队列模式需要 Redis 7
 - 仅在真实 AI 分类/解读时需要模型供应商 API Key
@@ -182,7 +185,7 @@ infra/             本地 PostgreSQL / Redis 编排
 ## 当前限制
 
 - 30 篇人工评审尚未完成：30 篇 AI 输出与第一轮 AI 初评已经生成，但第二位人工评审仍需逐篇裁决，D5/D6 也缺少完整流水线证据。
-- 浏览器 PDF 上传、全文解析、段落定位、单篇问答和跨论文 RAG 尚未实现。
+- 本地全文索引以物理页为单位。扫描件、图中文字和复杂公式可能缺少可检索文本。Zotero、单篇问答和跨论文 RAG 仍在路线图中。
 - 已有持久台账、跨进程锁、断点恢复与本地状态提示；尚未验证长期连续运行，也没有主动消息告警。
 - 这是无登录的单用户 MVP；公开部署前必须增加认证或可靠的外部访问控制。
 - 仓库尚未提供完整生产容器、自动发布、回滚和灾难恢复编排。
@@ -190,7 +193,7 @@ infra/             本地 PostgreSQL / Redis 编排
 
 ## 路线图与项目文档
 
-研究画像、固定日报和 Windows 排程入口已有实现。11 月 18 日版路线建议先保全本地成果，再交付只读目录检索，让中文课题问题能直接定位到本地 PDF 原文页。后续按使用效果接入 Zotero、验证日报排序、生成器件证据对照表，并评估带引用的问答。当前为待确认方案。[开发路线、技术栈与验收标准](docs/superpowers/plans/2026-11-18-local-research-workbench-roadmap.md)
+阶段 0–1 已在本机验证。中文术语查询可打开索引中 PDF 的原文页。后续按使用效果接入 Zotero、验证日报排序、生成器件证据对照表，并评估带引用的问答。[开发路线](docs/superpowers/plans/2026-11-18-local-research-workbench-roadmap.md) · [阶段 0–1 实施记录](docs/changes/2026-11-18-local-evidence-search.md)
 
 文档入口：
 
@@ -209,7 +212,7 @@ Physics Research Intelligence is a local-first, single-user paper intelligence w
 
 Implemented components include Crossref/OpenAlex/arXiv ingestion, PostgreSQL/Prisma persistence, conservative classification, structured Chinese interpretations, encrypted provider connections, deterministic daily selection, paper-level delivery deduplication, retention cleanup, and Vitest/Playwright verification. Local mode is the default: `pnpm dev` starts only Web, while `pnpm daily:run` explicitly runs the real pipeline once. Redis/BullMQ remain optional in queue mode.
 
-The local pipeline includes a persistent run ledger, PostgreSQL advisory locking, immutable reports and recoverable stages. Windows scheduling is explicitly installed; legacy queue scheduling stays disabled by default. Public hosting, full-text reading, RAG and proactive alerts remain outside this stage. Historical human review is not a prerequisite for using the personal tool.
+The local pipeline includes a persistent run ledger, PostgreSQL advisory locking, immutable reports and recoverable stages. Windows scheduling is explicitly installed; legacy queue scheduling stays disabled by default. The local evidence workspace indexes PDFs from a selected directory and opens exact physical pages by file version. Zotero integration and model-based full-text Q&A remain on the roadmap.
 
 Quick start:
 

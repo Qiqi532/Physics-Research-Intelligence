@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./evidence": "./src/evidence.ts",
+    "./evidence-files": "./src/evidence-files.ts",
     "./daily-report": "./src/daily-report.ts",
     "./config": "./src/config.ts",
     "./interests": "./src/interests.ts",

@@ -18,6 +18,7 @@ export default async function LibraryPage() {
           PRI <span>My Library</span>
         </Link>
         <nav className="site-nav" aria-label="主要导航">
+          <Link className="header-link" href="/evidence">本地证据检索</Link>
           <Link className="header-link" href="/">
             Today Physics
           </Link>

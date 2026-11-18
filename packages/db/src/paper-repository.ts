@@ -266,6 +266,7 @@ export function createPaperRepository(client: DatabaseClient): PaperRepository {
       const result = await client.paper.deleteMany({
         where: {
           createdAt: { lt: cutoff },
+            evidenceDocuments: { none: {} },
             userStates: { none: { OR: [ { isFavorite: true }, { note: { not: null } },
               { status: { in: ["SAVED", "READING", "COMPLETE"] } }, { feedback: { not: "NONE" } } ] } },
             reportItems: { none: { report: { createdAt: { gte: cutoff } } } },

@@ -13,6 +13,8 @@ packages/db/src/generated/prisma/
 !.env.example
 
 *.log
+/logs/stage01-*/
+/apps/web/public/pri-pdfjs/
 .DS_Store
 Thumbs.db
 

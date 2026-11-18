@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>本地 PDF 原文</title>
+  <style>
+    * { box-sizing: border-box }
+    body { margin: 0; background: #eae7df; color: #243043; font: 16px system-ui, sans-serif }
+    p { padding: 1rem; margin: 0 }
+    canvas { display: block; margin: 0 auto; max-width: 100%; height: auto; background: white }
+    [hidden] { display: none }
+  </style>
+</head>
+<body>
+  <p id="status" role="status">正在读取并核对文件版本…</p>
+  <canvas id="page" hidden aria-label="PDF 原文"></canvas>
+  <script type="module" src="/pri-evidence-reader.mjs"></script>
+</body>
+</html>

@@ -74,6 +74,7 @@ model Paper {
   userStates      UserPaperState[]
   aiRuns          AiRun[]
   reportItems     DailyReportItem[]
+  evidenceDocuments LocalEvidenceDocument[]
 
   @@index([normalizedTitle])
   @@index([publishedAt])
@@ -99,6 +100,42 @@ model PaperSource {
 
   @@unique([sourceName, sourceRecordId])
   @@index([paperId])
+}
+
+model LocalEvidenceDocument {
+  id            String   @id @db.VarChar(64)
+  parserVersion String
+  title         String?
+  pageCount     Int
+  paperId       String?  @db.Uuid
+  paper         Paper?   @relation(fields: [paperId], references: [id], onDelete: Restrict)
+  locations     LocalEvidenceLocation[]
+  pages         LocalEvidencePage[]
+}
+
+model LocalEvidenceLocation {
+  id           String @id @default(uuid()) @db.Uuid
+  root         String
+  relativePath String
+  name         String
+  role         String
+  status       String
+  documentId   String? @db.VarChar(64)
+  document     LocalEvidenceDocument? @relation(fields: [documentId], references: [id], onDelete: Restrict)
+
+  @@unique([root, relativePath])
+  @@index([documentId])
+}
+
+model LocalEvidencePage {
+  documentId String @db.VarChar(64)
+  number     Int
+  text       String
+  normalized String
+  status     String
+  document   LocalEvidenceDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@id([documentId, number])
 }
 
 model PhysicsTag {

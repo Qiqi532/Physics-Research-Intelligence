@@ -5,9 +5,10 @@
   "type": "module",
   "packageManager": "pnpm@11.19.0",
   "engines": {
-    "node": ">=22"
+    "node": ">=22.13.0"
   },
   "scripts": {
+    "evidence:index": "pnpm --filter @pri/worker evidence:index",
     "prebuild": "pnpm --filter @pri/db prisma:generate",
     "build": "pnpm --recursive --if-present build",
     "dev": "pnpm --filter @pri/web dev",

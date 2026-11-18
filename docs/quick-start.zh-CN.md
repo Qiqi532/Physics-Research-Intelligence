@@ -1,6 +1,6 @@
 # 本地每日文献工具使用说明
 
-更新：2026-11-14。默认不依赖 Redis；Docker 只需要 PostgreSQL。
+更新于 2026-11-18。默认以 PostgreSQL 保存日报和本地 PDF 索引。
 
 ## 启动和生成日报
 
@@ -23,7 +23,23 @@ pnpm --filter @pri/db prisma:deploy
 pnpm build
 ```
 
-便捷入口不自动安装依赖或迁移数据库；已有个人库迁移前应先备份并验证恢复。本次升级已完成个人库备份与临时库恢复核对，备份位于 `backups/2026-11-13-research-daily/before-research-daily.dump`。
+已有个人库迁移前先备份并验证恢复。11 月 13 日日报升级的备份位于 `backups/2026-11-13-research-daily/before-research-daily.dump`。11 月 18 日证据检索在独立 PostgreSQL 17 验收库验证。
+
+## 检索本地 PDF
+
+在项目根目录使用 PowerShell。应用新迁移后，指定自己的文献目录：
+
+```powershell
+pnpm --filter @pri/db prisma:deploy
+pnpm evidence:index --root "D:\资料\毕设\文献"
+```
+
+打开首页的“本地证据检索”，也可访问 [http://127.0.0.1:3000/evidence](http://127.0.0.1:3000/evidence)。输入中英术语、材料名或测量条件，在结果中点“打开证据页”。页号按 PDF 从第一页开始计数。
+
+- 更换或新增 PDF 后重跑索引。同一文件的多个副本按字节去重。文件替换后，旧链接仍指向旧版本，并在原件缺失时提示。
+- “文献目录与解析状态”显示补充材料、缺失或不可读文件、无文字页和双栏页。扫描图、栅格化公式和表格可以在原页查看。
+- 证据入口在本机模式提供。目录扫描仅打开指定根目录内的 PDF，题录和页文本写入本地 PostgreSQL。
+- 使用已运行的原生 PostgreSQL 时，在同一 PowerShell 中通过 `DATABASE_URL` 指定本地库，依次运行迁移、索引和 `pnpm dev`。双击入口用于 Docker Compose 启动路径。
 
 ## 日报现在怎样工作
 
@@ -46,7 +62,7 @@ pnpm build
 
 OpenAlex 无 key 时仅取首页，并明确显示覆盖有限；需要翻页时，在根目录 `.env` 设置 `OPENALEX_API_KEY`。免费 key 从 https://openalex.org/settings/api 获取。arXiv 仍可独立参与；接口失败不会用虚构论文补齐。
 
-所有云端请求仅使用公开题录、摘要和公开研究画像。`D:\资料\毕设\文献` 的 PDF、私人笔记和本地稿件尚未接入，不会自动读取或上传。目录索引、全文检索和 RAG 属于下一阶段。
+所有云端请求仅使用公开题录、摘要和公开研究画像。本地 PDF 的页文本与查询使用独立索引，通过本机 PostgreSQL 检索。
 
 ## 每天中午自动运行
 
@@ -63,7 +79,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\daily-task.ps1
 
 默认北京时间 12:15，任务 XML 固定 `+08:00`，不跟随 Windows 时区变化。时间来自根目录 `.env` 的 `DAILY_PIPELINE_TIME`；本地任务当前要求 `DAILY_PIPELINE_TIMEZONE=Asia/Shanghai`。修改时间后重新执行 install。
 
-本机任务已安装并启用，实际触发验收退出码为 0；下一次排程为 2026-11-14 12:15。Docker 冷启动最多等待 3 分钟。
+11 月 14 日触发验收的退出码为 0。11 月 18 日核查时，该任务为停用状态。Docker 冷启动最多等待 3 分钟。
 
 任务只在当前用户已登录时运行；错过排程后，登录或唤醒可补跑。电脑关闭期间不能生成日报。安装在当天排程之后时，首次日历触发设为次日，避免安装时立即调用模型。
 
