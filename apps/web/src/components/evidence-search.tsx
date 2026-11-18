@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import type { EvidenceHit } from "@pri/domain/evidence";
+import { EvidenceComparisonEditor } from "./evidence-comparison-editor";
 
 export function EvidenceSearch() {
   const [query, setQuery] = useState("");
@@ -33,6 +34,7 @@ export function EvidenceSearch() {
         <p className="evidence-meta">{hit.role} · 物理第 {hit.page} / {hit.pageCount} 页{hit.status === "columns" ? " · 双栏，建议核对原页" : ""}</p>
         <h2>{hit.title}</h2><blockquote>{hit.quote}</blockquote>
         <Link className="text-link" href={`/evidence/${hit.id}/${hit.page}`} prefetch={false}>打开证据页</Link>
+        <EvidenceComparisonEditor source={{ documentId: hit.id, page: hit.page }} initialQuote={hit.quote} />
       </li>)}</ol>}
     </div>
   </section>;

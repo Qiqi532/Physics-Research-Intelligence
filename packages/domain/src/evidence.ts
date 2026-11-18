@@ -54,18 +54,39 @@ export function normalizeEvidence(text: string): string {
 
 const stopWords = new Set("a an and are as at be by can do does for from how in is it of on or page paper the to what which with".split(" "));
 
-export function evidenceQuery(query: string): string[][] {
+const exactAliases: [RegExp, string[]][] = [
+  [/栅极电压|栅极偏压|栅电压|栅压|栅极/, ["gate voltage", "gate bias", "vgs", "vg", "v gs", "v g", "vbg", "v bg"]],
+  [/漏极电压|漏源电压|漏源偏压|漏极偏压|漏压/, ["drain voltage", "drain bias", "drain source voltage", "vds", "vd", "v ds", "v d"]],
+  [/波长/, ["wavelength", "wavelengths", "laser at", "illumination at", "λ"]],
+  [/光功率密度|功率密度|辐照度/, ["power density", "irradiance"]],
+  [/入射光功率|入射功率|光功率/, ["incident optical power", "incident power", "optical power"]],
+  [/上升时间/, ["rise time", "rising time"]],
+  [/下降时间|衰减时间/, ["fall time", "decay time", "falling time"]],
+  [/响应时间/, ["response time", "response times", "photoresponse time"]],
+  [/响应度|响应率/, ["responsivity", "photoresponsivity", "photo responsivity"]],
+  [/室温/, ["room temperature", "ambient temperature"]],
+];
+
+export function evidenceQuery(query: string, exact = false): string[][] {
   const input = query.trim().normalize("NFKC").toLowerCase();
   if (!input || input.length > 300) return [];
   const groups: string[][] = [];
-  for (const [pattern, english] of aliases) {
-    const match = input.match(pattern);
-    if (match) groups.push([...english, normalizeEvidence(match[0])]);
+  let remaining = input;
+  for (const [pattern, english] of exact ? exactAliases.concat(aliases) : aliases) {
+    const typed = exact ? [...remaining.matchAll(new RegExp(pattern.source, "g"))].map((match) => match[0])
+      : [input.match(pattern)?.[0]].filter((word): word is string => Boolean(word));
+    if (typed.length) {
+      groups.push([...english, ...new Set(typed.map(normalizeEvidence))]);
+      if (exact) remaining = remaining.replace(new RegExp(pattern.source, "g"), " ");
+    }
   }
   for (const token of input.match(/[a-z0-9]+(?:\.[0-9]+)?/g) ?? []) {
     if (!stopWords.has(token) && !groups.some((group) => group.includes(token))) groups.push([normalizeEvidence(token)]);
   }
-  if (!groups.length) {
+  if (exact) {
+    for (const word of remaining.match(/\p{Script=Han}+/gu) ?? []) groups.push([normalizeEvidence(word)]);
+    if (groups.length > 12) return [];
+  } else if (!groups.length) {
     const stripped = input.replace(/哪些|哪一页|哪篇|论文|讨论|提到|什么|请问|如何|有没有|关于|查找|介绍|的|了/g, "");
     for (const word of stripped.match(/\p{Script=Han}+/gu) ?? []) groups.push([normalizeEvidence(word)]);
   }

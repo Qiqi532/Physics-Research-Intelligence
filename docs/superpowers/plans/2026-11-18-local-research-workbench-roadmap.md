@@ -1,6 +1,6 @@
 # 本地科研工作台开发路线与技术栈
 
-2026 年 11 月 18 日确认阶段 0–3。[阶段 0–1](../../changes/2026-11-18-local-evidence-search.md) · [阶段 2–3](../../changes/2026-11-18-zotero-ranking-review.md)
+2026 年 11 月 18 日完成阶段 0–5 的工作台首版。[阶段 0–1](../../changes/2026-11-18-local-evidence-search.md) · [阶段 2–3](../../changes/2026-11-18-zotero-ranking-review.md) · [阶段 4–5](../../changes/2026-11-18-evidence-comparison-qa.md)
 
 **建议首版先解决写综述时的一个问题。** 在本机输入“哪些器件在改变栅压后发生光电流符号翻转”，得到论文、逐字摘录和页码，点击即可回到正确版本的 PDF。先让这个动作比手动翻文献更快，再用同一批证据做器件对照表或带引用的问答。
 
@@ -32,6 +32,7 @@
 | PDF 提取与展示 | 首选试验 Mozilla PDF.js 的 `pdfjs-dist`。Node 端按页取文本，浏览器按相同物理页码渲染原件。先在目标 Node 版本和 Windows 构建上验证，再锁定依赖版本。 | 索引保存原文和页号，印刷页码可另记。双栏、扫描、表格与公式分别抽查，提取失败的页显示原因。精确框选和 OCR 由实际失败样本决定。[官方 Node 示例](https://github.com/mozilla/pdf.js/blob/master/examples/node/getinfo.mjs) |
 | 检索 | 首版使用 PostgreSQL 的 `tsvector`、GIN 索引和 `ts_rank_cd`，配合材料名、缩写和中英术语别名。原文与归一化检索文本分开保存。 | 保留 MoS₂/MoS2 等写法的原始出处。若同义表达仍明显漏检，再试本地多语 embedding，例如 Transformers.js 加兼容的多语 E5 小模型，在同一组问题上比较命中率和 CPU 耗时。小库先做精确相似度计算，规模或延迟实测需要时再评估 pgvector。[PostgreSQL 索引](https://www.postgresql.org/docs/17/textsearch-indexes.html) · [排名函数](https://www.postgresql.org/docs/17/textsearch-controls.html) · [离线模型配置](https://huggingface.co/docs/transformers.js/en/custom_usage) |
 | Zotero 与模型 | Zotero Desktop 本地 HTTP API 用于读取选定收藏夹。公开摘要使用已有 `packages/ai` 路由、结构校验和调用审计。 | 私人题录、全文片段、笔记和由其生成的向量留在本机。第二模型可在有分歧样本时参与独立复核。首版页码检索无需模型密钥。[Zotero 本地 API](https://www.zotero.org/support/dev/web_api/v3/local_api) |
+| 对照表与问答 | Prisma 增量表与 Zod 输入校验，沿用 React 表单和 Next.js 本机接口。问答复用 PostgreSQL 全文检索，再在候选原句中校验术语、数值和单位。 | 对照记录固定 PDF 版本和物理页，原单位随行导出。问答先单篇查证，再跨篇并列。 |
 
 ## 数据与现有代码的衔接
 
@@ -61,4 +62,4 @@
 | 数据兼容 | `pnpm --filter @pri/db prisma:validate` 检查 schema；在独立测试数据库运行 `pnpm exec vitest run tests/db/paper-repository.test.ts tests/db/daily-repository.test.ts`。实施时补资产保留、重复扫描、页码版本切换和断点重建用例。 |
 | 用户路径 | `pnpm typecheck`、`pnpm lint`、`pnpm build`。用专用测试库运行 `pnpm test:e2e`，补中文查询到正确页、无 DOI 本地文献、Zotero 离线场景。用 Mock Provider 核查私人测试标记没有出现在任何模型请求中。 |
 
-阶段 0–3 已交付功能。真实日报的七日评价由后续使用积累。阶段 4–5 按查页耗时、日报反馈和制表需求评估。
+问答首版使用本机原文摘录，可独立用于逐页查证。真实日报的七日评价、人工制表计时和本地生成模型的效果需随实际使用继续评估。

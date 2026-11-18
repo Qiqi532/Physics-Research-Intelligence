@@ -21,6 +21,10 @@ export default async function EvidencePage() {
     <main className="today-shell evidence-shell" id="main-content"><h1>本地证据检索</h1>
       {!allowed ? <p>请在本机模式下通过 localhost 或 127.0.0.1 打开。</p> : !data ? <p role="alert">索引库暂时不可用，请检查 PostgreSQL 并应用数据库迁移。</p> : <>
         <p>{data.indexed} 份独立 PDF 已索引。检索结果可打开原件的对应物理页。</p>
+        <nav className="evidence-tools" aria-label="证据工作台">
+          <Link className="text-link" href="/evidence/comparison" prefetch={false}>器件证据对照表</Link>
+          <Link className="text-link" href="/evidence/ask" prefetch={false}>本地证据问答</Link>
+        </nav>
         <EvidenceSearch />
         <details className="evidence-panel" open={!data.files.length}><summary>文献目录与解析状态</summary>
           <p>在项目根目录运行 <code>pnpm evidence:index --root &quot;文献目录&quot;</code> 添加或刷新目录。</p>

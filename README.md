@@ -21,6 +21,8 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\daily-task.ps1
 
 Zotero 桌面端开启本地 API 后，运行 `pnpm evidence:zotero --list` 查看收藏夹键，再用 `pnpm evidence:zotero --collection KEY` 同步选定收藏夹。首页的“排序回放”可以查看关键词过滤前的候选并记录课题反馈。
 
+在本地证据卡点“加入对照表”，可按工况记录测量、保存原始单位并勾选导出 Markdown 或 CSV。“本地证据问答”支持单篇查证与跨篇原句对照，每条引文都链接到 PDF 物理页。
+
 详细操作见[使用说明](docs/quick-start.zh-CN.md)，本阶段实现与验收见[开发记录](docs/changes/2026-11-13-research-daily-loop.md)。
 
 ## 项目状态
@@ -196,7 +198,7 @@ infra/             本地 PostgreSQL / Redis 编排
 
 ## 路线图与项目文档
 
-阶段 0–3 的功能已实现。排序回放需要积累七个不同日报日的真实候选和反馈，才能比较适用性。后续可生成器件证据对照表并评估带引用的问答。[开发路线](docs/superpowers/plans/2026-11-18-local-research-workbench-roadmap.md) · [阶段 0–1 实施记录](docs/changes/2026-11-18-local-evidence-search.md) · [阶段 2–3 实施记录](docs/changes/2026-11-18-zotero-ranking-review.md)
+阶段 0–5 的工作台已实现，问答首版采用本机原文摘录。排序回放需要积累七个不同日报日的真实候选和反馈，才能比较适用性。[开发路线](docs/superpowers/plans/2026-11-18-local-research-workbench-roadmap.md) · [阶段 0–1 实施记录](docs/changes/2026-11-18-local-evidence-search.md) · [阶段 2–3 实施记录](docs/changes/2026-11-18-zotero-ranking-review.md) · [阶段 4–5 实施记录](docs/changes/2026-11-18-evidence-comparison-qa.md)
 
 文档入口：
 

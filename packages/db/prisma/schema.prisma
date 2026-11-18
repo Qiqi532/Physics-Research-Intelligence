@@ -112,6 +112,7 @@ model LocalEvidenceDocument {
   locations     LocalEvidenceLocation[]
   zoteroLocations ZoteroAttachmentLocation[]
   pages         LocalEvidencePage[]
+  comparisonRows EvidenceComparisonRow[]
 }
 
 model LocalEvidenceLocation {
@@ -137,6 +138,22 @@ model LocalEvidencePage {
   document   LocalEvidenceDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
 
   @@id([documentId, number])
+}
+
+model EvidenceComparisonRow {
+  id          String @id @default(uuid()) @db.Uuid
+  documentId  String @db.VarChar(64)
+  page        Int
+  sourceTitle String
+  quote       String
+  figure      String
+  fields      Json
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(6)
+  document    LocalEvidenceDocument @relation(fields: [documentId], references: [id], onDelete: Restrict)
+
+  @@index([documentId])
+  @@index([createdAt, id])
 }
 
 model ZoteroCollectionSnapshot {

@@ -36,6 +36,27 @@
 .evidence-pagination { display: flex; gap: 1rem; align-items: center; margin: 1rem 0; }
 .evidence-viewer { width: 100%; height: 78vh; min-height: 22rem; border: 1px solid var(--line); }
 .evidence-panel pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+.evidence-tools { display: flex; align-items: center; flex-wrap: wrap; gap: .65rem 1rem; }
+.evidence-tools button { padding: .55rem .75rem; border: 1px solid var(--line); border-radius: .35rem; background: var(--paper); color: var(--ink); font: inherit; }
+.evidence-tools button:enabled { cursor: pointer; }
+.evidence-tools button[type="submit"]:enabled { color: white; background: var(--accent-dark); }
+.evidence-tools button:disabled { opacity: .6; }
+.evidence-editor { margin: .8rem 0; }
+.evidence-editor summary { width: fit-content; font-weight: 650; cursor: pointer; }
+.evidence-form { display: grid; gap: .85rem; margin: .75rem 0; }
+.evidence-form p { margin: 0; }
+.evidence-form label { display: grid; gap: .25rem; min-width: 0; }
+.evidence-form input, .evidence-form select, .evidence-form textarea { width: 100%; padding: .5rem; border: 1px solid var(--line); border-radius: .35rem; background: white; color: var(--ink); font: inherit; }
+.evidence-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: .75rem; }
+.evidence-quantity { display: grid; grid-template-columns: 3fr 2fr; gap: .45rem; min-width: 0; margin: 0; border: 1px solid var(--line); }
+.evidence-comparison-table th, .evidence-comparison-table td { vertical-align: top; }
+.evidence-comparison-table tbody th { width: 24%; min-width: 12rem; }
+.evidence-comparison-table td { min-width: 7.5rem; }
+.evidence-comparison-table td:first-child { min-width: 0; }
+.evidence-comparison-table td:last-child { min-width: 6rem; }
+.evidence-comparison-table .evidence-editor[open] { width: min(32rem, 75vw); }
+.evidence-comparison-table p { margin: .25rem 0; }
+.evidence-comparison-table blockquote { margin: .5rem 0; white-space: pre-wrap; font-weight: 400; }
 .ranking-dates { display: flex; flex-wrap: wrap; gap: .5rem 1rem; margin: 1rem 0; }
 .ranking-dates [aria-current="page"] { font-weight: 700; color: var(--accent-dark); }
 .ranking-table { overflow-x: auto; margin: 1rem 0; }

@@ -5,6 +5,8 @@
   "type": "module",
   "exports": {
     "./evidence": "./src/evidence.ts",
+    "./evidence-comparison": "./src/evidence-comparison.ts",
+    "./evidence-answer": "./src/evidence-answer.ts",
     "./evidence-files": "./src/evidence-files.ts",
     "./zotero-local": "./src/zotero-local.ts",
     "./ranking-review": "./src/ranking-review.ts",

@@ -2,7 +2,9 @@ import { Client } from "pg";
 import { Prisma } from "./generated/prisma/client";
 import type { DatabaseClient } from "./client";
 import { evidenceQuery, evidenceQuote, normalizeEvidence, type EvidenceDocument, type EvidenceHit } from "@pri/domain/evidence";
+import { answerFromEvidence, prepareEvidenceQuestion, type EvidenceAnswer, type EvidenceAnswerCandidate, type EvidenceAnswerScope } from "@pri/domain/evidence-answer";
 import type { ZoteroAttachment, ZoteroCollection } from "@pri/domain/zotero-local";
+import { createEvidenceComparisonRepository, evidenceSourceTitle } from "./evidence-comparison-repository";
 
 function schemaName(url: string) {
   const schema = new URL(url).searchParams.get("schema") ?? "public";
@@ -49,7 +51,60 @@ export function createEvidenceRepository(db: DatabaseClient, databaseUrl: string
   const hasReadySource = { OR: [
     { locations: { some: { status: "ready" } } }, { zoteroLocations: { some: { status: "ready" } } },
   ] };
+  const documentLabel = { title: true, pageCount: true,
+    locations: { orderBy: { name: "asc" }, take: 1, select: { name: true } },
+    zoteroLocations: { orderBy: [{ title: "asc" }, { attachmentKey: "asc" }], take: 1, select: { title: true } },
+  } as const satisfies Prisma.LocalEvidenceDocumentSelect;
+  const page = (id: string, number: number) => db.localEvidencePage.findUnique({
+    where: { documentId_number: { documentId: id, number } },
+    select: { text: true, status: true, document: { select: documentLabel } },
+  });
+  const searchPages = (groups: string[][], limit: number, forAnswer?: { documentId?: string }) => {
+    const queries = groups.map((group) => "(" + group.map((phrase) => "(" + phrase.split(" ").filter(Boolean)
+      .map((term) => `'${term}'${term.length >= 5 && /^[a-z]+$/.test(term) ? ":*" : ""}`).join(" <-> ") + ")").join(" | ") + ")");
+    const vector = Prisma.sql`to_tsvector('simple'::regconfig, p."normalized")`;
+    const combined = queries.join(" | ");
+    const directoryStatus = forAnswer ? Prisma.sql`status='ready'` : Prisma.sql`status IN ('ready','unavailable','changed')`;
+    const documentFilter = forAnswer?.documentId ? Prisma.sql`AND d.id=${forAnswer.documentId}` : Prisma.empty;
+    return db.$queryRaw<Array<EvidenceAnswerCandidate & Pick<EvidenceHit, "pageCount" | "parserVersion">>>(Prisma.sql`
+      SELECT d.id, COALESCE(f.title,d.title,f.name) AS title, f.role, p.number AS page, d."pageCount",
+        p.text, p.status, d."parserVersion", d."paperId"
+      FROM ${table("LocalEvidencePage")} p JOIN ${table("LocalEvidenceDocument")} d ON d.id=p."documentId"
+      JOIN LATERAL (
+        SELECT title,name,role FROM (
+          SELECT NULL AS title,name,role,1 AS priority FROM ${table("LocalEvidenceLocation")}
+            WHERE "documentId"=d.id AND ${directoryStatus}
+          UNION ALL
+          SELECT title,name,role,0 AS priority FROM ${table("ZoteroAttachmentLocation")}
+            WHERE "documentId"=d.id AND status='ready'
+        ) sources ORDER BY priority,name,title,role LIMIT 1
+      ) f ON true
+      CROSS JOIN LATERAL (SELECT count(*)::int AS n FROM jsonb_array_elements_text(${JSON.stringify(queries)}::jsonb) g(q)
+        WHERE ${vector} @@ to_tsquery('simple',g.q)) matches
+      WHERE ${vector} @@ to_tsquery('simple',${combined})
+        AND matches.n >= ${Math.min(2, groups.length)} ${documentFilter}
+      ORDER BY matches.n DESC, ts_rank_cd(${vector},to_tsquery('simple',${combined}), 1) DESC, d.id, p.number
+      LIMIT ${limit}`);
+  };
   return {
+    comparison: createEvidenceComparisonRepository(db, page),
+    async answerDocuments(pinnedId?: string) {
+      const select = { ...documentLabel, id: true };
+      const documents = await db.localEvidenceDocument.findMany({
+        where: hasReadySource, select, take: 200, orderBy: [{ title: "asc" }, { id: "asc" }],
+      });
+      if (pinnedId && !documents.some((document) => document.id === pinnedId)) {
+        const pinned = await db.localEvidenceDocument.findFirst({ where: { ...hasReadySource, id: pinnedId }, select });
+        if (pinned) documents.push(pinned);
+      }
+      return documents.map((document) => ({ id: document.id, title: evidenceSourceTitle(document) }));
+    },
+    async answer(query: string, scope: EvidenceAnswerScope, documentId?: string): Promise<EvidenceAnswer> {
+      const question = prepareEvidenceQuestion(query);
+      if (!question || (scope === "single" && !documentId)) return { status: "insufficient", references: [] };
+      const pages = await searchPages(question.search, 48, scope === "single" ? { documentId } : {});
+      return answerFromEvidence(question, pages, scope);
+    },
     async indexed(id: string, parserVersion: string) {
       return (await db.localEvidenceDocument.count({ where: { id, parserVersion } })) > 0;
     },
@@ -114,38 +169,12 @@ export function createEvidenceRepository(db: DatabaseClient, databaseUrl: string
     async search(query: string, limit = 5): Promise<EvidenceHit[]> {
       const groups = evidenceQuery(query);
       if (!groups.length) return [];
-      const queries = groups.map((group) => "(" + group.map((phrase) => "(" + phrase.split(" ").filter(Boolean)
-        .map((term) => `'${term}'${term.length >= 5 && /^[a-z]+$/.test(term) ? ":*" : ""}`).join(" <-> ") + ")").join(" | ") + ")");
-      const vector = Prisma.sql`to_tsvector('simple'::regconfig, p."normalized")`;
-      const combined = queries.join(" | ");
-      const rows = await db.$queryRaw<Array<Omit<EvidenceHit, "quote"> & { text: string }>>(Prisma.sql`
-        SELECT d.id, COALESCE(f.title,d.title,f.name) AS title, f.role, p.number AS page, d."pageCount",
-          p.text, p.status, d."parserVersion"
-        FROM ${table("LocalEvidencePage")} p JOIN ${table("LocalEvidenceDocument")} d ON d.id=p."documentId"
-        JOIN LATERAL (
-          SELECT title,name,role FROM (
-            SELECT NULL AS title,name,role,1 AS priority FROM ${table("LocalEvidenceLocation")}
-              WHERE "documentId"=d.id AND status IN ('ready','unavailable','changed')
-            UNION ALL
-            SELECT title,name,role,0 AS priority FROM ${table("ZoteroAttachmentLocation")}
-              WHERE "documentId"=d.id AND status='ready'
-          ) sources ORDER BY priority,name,title,role LIMIT 1
-        ) f ON true
-        CROSS JOIN LATERAL (SELECT count(*)::int AS n FROM jsonb_array_elements_text(${JSON.stringify(queries)}::jsonb) g(q)
-          WHERE ${vector} @@ to_tsquery('simple',g.q)) matches
-        WHERE ${vector} @@ to_tsquery('simple',${combined})
-          AND matches.n >= ${Math.min(2, groups.length)}
-        ORDER BY matches.n DESC, ts_rank_cd(${vector},to_tsquery('simple',${combined}), 1) DESC, d.id, p.number
-        LIMIT ${Math.min(20, Math.max(1, limit))}`);
-      return rows.map(({ text, ...row }) => ({ ...row, quote: evidenceQuote(text, groups) }));
+      const rows = await searchPages(groups, Math.min(20, Math.max(1, limit)));
+      return rows.map(({ id, title, role, page, pageCount, status, parserVersion, text }) => ({
+        id, title, role, page, pageCount, status, parserVersion, quote: evidenceQuote(text, groups),
+      }));
     },
-    page(id: string, number: number) {
-      return db.localEvidencePage.findUnique({ where: { documentId_number: { documentId: id, number } },
-        select: { text: true, status: true, document: { select: { title: true, pageCount: true,
-          locations: { orderBy: { name: "asc" }, take: 1, select: { name: true } },
-          zoteroLocations: { orderBy: [{ title: "asc" }, { attachmentKey: "asc" }], take: 1, select: { title: true } },
-        } } } });
-    },
+    page,
     async locations(id: string) {
       const [files, attachments] = await Promise.all([
         db.localEvidenceLocation.findMany({ where: { documentId: id, status: { not: "missing" } },
