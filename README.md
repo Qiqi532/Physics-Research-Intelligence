@@ -1,8 +1,18 @@
 # Physics Research Intelligence
 
-> 面向实验 AMO 物理研究者的本地优先论文情报工作台。
+> 面向个人物理研究的本地文献工作台，支持论文发现、阅读管理、PDF 查证和器件制表。
 
-Physics Research Intelligence 将公开论文元数据、可审计的 AI 解读和个人阅读状态组织在同一个本地应用中。它不是自动写综述的黑箱，而是一套帮助研究者筛选、核验和持续跟踪论文的单用户 MVP。
+## 主要功能
+
+| 功能 | 能做什么 |
+|---|---|
+| 论文发现与日报 | 按课题从 arXiv、Crossref、OpenAlex 等来源收集论文，生成带推荐理由和摘要解读的 Today Physics 日报。已发布日报保留固定快照，失败任务可从检查点恢复。 |
+| 收藏与推荐反馈 | 管理收藏和阅读进度，标记论文与课题的相关性，并用同一批候选比较关键词、摘要相似度和混合排序。 |
+| 本地 PDF 与 Zotero | 索引指定目录和 Zotero 选定收藏夹，按中英术语或测量条件查找原文，打开对应 PDF 物理页。 |
+| 器件对照与证据问答 | 按工况记录器件参数、原始单位和图表出处，导出 Markdown 或 CSV。单篇与跨篇问答返回可跳回原页的摘录。 |
+| 多模型 API | 支持 OpenAI、DeepSeek、Google Gemini、通义千问、智谱 GLM、Kimi、腾讯混元及 OpenAI Chat Completions 兼容接口。可保存多个连接并独立配置分类和解读的主备路由。 |
+
+当前版本供单用户在本机使用。公开题录和摘要用于模型筛选与解读，本地 PDF 的索引、对照表和证据问答在本机运行。
 
 ## 现在怎样使用
 
@@ -24,43 +34,6 @@ Zotero 桌面端开启本地 API 后，运行 `pnpm evidence:zotero --list` 查�
 在本地证据卡点“加入对照表”，可按工况记录测量、保存原始单位并勾选导出 Markdown 或 CSV。“本地证据问答”支持单篇查证与跨篇原句对照，每条引文都链接到 PDF 物理页。
 
 详细操作见[使用说明](docs/quick-start.zh-CN.md)，本阶段实现与验收见[开发记录](docs/changes/2026-11-13-research-daily-loop.md)。
-
-## 项目状态
-
-| 项目 | 当前状态 |
-|---|---|
-| 产品阶段 | 可本地试运行的单用户 MVP |
-| 论文来源 | Crossref、OpenAlex、arXiv，以及本地公开元数据清单 |
-| AI 能力 | 保守分类、中文结构化解读、主备模型路由、调用审计 |
-| 个人工作流 | Today、兴趣权重、阅读状态、收藏库、30 天普通论文清理 |
-| 每日流水线 | 课题画像、定向采集、持久检查点、原子发布、固定日报与 Windows 午间任务 |
-| 本地证据检索 | 只读同步 Zotero 选定收藏夹。目录和 Zotero 共用 SHA-256 索引，支持补充材料、逐页检索和版本校验 |
-| 排序回放 | 记录显式课题反馈，并对同一批公开候选比较关键词、种子摘要相似度和混合排序 |
-| 质量验证 | 输入身份、结构与摘录来源自动检查；当前单模型，不宣称学术真实性或真实准确率获验证 |
-
-当前重点是把本地试运行做可靠，而不是公开部署。来源事实、AI 生成内容和用户状态分层保存；当摘要、证据或模型调用失败时，界面应如实呈现，不用生成内容覆盖事实。
-
-## 为什么做这个项目
-
-实验物理研究者通常同时面对来源分散、每日新增不稳定、跨方向信息难筛和模型输出难核验四个问题。这个项目希望提供一条可解释的工作流：
-
-1. 从公开接口获取论文事实，并保留来源与原文链接；
-2. 用可切换模型做第一轮方向筛选和基于摘要的结构化解读；
-3. 按显式兴趣与多样性规则生成 Today，而不是交给不可解释的推荐黑箱；
-4. 将收藏、阅读进度和未来的本地全文能力留在用户自己的环境中。
-
-## 核心能力
-
-| 模块 | 已实现能力 |
-|---|---|
-| 采集与事实层 | 公开来源连接器、游标与有界重试、DOI/来源标识保守去重、PostgreSQL/Prisma 持久化 |
-| AI 流水线 | 物理方向分类、中文概述、创新点、局限、证据等级、来源披露和幂等审计 |
-| 模型管理 | OpenAI、DeepSeek、Gemini、Qwen、GLM、Kimi、混元及通用 OpenAI-compatible 端点；分类/解读独立主备路由 |
-| Today Physics | 已发布快照、报告日期与覆盖状态、课题理由、摘录和摘要解读；阅读状态独立更新 |
-| 个人论文库 | 收藏与阅读状态正交；普通论文按保留期清理，收藏论文长期保留 |
-| 运维与验证 | 存活/就绪检查、脱敏日志、Vitest、PostgreSQL 集成测试和 Playwright 桌面/移动端 E2E |
-
-模型管理台允许在 localhost 保存多个命名连接。API Key 经 AES-256-GCM 加密后写入本地数据库，主密钥独立保存在仓库外；浏览器不会收到已保存的明文 Key。
 
 ## 系统架构
 
@@ -118,23 +91,15 @@ Web 沿用 Next.js 的 `apps/web/.env*` 或继承的环境变量；一次性任�
 
 `pnpm dev` 只启动 Web，使用 `Ctrl+C` 停止。Compose 默认只启用 PostgreSQL，Redis 位于可选的 `queue` profile；现有容器和数据卷不会被这次配置修改删除。需要保留本地数据时停止服务即可。完整启动、备份、恢复和排障步骤见[个人部署与运维](docs/operations.md)。
 
-## 模型与密钥配置
+## 多模型 API 配置
 
 1. 启动应用并打开 `http://127.0.0.1:3000/settings/models`。
 2. 新建命名连接，选择供应商并填写当前可用的模型与 Base URL。
-3. 只在本地页面输入 API Key；不要把密钥放入命令、README、日志或 Git。
-4. 先运行轻量连通测试，再按需运行合成论文契约测试。
-5. 将验证过的连接分别配置为“分类”和“解读”的主路由；备用路由是可选项。
+3. 在本机表单填写 API Key。应用使用 AES-256-GCM 加密保存，并在仓库外保存主密钥。
+4. 保存后运行「轻量连通测试」。需要验证分类与结构化解读时，可运行「合成论文示例」。
+5. 按需为“分类”和“解读”分别选择已验证的主连接和备用连接。
 
-模型名称、限额和兼容行为可能随供应商变化，真实调用前应以供应商当前官方文档为准。仓库内默认值只是初始配置，不是长期兼容承诺。
-
-`data/journal-corpus/manifest.json` 保存了 45 篇论文的可追溯公开元数据。项目还提供一个明确受控的三论文摘要试运行：
-
-```powershell
-pnpm --filter @pri/worker corpus:journal:trial -- 2504.21524v1 2410.10611v2 2408.15441v2
-```
-
-此命令会发起真实模型请求。它只发送公开元数据与摘要，不读取或上传本地 PDF 字节。结果与已发现问题记录在 [Kimi 三论文摘要试运行报告](docs/trials/2026-09-01-kimi-abstract-trial.md)。
+按供应商官方文档核对模型名称、接口地址和账号权限。公开语料和早期实测记录可作为测试参考。[论文语料说明](data/journal-corpus/README.md) · [三论文摘要试运行](docs/trials/2026-09-01-kimi-abstract-trial.md)
 
 ## 每日流水线
 
@@ -213,7 +178,9 @@ infra/             本地 PostgreSQL / Redis 编排
 
 ## English overview
 
-Physics Research Intelligence is a local-first, single-user paper intelligence workspace for experimental AMO physics research. It collects public paper metadata, keeps source facts separate from AI-generated interpretations, and provides explainable Today recommendations, interest weighting, reading states, and a favorites library.
+Physics Research Intelligence is a local-first workspace for discovering, reading, and checking physics papers. It provides explainable daily recommendations, a favorites library, and reading feedback. Selected PDF folders and Zotero collections support physical-page search, cited evidence answers, and device comparison exports in Markdown and CSV.
+
+The model console supports OpenAI, DeepSeek, Gemini, Qwen, GLM, Kimi, Hunyuan, and OpenAI Chat Completions-compatible endpoints. It stores encrypted connections, tests provider access, and configures separate primary and fallback routes for classification and interpretation.
 
 Implemented components include Crossref/OpenAlex/arXiv ingestion, PostgreSQL/Prisma persistence, conservative classification, structured Chinese interpretations, encrypted provider connections, deterministic daily selection, paper-level delivery deduplication, retention cleanup, and Vitest/Playwright verification. Local mode is the default: `pnpm dev` starts only Web, while `pnpm daily:run` explicitly runs the real pipeline once. Redis/BullMQ remain optional in queue mode.
 
